@@ -12,6 +12,8 @@
 #define SCAN_SENSORS
 // read temperature sensors
 #define READ_SENSORS
+// send the data via 433MHZ Tx
+#define SEND_DATA
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
@@ -43,7 +45,7 @@
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
-#define TEMPERATURE_PRECISION 12
+#define TEMPERATURE_PRECISION 10
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
@@ -105,7 +107,30 @@ void setup()
       Serial.println();
     }
   }
+#else
+  // set desired precision of the temperature sensors
+  byte addr[8];
+  for ( byte nSensor=0; nSensor<sensors.getDeviceCount(); ++nSensor) {
+    if ( sensors.getAddress(addr, nSensor) ) {
+      sensors.setResolution(addr, TEMPERATURE_PRECISION);
+    }
+  }
 #endif // SCAN_SENSORS
+}
+
+int getRawTemperature(float temp) {
+  switch (TEMPERATURE_PRECISION) {
+    case 12:
+      return (int)(temp / 0.0625);
+    case 11:
+      return (int)(temp / 0.125);
+    case 10:
+      return (int)(temp / 0.25);
+    case 9:
+      return (int)(temp / 0.5);
+  }
+  
+  return 0;
 }
 
 /**
@@ -118,23 +143,30 @@ void loop() {
     sensors.requestTemperatures(); // Send the command to get temperatures
 
 #ifdef DEBUG
+    float temp;
+    
     // printout of temperature sensor values in the order they are enumerated at the 1-wire bus
     // reading will be prefixed via T1: .. T2: ... etc.
     // alternative printout, only known sensors correctly prefixed
     if ( sensors.isConnected( gSensor1 ) ) {
-      Serial << "T1: " << sensors.getTempC( gSensor1 ) << " ";
+      temp = sensors.getTempC( gSensor1 );
+      Serial << "T1: " << temp << " " << getRawTemperature(temp);
     }
     if ( sensors.isConnected( gSensor2 ) ) {
-      Serial << "T2: " << sensors.getTempC( gSensor2 ) << " ";
+      temp = sensors.getTempC( gSensor2 );
+      Serial << "T2: " << temp << " " << getRawTemperature(temp);
     }
     if ( sensors.isConnected( gSensor3 ) ) {
-      Serial << "T3: " << sensors.getTempC( gSensor3 ) << " ";
+      temp = sensors.getTempC( gSensor3 );
+      Serial << "T3: " << temp << " " << getRawTemperature(temp);
     }
     if ( sensors.isConnected( gSensor4 ) ) {
-      Serial << "T4: " << sensors.getTempC( gSensor4 ) << " ";
+      temp = sensors.getTempC( gSensor4 );
+      Serial << "T4: " << temp << " " << getRawTemperature(temp);
     }
     if ( sensors.isConnected( gSensor5 ) ) {
-      Serial << "T5: " << sensors.getTempC( gSensor5 ) << " ";
+      temp = sensors.getTempC( gSensor5 );
+      Serial << "T5: " << temp << " " << getRawTemperature(temp);
     }
     Serial.println();
 #endif // DEBUG
