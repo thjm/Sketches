@@ -1,7 +1,7 @@
 //
 // File   : TreibBoje1.ino
 //
-// Purpose: Frame for experimental 'Treibbojen' project
+// Purpose: Frame for fun project 'Treibbojen' (experimental)
 //
 // $Id$
 //
@@ -22,6 +22,10 @@
  #include <Flash.h>
 #endif // DEBUG
 
+#ifdef SEND_DATA
+ #include <RCSwitch.h>
+#endif // SEND_DATA
+
 // http://www.pjrc.com/teensy/td_libs_OneWire.html
 #include <OneWire.h>
 
@@ -39,6 +43,13 @@
 //              GND Dq  Vdd
 //
 #include <DallasTemperature.h>
+
+#ifdef SEND_DATA
+
+#define TX_PIN     10
+RCSwitch theSender = RCSwitch();
+
+#endif // SEND_DATA
 
 // UART baud rate
 #define UART_BAUD_RATE  9600
@@ -83,6 +94,17 @@ void setup()
   // Start up the library
   sensors.begin();
 
+#ifdef SEND_DATA
+  // Transmitter is connected to Arduino Pin #10 (TX_PIN)
+  theSender.enableTransmit(TX_PIN);
+
+  // Optional set pulse length.
+  theSender.setPulseLength(200);
+  
+  // Optional set protocol (default is 1, will work for most outlets)
+  //theSender.setProtocol(1);  // -> setPulseLength(350); '0' = 1,3
+#endif // SEND_DATA
+
 #ifdef SCAN_SENSORS
   // locate devices on the bus
   Serial.print(F("Locating devices..."));
@@ -118,16 +140,16 @@ void setup()
 #endif // SCAN_SENSORS
 }
 
-int getRawTemperature(float temp) {
-  switch (TEMPERATURE_PRECISION) {
+int getRawTemperature(float temp,int precision=12) {
+  switch (precision) {
     case 12:
-      return (int)(temp / 0.0625);
+      return ((int)(temp / 0.0625)) & 0x0fff;
     case 11:
-      return (int)(temp / 0.125);
+      return ((int)(temp / 0.125)) & 0x07ff;
     case 10:
-      return (int)(temp / 0.25);
+      return ((int)(temp / 0.25)) & 0x03ff;
     case 9:
-      return (int)(temp / 0.5);
+      return ((int)(temp / 0.5)) & 0x01ff;
   }
   
   return 0;
@@ -137,6 +159,12 @@ int getRawTemperature(float temp) {
  * Main loop
  */
 void loop() {
+
+#ifdef SEND_DATA
+  // send dumy telegram
+  theSender.send(0, 12);
+  theSender.send(4095, 12);
+#endif // SEND_DATA
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
@@ -150,23 +178,28 @@ void loop() {
     // alternative printout, only known sensors correctly prefixed
     if ( sensors.isConnected( gSensor1 ) ) {
       temp = sensors.getTempC( gSensor1 );
-      Serial << "T1: " << temp << " " << getRawTemperature(temp);
+      Serial << "T1: " << temp << " " 
+             << getRawTemperature(temp, TEMPERATURE_PRECISION);
     }
     if ( sensors.isConnected( gSensor2 ) ) {
       temp = sensors.getTempC( gSensor2 );
-      Serial << "T2: " << temp << " " << getRawTemperature(temp);
+      Serial << "T2: " << temp << " " 
+             << getRawTemperature(temp, TEMPERATURE_PRECISION);
     }
     if ( sensors.isConnected( gSensor3 ) ) {
       temp = sensors.getTempC( gSensor3 );
-      Serial << "T3: " << temp << " " << getRawTemperature(temp);
+      Serial << "T3: " << temp << " " 
+             << getRawTemperature(temp, TEMPERATURE_PRECISION);
     }
     if ( sensors.isConnected( gSensor4 ) ) {
       temp = sensors.getTempC( gSensor4 );
-      Serial << "T4: " << temp << " " << getRawTemperature(temp);
+      Serial << "T4: " << temp << " " 
+             << getRawTemperature(temp, TEMPERATURE_PRECISION);
     }
     if ( sensors.isConnected( gSensor5 ) ) {
       temp = sensors.getTempC( gSensor5 );
-      Serial << "T5: " << temp << " " << getRawTemperature(temp);
+      Serial << "T5: " << temp << " " 
+             << getRawTemperature(temp, TEMPERATURE_PRECISION);
     }
     Serial.println();
 #endif // DEBUG
