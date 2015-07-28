@@ -97,6 +97,9 @@ void setup()
 #ifdef SEND_DATA
   // Transmitter is connected to Arduino Pin #10 (TX_PIN)
   theSender.enableTransmit(TX_PIN);
+  
+  // default in RCSwitch library is 10
+  //theSender.setRepeatTransmit(10);
 
   // Optional set pulse length.
   theSender.setPulseLength(200);
@@ -155,22 +158,40 @@ int getRawTemperature(float temp,int precision=12) {
   return 0;
 }
 
+#ifdef SEND_DATA
+ #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
+ #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
+ #define SEND_T2(_x) theSender.send((_x & 0x1ff) | (0x0200 << 1), 12)
+ #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
+ #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
+ #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
+#else
+ #define SEND_SYNC(_x) {}
+ #define SEND_T1(_x) {}
+ #define SEND_T2(_x) {}
+ #define SEND_T3(_x) {}
+ #define SEND_T4(_x) {}
+ #define SEND_T5(_x) {}
+#endif // SEND_DATA
+
 /**
  * Main loop
  */
 void loop() {
 
 #ifdef SEND_DATA
-  // send dumy telegram
-  theSender.send(0, 12);
-  theSender.send(4095, 12);
+  // send some dummy telegrams, cannot set 0!
+  //theSender.send(0x0e01, 12);
+  //theSender.send(0x0e02, 12);
+  //theSender.send(0x0fff, 12);
 #endif // SEND_DATA
+
+  SEND_SYNC(1);
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
     sensors.requestTemperatures(); // Send the command to get temperatures
 
-#ifdef DEBUG
     float temp;
     
     // printout of temperature sensor values in the order they are enumerated at the 1-wire bus
@@ -178,33 +199,56 @@ void loop() {
     // alternative printout, only known sensors correctly prefixed
     if ( sensors.isConnected( gSensor1 ) ) {
       temp = sensors.getTempC( gSensor1 );
+#ifdef DEBUG
       Serial << "T1: " << temp << " " 
-             << getRawTemperature(temp, TEMPERATURE_PRECISION);
+             << getRawTemperature(temp, TEMPERATURE_PRECISION)
+             << " ";
+#endif // DEBUG
+      SEND_T1(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor2 ) ) {
       temp = sensors.getTempC( gSensor2 );
+#ifdef DEBUG
       Serial << "T2: " << temp << " " 
-             << getRawTemperature(temp, TEMPERATURE_PRECISION);
+             << getRawTemperature(temp, TEMPERATURE_PRECISION)
+             << " ";
+#endif // DEBUG
+      SEND_T2(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor3 ) ) {
       temp = sensors.getTempC( gSensor3 );
+#ifdef DEBUG
       Serial << "T3: " << temp << " " 
-             << getRawTemperature(temp, TEMPERATURE_PRECISION);
+             << getRawTemperature(temp, TEMPERATURE_PRECISION)
+             << " ";
+#endif // DEBUG
+      SEND_T3(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor4 ) ) {
       temp = sensors.getTempC( gSensor4 );
+#ifdef DEBUG
       Serial << "T4: " << temp << " " 
-             << getRawTemperature(temp, TEMPERATURE_PRECISION);
+             << getRawTemperature(temp, TEMPERATURE_PRECISION)
+             << " ";
+#endif // DEBUG
+      SEND_T4(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor5 ) ) {
       temp = sensors.getTempC( gSensor5 );
+#ifdef DEBUG
       Serial << "T5: " << temp << " " 
-             << getRawTemperature(temp, TEMPERATURE_PRECISION);
+             << getRawTemperature(temp, TEMPERATURE_PRECISION)
+             << " ";
+#endif // DEBUG
+      SEND_T5(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
+#ifdef DEBUG
     Serial.println();
 #endif // DEBUG
   } // if ( getDeviceCount() > 0 )
 #endif // READ_SENSORS
+
+  SEND_SYNC(2);
 }
 
 /**
