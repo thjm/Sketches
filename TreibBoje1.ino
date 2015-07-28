@@ -158,6 +158,21 @@ int getRawTemperature(float temp,int precision=12) {
   return 0;
 }
 
+//
+// This is how the data is encoded:
+//
+// - the ASK message consist of 12 bits
+// - 3 bits (a2..a0) are used to specify the sensor
+// - the sensor data are put in the
+//   remaining 9 bits (d8..d0)
+//
+//  D11 D10 D9 D8 | D7 D6 D5 D4 | D3 D2 D1 D0
+//   a2  a1 a0 d8   d7 d6 d5 d4   d3 d2 d1 d0
+//
+// - a2a1a0 = 7 specifies sync messages
+// - a2a1a0 = 1..5 specified the temperature sensors
+//            which therefor operate in 9 bit mode
+//  
 #ifdef SEND_DATA
  #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
  #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
