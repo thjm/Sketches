@@ -14,12 +14,17 @@
 #define READ_SENSORS
 // send the data via 433MHZ Tx
 #define SEND_DATA
+// read photo resistor (LDR)
+#define USE_LDR
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
  // has to be included BEFORE Flash
  #include <Streaming.h>
  #include <Flash.h>
+
+ // UART baud rate
+ #define UART_BAUD_RATE  9600
 #endif // DEBUG
 
 #ifdef SEND_DATA
@@ -45,14 +50,16 @@
 #include <DallasTemperature.h>
 
 #ifdef SEND_DATA
+ #define TX_PIN     10
 
-#define TX_PIN     10
 RCSwitch theSender = RCSwitch();
 
 #endif // SEND_DATA
 
-// UART baud rate
-#define UART_BAUD_RATE  9600
+#ifdef USE_LDR
+ // define a pin for Photo resistor (ADC input!)
+ #define LDR_PIN     0
+#endif // USE_LDR
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
@@ -141,6 +148,15 @@ void setup()
     }
   }
 #endif // SCAN_SENSORS
+
+#ifdef USE_LDR
+  //           PhotoR     10K
+  // +5    o---/\/\/--.--/\/\/---o GND
+  //                  |
+  // Pin 0 o----------+
+  //
+  pinMode( LDR_PIN, INPUT );
+#endif // USE_LDR
 }
 
 int getRawTemperature(float temp,int precision=12) {
@@ -175,6 +191,7 @@ int getRawTemperature(float temp,int precision=12) {
 //  
 #ifdef SEND_DATA
  #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
+ #define SEND_LDR(_x) theSender.send((_x & 0x1ff), 12)
  #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
  #define SEND_T2(_x) theSender.send((_x & 0x1ff) | (0x0200 << 1), 12)
  #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
@@ -182,6 +199,7 @@ int getRawTemperature(float temp,int precision=12) {
  #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
 #else
  #define SEND_SYNC(_x) {}
+ #define SEND_LDR(_x) {}
  #define SEND_T1(_x) {}
  #define SEND_T2(_x) {}
  #define SEND_T3(_x) {}
@@ -262,6 +280,18 @@ void loop() {
 #endif // DEBUG
   } // if ( getDeviceCount() > 0 )
 #endif // READ_SENSORS
+
+#ifdef USE_LDR
+  // divide the resulting value:
+  // - with a 10k resistor divide the value by 2
+  // - for 100k resistor divide by 4.
+  // - this is a 10bit (0..1023) ADC
+  int ldr_value = analogRead(LDR_PIN)/4;
+#ifdef DEBUG
+  Serial << "LDR: " << ldr_value << endl;
+#endif // DEBUG
+  SEND_LDR(ldr_value);
+#endif // USE_LDR
 
   SEND_SYNC(2);
 }
