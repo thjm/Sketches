@@ -1,7 +1,7 @@
 //
 // File   : TreibBoje1.ino
 //
-// Purpose: Frame for fun project 'Treibbojen' (experimental)
+// Purpose: Frame for fun project 'Treibboje1' (experimental)
 //
 // $Id$
 //
@@ -58,7 +58,7 @@ RCSwitch theSender = RCSwitch();
 
 #ifdef USE_LDR
  // define a pin for Photo resistor (ADC input!)
- #define LDR_PIN     0
+ #define LDR_PIN    14
 #endif // USE_LDR
 
 // Data wire is plugged into port 2 on the Arduino
@@ -82,6 +82,9 @@ DeviceAddress gSensor3 = { 0x28, 0x76, 0xC1, 0xE0, 0x06, 0x00, 0x00, 0x43 };
 DeviceAddress gSensor4 = { 0x28, 0x7A, 0x31, 0xE0, 0x06, 0x00, 0x00, 0x98 };
 // sensor #5
 DeviceAddress gSensor5 = { 0x28, 0x6B, 0x84, 0xDF, 0x06, 0x00, 0x00, 0xBB };
+
+// a global cycle counter
+static uint16_t gCycleCounter = 0;
 
 /**
  * Initialization
@@ -115,7 +118,7 @@ void setup()
   //theSender.setProtocol(1);  // -> setPulseLength(350); '0' = 1,3
 #endif // SEND_DATA
 
-#ifdef SCAN_SENSORS
+#if (defined SCAN_SENSORS) && (defined DEBUG)
   // locate devices on the bus
   Serial.print(F("Locating devices..."));
   Serial.print(F("Found "));
@@ -147,7 +150,7 @@ void setup()
       sensors.setResolution(addr, TEMPERATURE_PRECISION);
     }
   }
-#endif // SCAN_SENSORS
+#endif // SCAN_SENSORS && DEBUG
 
 #ifdef USE_LDR
   //           PhotoR     10K
@@ -156,6 +159,9 @@ void setup()
   // Pin 0 o----------+
   //
   pinMode( LDR_PIN, INPUT );
+  
+  // change range and resolution of analog pin, default
+  analogReference(DEFAULT);
 #endif // USE_LDR
 }
 
@@ -185,13 +191,16 @@ int getRawTemperature(float temp,int precision=12) {
 //  D11 D10 D9 D8 | D7 D6 D5 D4 | D3 D2 D1 D0
 //   a2  a1 a0 d8   d7 d6 d5 d4   d3 d2 d1 d0
 //
-// - a2a1a0 = 7 specifies sync messages
-// - a2a1a0 = 1..5 specified the temperature sensors
+// - a2a1a0 = 0 specifies the cycle counter
+// - a2a1a0 = 1..5 specifies the temperature sensors
 //            which therefor operate in 9 bit mode
+// - a2a1a0 = 6 specifies the LDR message
+// - a2a1a0 = 7 specifies sync messages
 //  
 #ifdef SEND_DATA
  #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
- #define SEND_LDR(_x) theSender.send((_x & 0x1ff), 12)
+ #define SEND_CYCLE_COUNTER() theSender.send((gCycleCounter & 0x1ff), 12)
+ #define SEND_LDR(_x) theSender.send((_x & 0x1ff) | (0x0600 << 1), 12)
  #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
  #define SEND_T2(_x) theSender.send((_x & 0x1ff) | (0x0200 << 1), 12)
  #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
@@ -199,6 +208,7 @@ int getRawTemperature(float temp,int precision=12) {
  #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
 #else
  #define SEND_SYNC(_x) {}
+ #define SEND_CYCLE_COUNTER() {}
  #define SEND_LDR(_x) {}
  #define SEND_T1(_x) {}
  #define SEND_T2(_x) {}
@@ -220,6 +230,11 @@ void loop() {
 #endif // SEND_DATA
 
   SEND_SYNC(1);
+  
+  SEND_CYCLE_COUNTER();
+#ifdef DEBUG
+  Serial << "# " << gCycleCounter << endl;
+#endif // DEBUG
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
@@ -294,6 +309,8 @@ void loop() {
 #endif // USE_LDR
 
   SEND_SYNC(2);
+  
+  gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
 }
 
 /**
