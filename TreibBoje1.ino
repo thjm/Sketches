@@ -7,7 +7,7 @@
 //
 
 // debug via serial interface
-#define DEBUG
+#undef DEBUG
 // scan sensors (to inquire addresses)
 #define SCAN_SENSORS
 // read temperature sensors
@@ -16,6 +16,8 @@
 #define SEND_DATA
 // read photo resistor (LDR)
 #define USE_LDR
+// use up to four LEDs, will blink
+#define USE_LEDS
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
@@ -49,6 +51,8 @@
 //
 #include <DallasTemperature.h>
 
+#define LED         13
+
 #ifdef SEND_DATA
  #define TX_PIN     10
 
@@ -60,6 +64,13 @@ RCSwitch theSender = RCSwitch();
  // define a pin for Photo resistor (ADC input!)
  #define LDR_PIN    14
 #endif // USE_LDR
+
+#ifdef USE_LEDS
+ #define LED1       4
+ #define LED2       5
+ #define LED3       6
+ #define LED4       7
+#endif // USE_LEDS
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
@@ -91,6 +102,8 @@ static uint16_t gCycleCounter = 0;
  */
 void setup()
 {
+  pinMode(LED, OUTPUT);
+  
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
@@ -158,11 +171,18 @@ void setup()
   //                  |
   // Pin 0 o----------+
   //
-  pinMode( LDR_PIN, INPUT );
+  pinMode(LDR_PIN, INPUT);
   
   // change range and resolution of analog pin, default
   analogReference(DEFAULT);
 #endif // USE_LDR
+
+#ifdef USE_LEDS
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+#endif // USE_LEDS
 }
 
 int getRawTemperature(float temp,int precision=12) {
@@ -222,6 +242,8 @@ int getRawTemperature(float temp,int precision=12) {
  */
 void loop() {
 
+  digitalWrite(LED, gCycleCounter & 0x01);
+  
 #ifdef SEND_DATA
   // send some dummy telegrams, cannot set 0!
   //theSender.send(0x0e01, 12);
@@ -238,6 +260,7 @@ void loop() {
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
+    
     sensors.requestTemperatures(); // Send the command to get temperatures
 
     float temp;
@@ -307,6 +330,13 @@ void loop() {
 #endif // DEBUG
   SEND_LDR(ldr_value);
 #endif // USE_LDR
+
+#ifdef USE_LEDS
+  digitalWrite(LED1, ((gCycleCounter & 0x02) ? HIGH : LOW));
+  digitalWrite(LED2, ((gCycleCounter & 0x02) ? LOW : HIGH));
+  digitalWrite(LED3, ((gCycleCounter & 0x04) ? HIGH : LOW));
+  digitalWrite(LED4, ((gCycleCounter & 0x08) ? HIGH : LOW));
+#endif // USE_LEDS
 
   SEND_SYNC(2);
   
