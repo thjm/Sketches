@@ -21,6 +21,6 @@ public:
 protected:
     
     int nTransmitterPin;
-}
+};
 
 #endif // _Morse_h_

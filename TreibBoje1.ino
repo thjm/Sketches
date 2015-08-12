@@ -249,6 +249,14 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
  #endif // USE_RCSWITCH
  #ifdef USE_MORSE
+  #define SEND_SYNC(_x) {}
+  #define SEND_CYCLE_COUNTER() {}
+  #define SEND_LDR(_x) {}
+  #define SEND_T1(_x) {}
+  #define SEND_T2(_x) {}
+  #define SEND_T3(_x) {}
+  #define SEND_T4(_x) {}
+  #define SEND_T5(_x) {}
  #endif // USE_MORSE
 #else
  #define SEND_SYNC(_x) {}
