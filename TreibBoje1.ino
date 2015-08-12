@@ -14,6 +14,10 @@
 #define READ_SENSORS
 // send the data via 433MHZ Tx
 #define SEND_DATA
+// send the data using the RCSwitch library
+#undef USE_RCSWITCH
+// send the data using the Morse library
+#define USE_MORSE
 // read photo resistor (LDR)
 #define USE_LDR
 // use up to four LEDs, will blink
@@ -30,7 +34,15 @@
 #endif // DEBUG
 
 #ifdef SEND_DATA
- #include <RCSwitch.h>
+ #if (defined USE_RCSWITCH) && (defined USE_MORSE)
+  #error "Cannot use both RCSwitch and Morse!"
+ #endif
+ #if (defined USE_RCSWITCH)
+  #include <RCSwitch.h>
+ #endif // USE_RCSWITCH
+ #if (defined USE_MORSE)
+  #include "Morse.h"
+ #endif // USE_MORSE
 #endif // SEND_DATA
 
 // http://www.pjrc.com/teensy/td_libs_OneWire.html
@@ -56,7 +68,9 @@
 #ifdef SEND_DATA
  #define TX_PIN     10
 
+ #ifdef USE_RCSWITCH
 RCSwitch theSender = RCSwitch();
+ #endif // USE_RCSWITCH
 
 #endif // SEND_DATA
 
@@ -118,6 +132,7 @@ void setup()
   sensors.begin();
 
 #ifdef SEND_DATA
+ #ifdef USE_RCSWITCH
   // Transmitter is connected to Arduino Pin #10 (TX_PIN)
   theSender.enableTransmit(TX_PIN);
   
@@ -129,6 +144,11 @@ void setup()
   
   // Optional set protocol (default is 1, will work for most outlets)
   //theSender.setProtocol(1);  // -> setPulseLength(350); '0' = 1,3
+ #endif // USE_RCSWITCH
+ 
+ #ifdef USE_MORSE
+ #endif // USE_MORSE
+ 
 #endif // SEND_DATA
 
 #if (defined SCAN_SENSORS) && (defined DEBUG)
@@ -218,14 +238,18 @@ int getRawTemperature(float temp,int precision=12) {
 // - a2a1a0 = 7 specifies sync messages
 //  
 #ifdef SEND_DATA
- #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
- #define SEND_CYCLE_COUNTER() theSender.send((gCycleCounter & 0x1ff), 12)
- #define SEND_LDR(_x) theSender.send((_x & 0x1ff) | (0x0600 << 1), 12)
- #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
- #define SEND_T2(_x) theSender.send((_x & 0x1ff) | (0x0200 << 1), 12)
- #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
- #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
- #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
+ #ifdef USE_RCSWITCH
+  #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
+  #define SEND_CYCLE_COUNTER() theSender.send((gCycleCounter & 0x1ff), 12)
+  #define SEND_LDR(_x) theSender.send((_x & 0x1ff) | (0x0600 << 1), 12)
+  #define SEND_T1(_x) theSender.send((_x & 0x1ff) | (0x0100 << 1), 12)
+  #define SEND_T2(_x) theSender.send((_x & 0x1ff) | (0x0200 << 1), 12)
+  #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
+  #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
+  #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
+ #endif // USE_RCSWITCH
+ #ifdef USE_MORSE
+ #endif // USE_MORSE
 #else
  #define SEND_SYNC(_x) {}
  #define SEND_CYCLE_COUNTER() {}
@@ -245,10 +269,14 @@ void loop() {
   digitalWrite(LED, gCycleCounter & 0x01);
   
 #ifdef SEND_DATA
+ #ifdef USE_RCSWITCH
   // send some dummy telegrams, cannot set 0!
   //theSender.send(0x0e01, 12);
   //theSender.send(0x0e02, 12);
   //theSender.send(0x0fff, 12);
+ #endif // USE_RCSWITCH
+ #ifdef USE_MORSE
+ #endif // USE_MORSE 
 #endif // SEND_DATA
 
   SEND_SYNC(1);
