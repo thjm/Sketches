@@ -27,8 +27,11 @@
  // http://arduiniana.org/libraries/streaming/
  // has to be included BEFORE Flash
  #include <Streaming.h>
- #include <Flash.h>
-
+ // // I guess we don't need this out-dated (?) library
+ // #if (defined(ARDUINO) && ARDUINO <= 156)
+ //  #include <Flash.h>
+ // #endif // ARDUINO
+ 
  // UART baud rate
  #define UART_BAUD_RATE  9600
 #endif // DEBUG
