@@ -7,7 +7,7 @@
 //
 
 // debug via serial interface
-#undef DEBUG
+#define DEBUG
 // scan sensors (to inquire addresses)
 #define SCAN_SENSORS
 // read temperature sensors
@@ -54,7 +54,7 @@
 // https://github.com/milesburton/Arduino-Temperature-Control-Library
 // http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library
 // Note:
-// The library archive is not well formated and has to be renamed into DallasTemperature
+// The library archive name is not well chosen and has to be renamed into DallasTemperature
 //
 // DS18B20       +-------+
 //               |       |
@@ -88,6 +88,11 @@ RCSwitch theSender = RCSwitch();
  #define LED3       6
  #define LED4       7
 #endif // USE_LEDS
+
+// local prototypes
+extern int availableMemory();
+extern void printAddress(DeviceAddress);
+extern void printResolution(DeviceAddress);
 
 // Data wire is plugged into port 2 on the Arduino
 #define ONE_WIRE_BUS 2
