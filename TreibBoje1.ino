@@ -9,7 +9,7 @@
 // debug via serial interface
 #define DEBUG
 // scan sensors (to inquire addresses)
-#define SCAN_SENSORS
+#undef SCAN_SENSORS
 // read temperature sensors
 #define READ_SENSORS
 // send the data via 433MHZ Tx
@@ -17,7 +17,7 @@
 // send the data using the RCSwitch library
 #undef USE_RCSWITCH
 // send the data using the Morse library
-#define USE_MORSE
+#undef USE_MORSE
 // read photo resistor (LDR)
 #define USE_LDR
 // use up to four LEDs, will blink
@@ -71,10 +71,12 @@
 #ifdef SEND_DATA
  #define TX_PIN     10
 
- #ifdef USE_RCSWITCH
+ #if (defined USE_RCSWITCH)
 RCSwitch theSender = RCSwitch();
  #endif // USE_RCSWITCH
-
+ #if (defined USE_MORSE)
+Morse morseGen = Morse();
+ #endif // USE_MORSE 
 #endif // SEND_DATA
 
 #ifdef USE_LDR
@@ -129,7 +131,7 @@ void setup()
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("Starting ...");
+  Serial << F("Starting ...") << endl;
 
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());
@@ -140,7 +142,7 @@ void setup()
   sensors.begin();
 
 #ifdef SEND_DATA
- #ifdef USE_RCSWITCH
+ #if (defined USE_RCSWITCH)
   // Transmitter is connected to Arduino Pin #10 (TX_PIN)
   theSender.enableTransmit(TX_PIN);
   
@@ -154,7 +156,13 @@ void setup()
   //theSender.setProtocol(1);  // -> setPulseLength(350); '0' = 1,3
  #endif // USE_RCSWITCH
  
- #ifdef USE_MORSE
+ #if (defined USE_MORSE)
+  // Transmitter is connected to Arduino Pin #10 (TX_PIN)
+  morseGen.enableTransmit(TX_PIN);
+ 
+  morseGen.setSpeed(18);
+ 
+  //morseGen.write("<");
  #endif // USE_MORSE
  
 #endif // SEND_DATA
@@ -246,7 +254,7 @@ int getRawTemperature(float temp,int precision=12) {
 // - a2a1a0 = 7 specifies sync messages
 //  
 #ifdef SEND_DATA
- #ifdef USE_RCSWITCH
+ #if (defined USE_RCSWITCH)
   #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
   #define SEND_CYCLE_COUNTER() theSender.send((gCycleCounter & 0x1ff), 12)
   #define SEND_LDR(_x) theSender.send((_x & 0x1ff) | (0x0600 << 1), 12)
@@ -255,8 +263,7 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T3(_x) theSender.send((_x & 0x1ff) | (0x0300 << 1), 12)
   #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
   #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
- #endif // USE_RCSWITCH
- #ifdef USE_MORSE
+ #elif (defined USE_MORSE)
   #define SEND_SYNC(_x) {}
   #define SEND_CYCLE_COUNTER() {}
   #define SEND_LDR(_x) {}
@@ -265,7 +272,16 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T3(_x) {}
   #define SEND_T4(_x) {}
   #define SEND_T5(_x) {}
- #endif // USE_MORSE
+ #else
+  #define SEND_SYNC(_x) {}
+  #define SEND_CYCLE_COUNTER() {}
+  #define SEND_LDR(_x) {}
+  #define SEND_T1(_x) {}
+  #define SEND_T2(_x) {}
+  #define SEND_T3(_x) {}
+  #define SEND_T4(_x) {}
+  #define SEND_T5(_x) {}
+ #endif // !USE_RCSWITCH && !USE_MORSE
 #else
  #define SEND_SYNC(_x) {}
  #define SEND_CYCLE_COUNTER() {}
