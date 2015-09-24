@@ -59,7 +59,6 @@ public:
     
     // to be implemented from class Print
     size_t write(uint8_t val);
-    //size_t write(const char str[]);
 
 protected:
     

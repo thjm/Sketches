@@ -179,15 +179,6 @@ size_t Morse::write(uint8_t val) {
     
 // ---------------------------------------------------------------------------
 
-#if 0
-void Morse::write(const char str[]) {
-  for ( int i=0; i<strlen(str); ++i )
-    send(str[i]);
-}
-#endif
-
-// ---------------------------------------------------------------------------
-
 void Morse::dit() {
   digitalWrite(nTransmitterPin, HIGH);
   delay(dotLength);
