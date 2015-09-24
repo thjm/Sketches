@@ -162,9 +162,9 @@ size_t Morse::write(uint8_t val) {
   byte mask = 0x80;
   for ( int i=0; i<morse.len; ++i ) {
     if ( morse.code & mask )
-      dit();  // 1 dot and 1 dot pause
-    else
       dah();  // 3 dots and 1 dot pause
+    else
+      dit();  // 1 dot and 1 dot pause
     mask >>= 1;
   }
 

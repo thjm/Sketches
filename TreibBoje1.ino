@@ -18,7 +18,7 @@
 #undef USE_RCSWITCH
 // send the data using the Morse library
 #define USE_MORSE
-#define MORSE_SPEED     15
+#define MORSE_SPEED     20
 // read photo resistor (LDR)
 #undef USE_LDR
 // use up to four LEDs, will blink
@@ -162,7 +162,7 @@ void setup()
   // set the speed with which we output the morse chars
   morseGen.setSpeed(MORSE_SPEED);
  
-  morseGen.print("<");
+  morseGen.print("vvv");
  #endif // USE_MORSE
  
 #endif // SEND_DATA
@@ -315,6 +315,11 @@ void loop() {
  #endif // USE_MORSE 
 #endif // SEND_DATA
 
+#ifdef USE_MORSE
+  morseGen.print("QAM de DC2IP");
+  
+#endif // USE_MORSE
+
   SEND_SYNC(1);
   
   SEND_CYCLE_COUNTER();
@@ -406,8 +411,14 @@ void loop() {
   
   gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
 
+#ifdef USE_MORSE
+  morseGen.print("+");
+#endif // USE_MORSE
+
+#if 1
   // wait a bit, if too few sensors
   if ( sensors.getDeviceCount() <= 2 ) delay(2000);
+#endif
 }
 
 /**
