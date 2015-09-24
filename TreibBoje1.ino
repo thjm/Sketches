@@ -67,8 +67,8 @@
 #define LED          0
 
 #ifdef SEND_DATA
- //#define TX_PIN     10
- #define TX_PIN     13
+ #define TX_PIN     10
+ //#define TX_PIN     13
 
  #if (defined USE_RCSWITCH)
 RCSwitch theSender = RCSwitch();

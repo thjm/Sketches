@@ -36,12 +36,17 @@
 #endif
 
 #include <stdint.h>
-#include <Stream.h>
+//#include <Stream.h>
+#include <Print.h>
 
 /** Class Morse, a class to output characters as Morse code on a
   * preconfigured pin of the Arduino.
+  *
+  * The class inherits from the Arduino base class Print, thus together with
+  * Streaming.h the streaming operator<()< and many overloaded print() methods 
+  * can be used.
   */
-class Morse : public Stream {
+class Morse : public Print {
 public:
 
     Morse();
@@ -61,14 +66,8 @@ protected:
     void dit();
     void dah();
     
-    // to be implemented from class Stream
-    int available() { return 0; }
-    int read() { return 0; }
-    int peek() { return 0; }
-    void flush() { }
-    
     int nTransmitterPin;
-    // length of dot in ms
+    // length of a dot in ms
     unsigned int dotLength;
 };
 
