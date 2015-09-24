@@ -17,9 +17,10 @@
 // send the data using the RCSwitch library
 #undef USE_RCSWITCH
 // send the data using the Morse library
-#undef USE_MORSE
+#define USE_MORSE
+#define MORSE_SPEED     15
 // read photo resistor (LDR)
-#define USE_LDR
+#undef USE_LDR
 // use up to four LEDs, will blink
 #define USE_LEDS
 
@@ -27,10 +28,6 @@
  // http://arduiniana.org/libraries/streaming/
  // has to be included BEFORE Flash
  #include <Streaming.h>
- // // I guess we don't need this out-dated (?) library
- // #if (defined(ARDUINO) && ARDUINO <= 156)
- //  #include <Flash.h>
- // #endif // ARDUINO
  
  // UART baud rate
  #define UART_BAUD_RATE  9600
@@ -66,10 +63,12 @@
 //
 #include <DallasTemperature.h>
 
-#define LED         13
+//#define LED         13
+#define LED          0
 
 #ifdef SEND_DATA
- #define TX_PIN     10
+ //#define TX_PIN     10
+ #define TX_PIN     13
 
  #if (defined USE_RCSWITCH)
 RCSwitch theSender = RCSwitch();
@@ -126,7 +125,7 @@ static uint16_t gCycleCounter = 0;
  */
 void setup()
 {
-  pinMode(LED, OUTPUT);
+  if (LED > 0 ) pinMode(LED, OUTPUT);
   
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
@@ -160,9 +159,10 @@ void setup()
   // Transmitter is connected to Arduino Pin #10 (TX_PIN)
   morseGen.enableTransmit(TX_PIN);
  
-  morseGen.setSpeed(18);
+  // set the speed with which we output the morse chars
+  morseGen.setSpeed(MORSE_SPEED);
  
-  //morseGen.write("<");
+  morseGen.print("<");
  #endif // USE_MORSE
  
 #endif // SEND_DATA
@@ -183,11 +183,14 @@ void setup()
     if ( sensors.getAddress(addr, nSensor) ) {
       sensors.setResolution(addr, TEMPERATURE_PRECISION);
       Serial << "Device " << (int)nSensor << ": ";
+ #if 1
       printAddress( addr );
-//      for ( byte i=0; i<8; ++i ) {
-//        Serial.print(addr[i], HEX);
-//        Serial.print(" ");
-//      }
+ #else
+      for ( byte i=0; i<8; ++i ) {
+        Serial.print(addr[i], HEX);
+        Serial.print(" ");
+      }
+ #endif
       Serial.println();
     }
   }
@@ -236,8 +239,9 @@ int getRawTemperature(float temp,int precision=12) {
   return 0;
 }
 
+#ifdef SEND_DATA
 //
-// This is how the data is encoded:
+// This is how the data is encoded for the option 'USE_RCSWITCH':
 //
 // - the ASK message consist of 12 bits
 // - 3 bits (a2..a0) are used to specify the sensor
@@ -253,7 +257,6 @@ int getRawTemperature(float temp,int precision=12) {
 // - a2a1a0 = 6 specifies the LDR message
 // - a2a1a0 = 7 specifies sync messages
 //  
-#ifdef SEND_DATA
  #if (defined USE_RCSWITCH)
   #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
   #define SEND_CYCLE_COUNTER() theSender.send((gCycleCounter & 0x1ff), 12)
@@ -264,14 +267,15 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
   #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
  #elif (defined USE_MORSE)
-  #define SEND_SYNC(_x) {}
-  #define SEND_CYCLE_COUNTER() {}
-  #define SEND_LDR(_x) {}
-  #define SEND_T1(_x) {}
-  #define SEND_T2(_x) {}
-  #define SEND_T3(_x) {}
-  #define SEND_T4(_x) {}
-  #define SEND_T5(_x) {}
+  #define SEND_SYNC(_x) { morseGen.print("="); }
+  #define SEND_CYCLE_COUNTER() { morseGen.print(gCycleCounter & 0x1ff); }
+  #define SEND_LDR(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T1(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T2(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T3(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T4(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T5(_x) { morseGen.print(_x & 0x1ff); }
+  //#define SEND_T5(_x) { morseGen << "T5 " << (_x & 0x1ff); }
  #else
   #define SEND_SYNC(_x) {}
   #define SEND_CYCLE_COUNTER() {}
@@ -282,7 +286,7 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T4(_x) {}
   #define SEND_T5(_x) {}
  #endif // !USE_RCSWITCH && !USE_MORSE
-#else
+#else // SEND_DATA
  #define SEND_SYNC(_x) {}
  #define SEND_CYCLE_COUNTER() {}
  #define SEND_LDR(_x) {}
@@ -298,7 +302,7 @@ int getRawTemperature(float temp,int precision=12) {
  */
 void loop() {
 
-  digitalWrite(LED, gCycleCounter & 0x01);
+  if ( LED > 0 ) digitalWrite(LED, gCycleCounter & 0x01);
   
 #ifdef SEND_DATA
  #ifdef USE_RCSWITCH
@@ -314,13 +318,13 @@ void loop() {
   SEND_SYNC(1);
   
   SEND_CYCLE_COUNTER();
-#ifdef DEBUG
+ #ifdef DEBUG
   Serial << "# " << gCycleCounter << endl;
-#endif // DEBUG
+ #endif // DEBUG
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
-    
+
     sensors.requestTemperatures(); // Send the command to get temperatures
 
     float temp;
@@ -330,52 +334,52 @@ void loop() {
     // alternative printout, only known sensors correctly prefixed
     if ( sensors.isConnected( gSensor1 ) ) {
       temp = sensors.getTempC( gSensor1 );
-#ifdef DEBUG
+ #ifdef DEBUG
       Serial << "T1: " << temp << " " 
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
-#endif // DEBUG
+ #endif // DEBUG
       SEND_T1(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor2 ) ) {
       temp = sensors.getTempC( gSensor2 );
-#ifdef DEBUG
+ #ifdef DEBUG
       Serial << "T2: " << temp << " " 
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
-#endif // DEBUG
+ #endif // DEBUG
       SEND_T2(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor3 ) ) {
       temp = sensors.getTempC( gSensor3 );
-#ifdef DEBUG
+ #ifdef DEBUG
       Serial << "T3: " << temp << " " 
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
-#endif // DEBUG
+ #endif // DEBUG
       SEND_T3(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor4 ) ) {
       temp = sensors.getTempC( gSensor4 );
-#ifdef DEBUG
+ #ifdef DEBUG
       Serial << "T4: " << temp << " " 
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
-#endif // DEBUG
+ #endif // DEBUG
       SEND_T4(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
     if ( sensors.isConnected( gSensor5 ) ) {
       temp = sensors.getTempC( gSensor5 );
-#ifdef DEBUG
+ #ifdef DEBUG
       Serial << "T5: " << temp << " " 
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
-#endif // DEBUG
+ #endif // DEBUG
       SEND_T5(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
-#ifdef DEBUG
+ #ifdef DEBUG
     Serial.println();
-#endif // DEBUG
+ #endif // DEBUG
   } // if ( getDeviceCount() > 0 )
 #endif // READ_SENSORS
 
@@ -385,9 +389,9 @@ void loop() {
   // - for 100k resistor divide by 4.
   // - this is a 10bit (0..1023) ADC
   int ldr_value = analogRead(LDR_PIN)/4;
-#ifdef DEBUG
+ #ifdef DEBUG
   Serial << "LDR: " << ldr_value << endl;
-#endif // DEBUG
+ #endif // DEBUG
   SEND_LDR(ldr_value);
 #endif // USE_LDR
 
@@ -401,6 +405,9 @@ void loop() {
   SEND_SYNC(2);
   
   gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
+
+  // wait a bit, if too few sensors
+  if ( sensors.getDeviceCount() <= 2 ) delay(2000);
 }
 
 /**
@@ -410,11 +417,20 @@ void loop() {
  */
 int availableMemory() {
 
+#if 0
   int size = 10000;
   byte *buf;
   while ((buf = (byte *) malloc(--size)) == NULL);
   free(buf);
   return size;
+#else
+  // see also:
+  // https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
+  extern int __heap_start, *__brkval; 
+  int v; 
+
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+#endif
 }
 
 /** function to print a device address */
