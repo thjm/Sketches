@@ -37,7 +37,7 @@ typedef struct _MorseCode_t {
 // 2nd byte : number of dits/dahs
 // For the idea of this table, see:
 // http://www.avr-asm-tutorial.net/cq-dl/teil4/Cw01_200.asm
-// �2002 by Gerhard Schmidt, DG4FAC
+// (C) 2002 by Gerhard Schmidt, DG4FAC
 static const MorseCode_t gMorseCode[] PROGMEM = {
 
   // 0x20 .. 0x2F
@@ -45,8 +45,8 @@ static const MorseCode_t gMorseCode[] PROGMEM = {
   { 0b01000000, 5 }, // ! = Warten
   { 0b01001000, 6 }, // "
   { 0b11011000, 5 }, // # = ~n
-  { 0b01101000, 5 }, // $ = �, �a
-  { 0b01000000, 5 }, // % = �
+  { 0b01101000, 5 }, // $ = ?, ?a
+  { 0b01000000, 5 }, // % = ?
   { 0b00000000, 0 }, // & = not used
   { 0b01111000, 6 }, // '
   { 0b10110000, 5 }, // (, KN
