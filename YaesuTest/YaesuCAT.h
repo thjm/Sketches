@@ -41,12 +41,17 @@
 /** A class for the communication with Yaesu transceivers.
   *
   * Here only tested with a few commands and the FT-817ND.
+  * 
+  * - PC to Yaesu rig:
+  * 
+  * - answer of Yaesu rig:
   */
 class YaesuCAT {
 public:
 
   /** CAT special codes. */
   enum {
+    MAXLEN = 10,               // maximum message length
     ILLEGAL_MODE = 0xFF,       // no mode
     ILLEGAL_FREQ = 0xFFFFFFFF, // no frequency
   };
@@ -85,6 +90,12 @@ public:
   /** Get the mode from internal store. */
   byte getMode()
    { return myMode; }
+  
+  /** Read one byte from the serial stream and put it into the internal message buffer. 
+   *  
+   *  @return true if ...
+   */
+  bool read();
 
   /** Request frequency and mode from the rig. */
   bool requestFrequencyAndMode();
@@ -95,9 +106,14 @@ public:
   bool writeMode(byte mode);
 
 protected:
+  uint32_t parseFrequency(const byte* msg);
   bool sendMessage(const byte* txMsg,size_t msgLen);
 
   Stream&   myStream;
+  byte      rxMessage[MAXLEN+1];
+  int       rxMsgLength;
+  int       rxBytesExpected;
+  byte      lastCommand;
   
   byte      myMode;
   uint32_t  myFrequency;

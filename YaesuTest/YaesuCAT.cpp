@@ -10,24 +10,104 @@
 #include <Stream.h>
 #include <Streaming.h>
 
+#define DEBUG
+
 #include "CATutil.h"
 #include "YaesuCat.h"
 
 YaesuCAT::YaesuCAT(Stream& stream)
- : myStream(stream), 
+ : myStream(stream), rxMsgLength(0), rxBytesExpected(0),
    myMode(ILLEGAL_MODE), myFrequency(ILLEGAL_FREQ) {
   // ..
 }
 
+static int getNibble(const byte* s,int i) {
+
+  byte k = s[i/2];
+  if ( i % 2 == 0 )
+    k = k >> 4;
+  return k & 0x0f;
+}
+
+uint32_t YaesuCAT::parseFrequency(const byte* message) {
+
+  static byte ks[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+  uint32_t f = 0;
+
+  for ( int i=0; i<sizeof(ks); ++i ) {
+     byte k = ks[i];
+     f = 10*f + getNibble(message,k);
+  }
+
+  return f*10;
+}
+
+bool YaesuCAT::read() {
+  
+  byte ch = myStream.read();
+
+#ifdef DEBUG
+  //Serial << F("Rx[") << rxMsgLength << ("]: "); printHex(ch); Serial.println();
+#endif // DEBUG
+
+  if ( rxBytesExpected ) {
+    
+    rxMessage[rxMsgLength++] = ch;
+
+    // complete message received?
+    if ( rxMsgLength == rxBytesExpected ) {
+
+#ifdef DEBUG
+      Serial << F("Rx(") << rxMsgLength << F("): "); print(rxMessage, rxBytesExpected);
+#endif // DEBUG
+
+      switch ( lastCommand ) {
+        case eREAD_FREQ_MODE:
+          myMode = rxMessage[4];
+          myFrequency = parseFrequency(rxMessage);
+          break;
+
+        default:
+          Serial << F("Message ");
+          printHex(lastCommand);
+          Serial << F(" ignored!") << endl;
+      }
+      
+      rxBytesExpected = 0;
+      rxMsgLength = 0;
+    }
+    if ( rxMsgLength == MAXLEN ) {
+      Serial << F("RX message buffer overflow!") << endl;
+      rxMsgLength = 0;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * - message to Yaesu:
+ *  +------+------+------+------+------+
+ *  | 0x00 | 0x00 | 0x00 | 0x00 | 0x03 |
+ *  +------+------+------+------+------+
+ *  
+ * - message from Yaesu (123.45678 MHz):
+ *  +------+------+------+------+------+
+ *  | 0x12 | 0x34 | 0x56 | 0x78 | mode |
+ *  +------+------+------+------+------+
+ */
 bool YaesuCAT::requestFrequencyAndMode() {
 
-  byte txMsg[6];
+  byte txMsg[5];
+  
+  rxBytesExpected = 5; // 5 byte reply expected
+  lastCommand = YaesuCAT::eREAD_FREQ_MODE;
   
   txMsg[0] = 0x00;
   txMsg[1] = 0x00;
   txMsg[2] = 0x00;
   txMsg[3] = 0x00;
-  txMsg[4] = YaesuCAT::eREAD_FREQ_MODE;  // 5 byte reply
+  txMsg[4] = lastCommand;  
   //txData[txDataLen++] = YaesuCAT::eREAD_RX_STATUS;  // 1 byte reply
   //txData[txDataLen++] = YaesuCAT::eREAD_TX_STATUS;  // 1 byte reply
 
@@ -46,7 +126,8 @@ bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
 
 #ifdef DEBUG
   Serial << F("Tx(") << msgLen << F("): ");
-  printMessage(msg, msgLen);
+  print(msg, msgLen);
+  //CATutil::print(msg, msgLen);
 #endif // DEBUG
   
   for (int i=0; i<msgLen; ++i) {
@@ -61,9 +142,18 @@ bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
   return true;
 }
 
+/**
+ * - message to Yaesu (123.45678 MHz):
+ *  +------+------+------+------+------+
+ *  | 0x12 | 0x34 | 0x56 | 0x78 | 0x01 |
+ *  +------+------+------+------+------+
+ *  
+ * - message from Yaesu:
+ *   NONE
+ */
 bool YaesuCAT::writeFrequency(uint32_t frequency) {
 
-  byte message[6];
+  byte message[5];
   
     // convert the integer frequency into a string of 10 bytes length
   char freq_str[12];
@@ -88,6 +178,33 @@ bool YaesuCAT::writeFrequency(uint32_t frequency) {
   message[3] = bcd(freq_str[7], freq_str[8]);
 
   message[4] = YaesuCAT::eSET_FRQUENCY;
+
+  myFrequency = ILLEGAL_FREQ;
+
+  return sendMessage(message, 5);
+}
+
+/**
+ * - message to Yaesu (123.45678 MHz):
+ *  +------+------+------+------+------+
+ *  | mode | 0x00 | 0x00 | 0x00 | 0x07 |
+ *  +------+------+------+------+------+
+ *  
+ * - message from Yaesu:
+ *   NONE
+ */
+bool YaesuCAT::writeMode(byte mode) {
+
+  byte message[5];
+
+  message[0] = mode;
+  message[1] = 0x00;
+  message[2] = 0x00;
+  message[3] = 0x00;
+
+  message[4] = eSET_MODE;
+
+  myMode = ILLEGAL_MODE;
 
   return sendMessage(message, 5);
 }

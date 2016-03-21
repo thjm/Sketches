@@ -44,7 +44,7 @@ void setup() {
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("YaesuCAT: starting ...") << endl;
+  Serial << F("YaesuTest: starting ...") << endl;
 
   Serial << F("Free SRAM: ") << availableMemory() << endl;
 #endif // DEBUG
@@ -62,6 +62,8 @@ void loop() {
   
   static unsigned long loop_init = millis();
 
+#if 1
+  // request frequency and mode settings...
   static unsigned long r_time = millis();
   
   if ( (frequency == YaesuCAT::ILLEGAL_FREQ || mode == YaesuCAT::ILLEGAL_MODE)
@@ -71,41 +73,59 @@ void loop() {
     
     r_time = millis();
   }
+#endif
 
-  uint32_t desired_frequency = "28175000";
+  uint32_t desired_frequency = 28175000; // 70.175 MHz transverted into 10m Band
   byte desired_mode = YaesuCAT::eModeUSB;
   
-  int rxDataLen = 0;
-  byte rxData[20];
-
   Serial2.listen();
   
   // check if 'Serial2' has data to receive
   if (Serial2.available()) {
 
-    byte ch = Serial2.read();
+    FT817.read();
 
-    Serial << F("Rx: "); printHex(ch); Serial.println();
+  } // Serial2.available()
 
-#if 0
-    //rxData[rxDataLen++] = ch;
-    
-    // try to decode the reseived message
-    if ( rxDataLen == 5 ) {
-      switch (rxData[4]) { // last byte is command byte
-        default:
-      }
-    }
-#endif
-  } // Serial1.available()
-
+#if 1
+  // set desired frequency and mode (one quantity at a time)
+  static unsigned long s_time = millis();
+  
   // send message to the rig
+  if ( millis() - s_time > 500 ) {
+    
+    s_time = millis();
+
+    if ( frequency != desired_frequency )
+      FT817.writeFrequency(desired_frequency);
+    else if ( mode != desired_mode )
+      FT817.writeMode(desired_mode);
+  }
+#endif
+
+#if 1
+  // when everything is settled, read frequency/mode from time to time
+  static unsigned long p_time = millis();
+
+  if ( frequency == desired_frequency && mode == desired_mode 
+       && ( millis() - p_time) > 5000 ) {
+
+    FT817.requestFrequencyAndMode();
+    
+    p_time = millis();
+  }
+#endif
+
+  // display of frequency and mode from time to time
   if ( millis() - loop_init > 2000 ) {
     
     loop_init = millis();
 
-    FT817.writeFrequency(144300000);
-  
+    Serial //<< F("OP mode ") << operation_mode 
+           //<< F(" fOK ") << rxFrequencyOK(Icom706)
+           //<< F(" mOK ") << rxModeOK(Icom706)
+           << F(": Frequency = ") << frequency 
+           << F(" Mode = ") << mode << endl;
   }
 }
 
