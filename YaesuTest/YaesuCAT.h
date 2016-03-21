@@ -11,6 +11,33 @@
 #ifndef _YAESU_CAT_H_
  #define _YAESU_CAT_H_
 
+#if  (defined(__linux) || defined(linux)) && !defined(__ARDUINO_X86__)
+
+  #include <stdint.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <sys/time.h>
+  #include <unistd.h> 
+#else
+  #include <Arduino.h>
+  #include <Stream.h>
+#endif
+
+#include <stdint.h>
+#include <string.h>
+
+#if defined(__ARDUINO_X86__) || (defined (__linux) || defined (linux))
+  #undef PROGMEM
+  #define PROGMEM __attribute__(( section(".progmem.data") ))
+  #define pgm_read_byte(p) (*(p))
+  typedef unsigned char byte;
+  #define printf_P printf
+  #define PSTR(x) (x)
+#else
+  #include <avr/pgmspace.h>
+#endif
+
 /** A class for the communication with Yaesu transceivers.
   *
   * Here only tested with a few commands and the FT-817ND.
@@ -18,6 +45,12 @@
 class YaesuCAT {
 public:
 
+  /** CAT special codes. */
+  enum {
+    ILLEGAL_MODE = 0xFF,       // no mode
+    ILLEGAL_FREQ = 0xFFFFFFFF, // no frequency
+  };
+  
   /** enum with known CAT commands for the FT-817ND. */
   enum {
     eSET_FRQUENCY   = 0x01,
@@ -43,6 +76,31 @@ public:
 
   } eCATmode;
 
+  /** Constructor for the class YaesuCAT, there is no rig-specific address here. */
+  YaesuCAT(Stream& stream);
+
+  /** Get the frequency from internal store. */
+  uint32_t getFrequency()
+   { return myFrequency; }
+  /** Get the mode from internal store. */
+  byte getMode()
+   { return myMode; }
+
+  /** Request frequency and mode from the rig. */
+  bool requestFrequencyAndMode();
+  
+  /** Write the desired frequency to the rig. */
+  bool writeFrequency(uint32_t frequency);
+  /** Write the desired mode to the rig. */
+  bool writeMode(byte mode);
+
+protected:
+  bool sendMessage(const byte* txMsg,size_t msgLen);
+
+  Stream&   myStream;
+  
+  byte      myMode;
+  uint32_t  myFrequency;
 };
 
 #endif // _YAESU_CAT_H_

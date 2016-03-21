@@ -8,6 +8,7 @@
 
 #define DEBUG
 
+#include "CATutil.h"
 #include "YaesuCAT.h"
 
 #ifdef DEBUG
@@ -35,11 +36,6 @@
 
 SoftwareSerial Serial2(8, 9); // RX, TX
 
-/** Print an integer in hex format, width can be specified, starts always with '0x'. */
-extern void printHex(unsigned int,unsigned int width=2);
-/** Print a complete char array in hex format, one line. */
-extern void printMessage(const byte* message,int msgLength);
-
 // local prototypes
 static int availableMemory();
   
@@ -57,16 +53,31 @@ void setup() {
   Serial2.begin(4800);  // menu item 14: 4800/9600/38400
 }
 
+YaesuCAT FT817(Serial2);
+
 void loop() {
 
+  uint32_t frequency = FT817.getFrequency();
+  byte mode = FT817.getMode();
+  
   static unsigned long loop_init = millis();
 
+  static unsigned long r_time = millis();
+  
+  if ( (frequency == YaesuCAT::ILLEGAL_FREQ || mode == YaesuCAT::ILLEGAL_MODE)
+       && (millis() - r_time > 200 ) ) {
+
+    FT817.requestFrequencyAndMode();
+    
+    r_time = millis();
+  }
+
+  uint32_t desired_frequency = "28175000";
+  byte desired_mode = YaesuCAT::eModeUSB;
+  
   int rxDataLen = 0;
   byte rxData[20];
 
-  int txDataLen = 0;
-  byte txData[8];
-  
   Serial2.listen();
   
   // check if 'Serial2' has data to receive
@@ -93,23 +104,8 @@ void loop() {
     
     loop_init = millis();
 
-    txData[txDataLen++] = 0x00;
-    txData[txDataLen++] = 0x00;
-    txData[txDataLen++] = 0x00;
-    txData[txDataLen++] = 0x00;
-    txData[txDataLen++] = YaesuCAT::eREAD_FREQ_MODE;  // 5 byte reply
-    //txData[txDataLen++] = YaesuCAT::eREAD_RX_STATUS;  // 1 byte reply
-    //txData[txDataLen++] = YaesuCAT::eREAD_TX_STATUS;  // 1 byte reply
-
-#ifdef DEBUG
-    Serial << F("Tx(") << txDataLen << F("): ");
-    printMessage(txData, txDataLen);
-#endif // DEBUG
-
-    for ( int i=0; i<txDataLen; ++i )
-      Serial2.write(txData[i]);
-
-    txDataLen = 0;
+    FT817.writeFrequency(144300000);
+  
   }
 }
 
@@ -117,6 +113,7 @@ void loop() {
 void mode2Text(byte mode) {
   
 }
+
 
 /** 
  *  Try to inquire max. available memory by allocating until heap is exhausted.
@@ -138,46 +135,5 @@ static int availableMemory() {
 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 #endif
-}
-
-/**
- * Print a hexadecimal number in hex format, with teh given length.
- */
-void printHex(unsigned int hex,unsigned int width) {
-  Serial.print("0x");
-  if ( hex < 16 )
-    Serial.print("0");
-  if ( width > 2 ) {
-    if ( hex < 0xfff )
-      Serial.print("0");
-    if ( hex < 0xff )
-      Serial.print("0");
-  }
-  if ( width > 4 ) {
-    if ( hex < 0xfffff )
-      Serial.print("0");
-    if ( hex < 0xffff )
-      Serial.print("0");
-  }
-  if ( width > 6 ) {
-    if ( hex < 0xfffffff )
-      Serial.print("0");
-    if ( hex < 0xffffff )
-      Serial.print("0");
-  }
-  Serial.print(hex, HEX);
-}
-
-/**
- * Print a string in hexadecimal notation.
- */
-void printMessage(const byte* message,int msgLength) {
-
-  for (int i=0; i<msgLength; ++i ) {
-    printHex(message[i], 2 );
-    Serial.print(" ");
-  }
-  if ( msgLength )
-    Serial.println();
 }
 
