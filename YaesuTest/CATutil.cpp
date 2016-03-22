@@ -11,7 +11,15 @@
 #include <Arduino.h>
 #include "CATutil.h"
 
-void printHex(unsigned int hex,unsigned int width) {
+int CATutil::getNibble(const byte* s,int i) {
+
+  byte k = s[i/2];
+  if ( i % 2 == 0 )
+    k = k >> 4;
+  return k & 0x0f;
+}
+
+void CATutil::print(unsigned int hex,unsigned int width) {
 
   Serial.print("0x");
   if ( hex < 16 )
@@ -37,10 +45,10 @@ void printHex(unsigned int hex,unsigned int width) {
   Serial.print(hex, HEX);
 }
 
-void print(const byte* message,size_t msgLength) {
+void CATutil::print(const byte* message,size_t msgLength) {
 
   for (size_t i=0; i<msgLength; ++i ) {
-    printHex(message[i], 2 );
+    print(message[i], 2 );
     Serial.print(" ");
   }
   if ( msgLength )

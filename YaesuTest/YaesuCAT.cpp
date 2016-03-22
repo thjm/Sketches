@@ -21,14 +21,6 @@ YaesuCAT::YaesuCAT(Stream& stream)
   // ..
 }
 
-static int getNibble(const byte* s,int i) {
-
-  byte k = s[i/2];
-  if ( i % 2 == 0 )
-    k = k >> 4;
-  return k & 0x0f;
-}
-
 uint32_t YaesuCAT::parseFrequency(const byte* message) {
 
   static byte ks[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -36,7 +28,7 @@ uint32_t YaesuCAT::parseFrequency(const byte* message) {
 
   for ( int i=0; i<sizeof(ks); ++i ) {
      byte k = ks[i];
-     f = 10*f + getNibble(message,k);
+     f = 10*f + CATutil::getNibble(message,k);
   }
 
   return f*10;
@@ -58,7 +50,7 @@ bool YaesuCAT::read() {
     if ( rxMsgLength == rxBytesExpected ) {
 
 #ifdef DEBUG
-      Serial << F("Rx(") << rxMsgLength << F("): "); print(rxMessage, rxBytesExpected);
+      Serial << F("Rx(") << rxMsgLength << F("): "); CATutil::print(rxMessage, rxBytesExpected);
 #endif // DEBUG
 
       switch ( lastCommand ) {
@@ -69,7 +61,7 @@ bool YaesuCAT::read() {
 
         default:
           Serial << F("Message ");
-          printHex(lastCommand);
+          CATutil::print(lastCommand);
           Serial << F(" ignored!") << endl;
       }
       
@@ -113,8 +105,7 @@ bool YaesuCAT::requestFrequencyAndMode() {
 
 #ifdef DEBUG
   Serial << F("Tx(5): ");
-  print(txMsg, 5);
-    //CATutil::print(txData, txDataLen);
+  CATutil::print(txMsg, 5);
 #endif // DEBUG
 
   return sendMessage(txMsg, 5);
@@ -126,8 +117,7 @@ bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
 
 #ifdef DEBUG
   Serial << F("Tx(") << msgLen << F("): ");
-  print(msg, msgLen);
-  //CATutil::print(msg, msgLen);
+  CATutil::print(msg, msgLen);
 #endif // DEBUG
   
   for (int i=0; i<msgLen; ++i) {
