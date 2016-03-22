@@ -10,6 +10,12 @@
 #ifndef __CAT_UTIL_H_
  #define __CAT_UTIL_H_
 
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
+
 #include <stdint.h>
 
 /** Create BCD 'byte' from two characters (digits), no error checking done! */

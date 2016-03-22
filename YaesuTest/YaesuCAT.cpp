@@ -13,7 +13,7 @@
 #define DEBUG
 
 #include "CATutil.h"
-#include "YaesuCat.h"
+#include "YaesuCAT.h"
 
 YaesuCAT::YaesuCAT(Stream& stream)
  : myStream(stream), rxMsgLength(0), rxBytesExpected(0),

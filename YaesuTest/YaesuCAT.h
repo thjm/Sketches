@@ -11,31 +11,10 @@
 #ifndef _YAESU_CAT_H_
  #define _YAESU_CAT_H_
 
-#if  (defined(__linux) || defined(linux)) && !defined(__ARDUINO_X86__)
-
-  #include <stdint.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string.h>
-  #include <sys/time.h>
-  #include <unistd.h> 
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
 #else
-  #include <Arduino.h>
-  #include <Stream.h>
-#endif
-
-#include <stdint.h>
-#include <string.h>
-
-#if defined(__ARDUINO_X86__) || (defined (__linux) || defined (linux))
-  #undef PROGMEM
-  #define PROGMEM __attribute__(( section(".progmem.data") ))
-  #define pgm_read_byte(p) (*(p))
-  typedef unsigned char byte;
-  #define printf_P printf
-  #define PSTR(x) (x)
-#else
-  #include <avr/pgmspace.h>
+  #include "WProgram.h"
 #endif
 
 /** A class for the communication with Yaesu transceivers.
