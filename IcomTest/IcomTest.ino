@@ -92,8 +92,8 @@ bool rxModeOK(IcomCAT& icom) {
   return false;
 }
 
-/** Mode 0 is active if either mode or frequency haven't been read from the rig. */
-static void loop_mode0(IcomCAT& icom,uint32_t& frequency,byte& mode) {
+/** This is active if either mode or frequency haven't been read from the rig. */
+static void rxRequestFrequencyAndMode(IcomCAT& icom,uint32_t& frequency,byte& mode) {
 
   static unsigned long r_time = millis();
   
@@ -114,8 +114,8 @@ static void loop_mode0(IcomCAT& icom,uint32_t& frequency,byte& mode) {
   }
 }
 
-/** Mode 1 is active if the frequency is not in the right range. */
-static void loop_mode1(IcomCAT& icom,uint32_t& frequency,byte& mode) {
+/** Called when the frequency is not in the right range. */
+static void rxSetFrequency(IcomCAT& icom,uint32_t& frequency,byte& mode) {
 
   static unsigned long s_time = millis();
 
@@ -127,8 +127,8 @@ static void loop_mode1(IcomCAT& icom,uint32_t& frequency,byte& mode) {
   }
 }
 
-/** Mode 2 is active if the mode is not correct. */
-static void loop_mode2(IcomCAT& icom,uint32_t& frequency,byte& mode) {
+/** Called when the mode is not correct. */
+static void rxSetMode(IcomCAT& icom,uint32_t& frequency,byte& mode) {
   
   static unsigned long s_time = millis();
 
@@ -170,13 +170,13 @@ void loop() {
 
   switch ( operation_mode ) {
     
-    case 0: loop_mode0(Icom706, frequency, mode);
+    case 0: rxRequestFrequencyAndMode(Icom706, frequency, mode);
             break;
 
-    case 1: loop_mode1(Icom706, frequency, mode);  // set right frequency
+    case 1: rxSetFrequency(Icom706, frequency, mode);  // set right frequency
             break;
 
-    case 2: loop_mode2(Icom706, frequency, mode);  // set right mode
+    case 2: rxSetMode(Icom706, frequency, mode);  // set right mode
             break;
 
     default: ;
@@ -186,7 +186,7 @@ void loop() {
   rxSerial.listen();
 #endif // (__AVR__)
 
-  // check if 'Serial1' has data to receive
+  // check if 'rxSerial' has data to receive
   if (rxSerial.available()) {
 
     Icom706.read();
