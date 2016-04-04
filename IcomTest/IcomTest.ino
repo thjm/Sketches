@@ -38,8 +38,8 @@
 
 SoftwareSerial rxSerial(10, 11); // RX, TX for the RX
 #else
- // use RX1,TX1 on the Teensy 3.1/3.2 board
- #define rxSerial  Serial1;
+ // use RX2,TX2 on the Teensy 3.1/3.2 board, Serial1 is identical to Serial and wired to USB
+ #define rxSerial  Serial2
 #endif // (__AVR__)
 
 IcomCAT Icom706(rxSerial,IC706MK2G_ADDR);
@@ -181,9 +181,11 @@ void loop() {
 
     default: ;
   }
-  
+
+#if defined (__AVR__)
   rxSerial.listen();
-  
+#endif // (__AVR__)
+
   // check if 'Serial1' has data to receive
   if (rxSerial.available()) {
 
