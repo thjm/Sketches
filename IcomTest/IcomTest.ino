@@ -20,6 +20,7 @@
 #include <CATutil.h>
 #include <IcomCAT.h>
 
+#if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
  
@@ -35,13 +36,18 @@
 */
 #include <SoftwareSerial.h>
 
-SoftwareSerial Serial1(10, 11); // RX, TX
+SoftwareSerial rxSerial(10, 11); // RX, TX for the RX
+#else
+ // use RX1,TX1 on the Teensy 3.1/3.2 board
+ #define rxSerial  Serial1;
+#endif // (__AVR__)
 
-
-IcomCAT Icom706(Serial1,IC706MK2G_ADDR);
+IcomCAT Icom706(rxSerial,IC706MK2G_ADDR);
 
 // local prototypes
+#if defined (__AVR__)
 static int availableMemory();
+#endif // (__AVR__)
 
 // code for setup and initialisation
 void setup() {
@@ -51,13 +57,15 @@ void setup() {
   Serial.begin(UART_BAUD_RATE);
   Serial << F("CATtransv: starting ...") << endl;
 
+ #if defined (__AVR__)
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());
+ #endif // (__AVR__)
 #endif // DEBUG
 
   // set the data rate for the SoftwareSerial port(s)
-  Serial1.begin(9600);
-  //Serial2.begin(9600);
+  rxSerial.begin(9600);
+  //txSerial.begin(9600);
 }
 
 /** Return true if the frequency is in the desired range. */
@@ -174,10 +182,10 @@ void loop() {
     default: ;
   }
   
-  Serial1.listen();
+  rxSerial.listen();
   
   // check if 'Serial1' has data to receive
-  if (Serial1.available()) {
+  if (rxSerial.available()) {
 
     Icom706.read();
     
@@ -185,7 +193,7 @@ void loop() {
       Icom706.parseMessage();
     }
     
-  } // Serial1.available()
+  } // rxSerial.available()
 
   // check if 'Serial2' has data to receive
   // ...
@@ -206,6 +214,7 @@ void loop() {
 /**
  * Try to inquire max. available memory by allocating until heap is exhausted.
  */
+#if defined (__AVR__)
 static int availableMemory() {
 
 #if 0
@@ -224,3 +233,9 @@ static int availableMemory() {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 #endif
 }
+#endif // (__AVR__)
+
+// code snippet for XXX specific code fragment
+#if defined(CORE_TEENSY) || defined(__AVR__) || defined(__ARM__)
+// ...
+#endif
