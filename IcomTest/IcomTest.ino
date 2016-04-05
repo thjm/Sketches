@@ -157,6 +157,7 @@ static void rxSetMode(IcomCAT& icom,uint32_t& frequency,byte& mode) {
 void loop() {
 
   static unsigned long loop_init = millis();
+  static unsigned long rx_init = millis();
   
   byte mode = Icom706.getMode();
   uint32_t frequency = Icom706.getFrequency();
@@ -180,16 +181,27 @@ void loop() {
 
   switch ( operation_mode ) {
     
-    case 0: rxRequestFrequencyAndMode(Icom706, frequency, mode);
-            break;
+    case 0: 
+      rxRequestFrequencyAndMode(Icom706, frequency, mode);
+      break;
 
-    case 1: rxSetFrequency(Icom706, frequency, mode);  // set right frequency
-            break;
+    case 1: 
+      rxSetFrequency(Icom706, frequency, mode);  // set right frequency
+      break;
 
-    case 2: rxSetMode(Icom706, frequency, mode);  // set right mode
-            break;
+    case 2: 
+      rxSetMode(Icom706, frequency, mode);  // set right mode
+      break;
 
-    default: ;
+    case 3: 
+      if ( (millis() - rx_init) > 5000 ) {
+        rxRequestFrequencyAndMode(Icom706, frequency, mode);
+        rx_init = millis();
+      }
+      break;
+
+    default:
+      ;
   }
 
 #if defined (__AVR__)
@@ -206,9 +218,6 @@ void loop() {
     }
     
   } // rxSerial.available()
-
-  // check if 'Serial2' has data to receive
-  // ...
 
   // display of frequency and mode from time to time
   if ( millis() - loop_init > 2000 ) {
