@@ -20,6 +20,8 @@
 #include <CATutil.h>
 #include <IcomCAT.h>
 
+#define RX_LOCKED_LED     13
+
 #if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
@@ -51,6 +53,9 @@ static int availableMemory();
 
 // code for setup and initialisation
 void setup() {
+
+  pinMode(RX_LOCKED_LED, OUTPUT);
+  digitalWrite(RX_LOCKED_LED, LOW);
   
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
@@ -167,6 +172,11 @@ void loop() {
     operation_mode = 2;
   else
     operation_mode = 3;
+
+  if ( operation_mode == 3 )
+    digitalWrite(RX_LOCKED_LED, HIGH);
+  else
+    digitalWrite(RX_LOCKED_LED, LOW);
 
   switch ( operation_mode ) {
     
