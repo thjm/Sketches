@@ -35,7 +35,7 @@ uint32_t IcomCAT::parseFrequency(const byte* message) {
   static byte ks[] = { 10, 11, 8, 9, 6, 7, 4, 5, 2, 3 };
   uint32_t f = 0;
 
-  for ( int i=0; i<sizeof(ks); ++i ) {
+  for (size_t i=0; i<sizeof(ks); ++i) {
      byte k = ks[i];
      f = 10*f + getNibble(message,k);
   }
@@ -198,7 +198,7 @@ bool IcomCAT::sendMessage(const byte* msg,size_t msgLen) {
   CATutil::print(msg, msgLen);
 #endif // DEBUG
   
-  for (int i=0; i<msgLen; ++i) {
+  for (size_t i=0; i<msgLen; ++i) {
 
     // SoftwareSerial will not receive during send
     if ( myStream.available() ) read();

@@ -131,7 +131,7 @@ protected:
   Stream&   myStream;
   byte      rigAddress;
   byte      rxMessage[MAXLEN+1];
-  int       rxMsgLength;
+  size_t    rxMsgLength;
   bool      rxMsgComplete;
 
   byte      myMode;

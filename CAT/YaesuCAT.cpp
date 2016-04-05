@@ -24,7 +24,7 @@ uint32_t YaesuCAT::parseFrequency(const byte* message) {
   static byte ks[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
   uint32_t f = 0;
 
-  for ( int i=0; i<sizeof(ks); ++i ) {
+  for (size_t i=0; i<sizeof(ks); ++i) {
      byte k = ks[i];
      f = 10*f + CATutil::getNibble(message,k);
   }
@@ -66,6 +66,7 @@ bool YaesuCAT::read() {
       rxBytesExpected = 0;
       rxMsgLength = 0;
     }
+    
     if ( rxMsgLength == MAXLEN ) {
       Serial << F("RX message buffer overflow!") << endl;
       rxMsgLength = 0;
@@ -118,7 +119,7 @@ bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
   CATutil::print(msg, msgLen);
 #endif // DEBUG
   
-  for (int i=0; i<msgLen; ++i) {
+  for (size_t i=0; i<msgLen; ++i) {
 
     // SoftwareSerial will not receive during send
     //if ( myStream.available() ) read();
@@ -150,7 +151,7 @@ bool YaesuCAT::writeFrequency(uint32_t frequency) {
   // ... with leading zeros
   while ( strlen(freq_str) < 10 ) {
     freq_str[strlen(freq_str)+1] = 0;
-    for ( int i=strlen(freq_str); i>0; --i)
+    for ( size_t i=strlen(freq_str); i>0; --i)
       freq_str[i] = freq_str[i-1];
     freq_str[0] = '0';
   }
