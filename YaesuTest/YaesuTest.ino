@@ -19,6 +19,7 @@
  #define UART_BAUD_RATE  9600
 #endif // DEBUG
 
+#if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
  
@@ -34,26 +35,34 @@
 */
 #include <SoftwareSerial.h>
 
-SoftwareSerial Serial2(8, 9); // RX, TX
+SoftwareSerial txSerial(8, 9); // RX, TX
+#else
+ // use RX3,TX3 on the Teensy 3.1/3.2 board, Serial1 is identical to Serial and wired to USB
+ #define txSerial  Serial3
+#endif // (__AVR__)
 
 // local prototypes
+#if defined (__AVR__)
 static int availableMemory();
-  
+#endif // (__AVR__)
+
 void setup() {
   
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
   Serial << F("YaesuTest: starting ...") << endl;
-
+  
+ #if defined (__AVR__)
   Serial << F("Free SRAM: ") << availableMemory() << endl;
+ #endif // (__AVR__)
 #endif // DEBUG
 
   // set the data rate for the SoftwareSerial port(s)
-  Serial2.begin(4800);  // menu item 14: 4800/9600/38400
+  txSerial.begin(4800);  // menu item 14: 4800/9600/38400
 }
 
-YaesuCAT FT817(Serial2);
+YaesuCAT FT817(txSerial);
 
 void loop() {
 
@@ -77,15 +86,17 @@ void loop() {
 
   uint32_t desired_frequency = 28175000; // 70.175 MHz transverted into 10m Band
   byte desired_mode = YaesuCAT::eModeUSB;
-  
-  Serial2.listen();
-  
-  // check if 'Serial2' has data to receive
-  if (Serial2.available()) {
+
+#if defined (__AVR__)
+  txSerial.listen();
+#endif // (__AVR__)
+
+  // check if 'txSerial' has data to receive
+  if (txSerial.available()) {
 
     FT817.read();
 
-  } // Serial2.available()
+  } // txSerial.available()
 
 #if 1
   // set desired frequency and mode (one quantity at a time)
@@ -129,15 +140,11 @@ void loop() {
   }
 }
 
-/** Convert Yaesu rig mode into text. */
-void mode2Text(byte mode) {
-  
-}
-
 
 /** 
  *  Try to inquire max. available memory by allocating until heap is exhausted.
  */
+#if defined (__AVR__)
 static int availableMemory() {
 
 #if 0
@@ -156,4 +163,5 @@ static int availableMemory() {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 #endif
 }
+#endif // (__AVR__)
 
