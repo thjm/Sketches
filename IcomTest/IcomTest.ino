@@ -20,6 +20,7 @@
 #include <CATutil.h>
 #include <IcomCAT.h>
 
+/** LED which indicates that RX loop is 'locked'. */
 #define RX_LOCKED_LED     13
 
 #if defined (__AVR__)
@@ -162,24 +163,24 @@ void loop() {
   byte mode = Icom706.getMode();
   uint32_t frequency = Icom706.getFrequency();
 
-  static byte operation_mode = 0;
+  static byte rxState = 0;
 
-  // set the operation_mode appropriately
+  // set the rxState appropriately
   if ( frequency == IcomCAT::ILLEGAL_FREQ || mode == IcomCAT::ILLEGAL_MODE )
-    operation_mode = 0;
+    rxState = 0;
   else if ( !rxFrequencyOK( Icom706 ) )
-    operation_mode = 1;
+    rxState = 1;
   else if ( !rxModeOK( Icom706 ) )
-    operation_mode = 2;
+    rxState = 2;
   else
-    operation_mode = 3;
+    rxState = 3;
 
-  if ( operation_mode == 3 )
+  if ( rxState == 3 )
     digitalWrite(RX_LOCKED_LED, HIGH);
   else
     digitalWrite(RX_LOCKED_LED, LOW);
 
-  switch ( operation_mode ) {
+  switch ( rxState ) {
     
     case 0: 
       rxRequestFrequencyAndMode(Icom706, frequency, mode);
@@ -224,7 +225,7 @@ void loop() {
     
     loop_init = millis();
 
-    Serial << F("OP mode ") << operation_mode 
+    Serial << F("OP mode ") << rxState 
            << F(" fOK ") << rxFrequencyOK(Icom706)
            << F(" mOK ") << rxModeOK(Icom706)
            << F(": Frequency = ") << frequency 
