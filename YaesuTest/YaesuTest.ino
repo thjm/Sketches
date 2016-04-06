@@ -8,8 +8,11 @@
 
 #define DEBUG
 
-#include "CATutil.h"
-#include "YaesuCAT.h"
+#include <CATutil.h>
+#include <YaesuCAT.h>
+
+/** LED which indicates that TX loop is 'locked'. */
+#define TX_LOCKED_LED     13
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
@@ -35,7 +38,7 @@
 */
 #include <SoftwareSerial.h>
 
-SoftwareSerial txSerial(8, 9); // RX, TX
+SoftwareSerial txSerial(8, 9); // RX(or), TX(rd)
 #else
  // use RX3,TX3 on the Teensy 3.1/3.2 board, Serial1 is identical to Serial and wired to USB
  #define txSerial  Serial3
@@ -47,7 +50,10 @@ static int availableMemory();
 #endif // (__AVR__)
 
 void setup() {
-  
+
+  pinMode(TX_LOCKED_LED, OUTPUT);
+  digitalWrite(TX_LOCKED_LED, LOW);
+
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
@@ -64,28 +70,90 @@ void setup() {
 
 YaesuCAT FT817(txSerial);
 
+/** Request TX frequency and mode settings from time to time. */
+static void txRequestFrequencyAndMode(YaesuCAT& ft817,unsigned long interval=200) {
+  
+  static unsigned long r_time = millis();
+  
+  if ( (millis() - r_time) > interval ) {
+
+    ft817.requestFrequencyAndMode();
+    
+    r_time = millis();
+  }
+}
+
+/** Set the desired frequency and mode of the TX (one quantity at a time). */
+static void txSetFrequencyAndMode(YaesuCAT& ft817, 
+                                  uint32_t& desired_frequency,
+                                  byte& desired_mode,
+                                  unsigned long interval=500) {
+  
+  static unsigned long s_time = millis();
+
+  uint32_t frequency = ft817.getFrequency();
+  byte mode = ft817.getMode();
+  
+  // send message to the rig
+  if ( millis() - s_time > interval ) {
+    
+    s_time = millis();
+
+    if ( frequency != desired_frequency )
+      ft817.writeFrequency(desired_frequency);
+    else if ( mode != desired_mode )
+      ft817.writeMode(desired_mode);
+  }
+}
+
+// the program's main loop
 void loop() {
 
   uint32_t frequency = FT817.getFrequency();
   byte mode = FT817.getMode();
-  
+
+  static byte txState = 0;
+
   static unsigned long loop_init = millis();
-
-#if 1
-  // request frequency and mode settings...
-  static unsigned long r_time = millis();
-  
-  if ( (frequency == YaesuCAT::ILLEGAL_FREQ || mode == YaesuCAT::ILLEGAL_MODE)
-       && (millis() - r_time > 200 ) ) {
-
-    FT817.requestFrequencyAndMode();
-    
-    r_time = millis();
-  }
-#endif
+  static unsigned long tx_init = millis();
 
   uint32_t desired_frequency = 28175000; // 70.175 MHz transverted into 10m Band
   byte desired_mode = YaesuCAT::eModeUSB;
+
+  // set the rxState appropriately
+  if ( frequency == YaesuCAT::ILLEGAL_FREQ || mode == YaesuCAT::ILLEGAL_MODE )
+    txState = 0;
+  else if ( frequency != desired_frequency || mode != desired_mode )
+    txState = 1;
+  else
+    txState = 2;
+
+  switch ( txState ) {
+
+    case 0:
+      txRequestFrequencyAndMode(FT817, 200);
+      break;
+
+    case 1:
+      txSetFrequencyAndMode(FT817, desired_frequency, desired_mode, 500);
+      txRequestFrequencyAndMode(FT817, 200);
+      break;
+
+    case 2:
+      if ( (millis() - tx_init) > 5000 ) {
+        FT817.requestFrequencyAndMode();
+        tx_init = millis();
+      }
+      break;
+
+    default:
+      ;
+  }
+
+  if ( txState == 2 )
+    digitalWrite(TX_LOCKED_LED, HIGH);
+  else
+    digitalWrite(TX_LOCKED_LED, LOW);
 
 #if defined (__AVR__)
   txSerial.listen();
@@ -98,41 +166,12 @@ void loop() {
 
   } // txSerial.available()
 
-#if 1
-  // set desired frequency and mode (one quantity at a time)
-  static unsigned long s_time = millis();
-  
-  // send message to the rig
-  if ( millis() - s_time > 500 ) {
-    
-    s_time = millis();
-
-    if ( frequency != desired_frequency )
-      FT817.writeFrequency(desired_frequency);
-    else if ( mode != desired_mode )
-      FT817.writeMode(desired_mode);
-  }
-#endif
-
-#if 1
-  // when everything is settled, read frequency/mode from time to time
-  static unsigned long p_time = millis();
-
-  if ( frequency == desired_frequency && mode == desired_mode 
-       && ( millis() - p_time) > 5000 ) {
-
-    FT817.requestFrequencyAndMode();
-    
-    p_time = millis();
-  }
-#endif
-
   // display of frequency and mode from time to time
   if ( millis() - loop_init > 2000 ) {
     
     loop_init = millis();
 
-    Serial //<< F("OP mode ") << operation_mode 
+    Serial << F("txState ") << txState 
            //<< F(" fOK ") << rxFrequencyOK(Icom706)
            //<< F(" mOK ") << rxModeOK(Icom706)
            << F(": Frequency = ") << frequency 
