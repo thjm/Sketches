@@ -19,7 +19,7 @@ IcomCAT::IcomCAT(Stream& stream,byte address)
    rxMsgLength(0), rxMsgComplete(false),
    myMode(ILLEGAL_MODE), myFrequency(ILLEGAL_FREQ)
  {
-  // ..
+
 }
 
 static int getNibble(const byte* s,int i) {
