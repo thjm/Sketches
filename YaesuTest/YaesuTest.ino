@@ -45,9 +45,7 @@ SoftwareSerial txSerial(8, 9); // RX(or), TX(rd)
 #endif // (__AVR__)
 
 // local prototypes
-#if defined (__AVR__)
-static int availableMemory();
-#endif // (__AVR__)
+static int getFreeRAM();
 
 void setup() {
 
@@ -59,9 +57,7 @@ void setup() {
   Serial.begin(UART_BAUD_RATE);
   Serial << F("YaesuTest: starting ...") << endl;
   
- #if defined (__AVR__)
-  Serial << F("Free SRAM: ") << availableMemory() << endl;
- #endif // (__AVR__)
+  Serial << F("Free SRAM: ") << getFreeRAM() << endl;
 #endif // DEBUG
 
   // set the data rate for the SoftwareSerial port(s)
@@ -86,7 +82,7 @@ static void txRequestFrequencyAndMode(YaesuCAT& ft817,unsigned long interval=200
 /** Set the desired frequency and mode of the TX (one quantity at a time). */
 static void txSetFrequencyAndMode(YaesuCAT& ft817, 
                                   uint32_t& desired_frequency,
-                                  byte& desired_mode,
+                                  byte desired_mode,
                                   unsigned long interval=500) {
   
   static unsigned long s_time = millis();
@@ -183,24 +179,33 @@ void loop() {
 /** 
  *  Try to inquire max. available memory by allocating until heap is exhausted.
  */
-#if defined (__AVR__)
-static int availableMemory() {
+static int getFreeRAM() {
 
-#if 0
-  // from: https://devel-ik.fzk.de/wsvn/fd-online/Diverse/Oktokopter/Arduino2Flasher/trunk/Arduino2Flasher.ino
-  int size = 10000;
-  byte *buf;
-  while ((buf = (byte *) malloc(--size)) == NULL);
-  free(buf);
-  return size;
-#else
+  char top;
+  
+#ifndef __arm__
+  extern char *__brkval;
+  extern char __bss_end;
+#endif  // __arm__
+
   // see also:
-  // https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
-  extern int __heap_start, *__brkval; 
-  int v; 
+  // https://forum.pjrc.com/threads/23256-Get-Free-Memory-for-Teensy-3-0
+#ifdef __arm__
+   uint32_t stackTop;
+    uint32_t heapTop;
 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
-#endif
+    // current position of the stack.
+    stackTop = (uint32_t) &stackTop;
+
+    // current position of heap.
+    void* hTop = malloc(1);
+    heapTop = (uint32_t) hTop;
+    free(hTop);
+
+    // The difference is the free, available ram.
+    return stackTop - heapTop;
+#else  // __arm__
+  return __brkval ? &top - __brkval : &top - &__bss_end;
+#endif  // __arm__
 }
-#endif // (__AVR__)
 
