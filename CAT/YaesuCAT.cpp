@@ -16,7 +16,7 @@
 YaesuCAT::YaesuCAT(Stream& stream)
  : myStream(stream), rxMsgLength(0), rxBytesExpected(0),
    myMode(ILLEGAL_MODE), myFrequency(ILLEGAL_FREQ) {
-  // ..
+
 }
 
 uint32_t YaesuCAT::parseFrequency(const byte* message) {
@@ -52,6 +52,7 @@ bool YaesuCAT::read() {
 #endif // DEBUG
 
       switch ( lastCommand ) {
+
         case eREAD_FREQ_MODE:
           myMode = rxMessage[4];
           myFrequency = parseFrequency(rxMessage);
