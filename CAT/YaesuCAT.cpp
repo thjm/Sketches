@@ -14,7 +14,8 @@
 #include "YaesuCAT.h"
 
 YaesuCAT::YaesuCAT(Stream& stream)
- : myStream(stream), rxMsgLength(0), rxBytesExpected(0),
+ : myStream(stream),
+   txBytes(0), rxMsgLength(0), rxBytesExpected(0),
    myMode(ILLEGAL_MODE), myFrequency(ILLEGAL_FREQ) {
 
 }
@@ -33,15 +34,23 @@ uint32_t YaesuCAT::parseFrequency(const byte* message) {
 }
 
 bool YaesuCAT::read() {
-  
+
   byte ch = myStream.read();
 
 #ifdef DEBUG
   //Serial << F("Rx[") << rxMsgLength << ("]: "); printHex(ch); Serial.println();
 #endif // DEBUG
 
+  // in case of SoftwareSerial there are no echo'ed bytes
+  if ( txBytes ) {
+//#ifdef DEBUG
+    Serial << F("Rx: "); CATutil::print(ch); Serial << F(" ignored!") << endl;
+//#endif // DEBUG
+    --txBytes;
+  }
+
   if ( rxBytesExpected ) {
-    
+
     rxMessage[rxMsgLength++] = ch;
 
     // complete message received?
@@ -63,11 +72,11 @@ bool YaesuCAT::read() {
           CATutil::print(lastCommand);
           Serial << F(" ignored!") << endl;
       }
-      
+
       rxBytesExpected = 0;
       rxMsgLength = 0;
     }
-    
+
     if ( rxMsgLength == MAXLEN ) {
       Serial << F("RX message buffer overflow!") << endl;
       rxMsgLength = 0;
@@ -82,7 +91,7 @@ bool YaesuCAT::read() {
  *  +------+------+------+------+------+
  *  | 0x00 | 0x00 | 0x00 | 0x00 | 0x03 |
  *  +------+------+------+------+------+
- *  
+ *
  * - message from Yaesu (123.45678 MHz):
  *  +------+------+------+------+------+
  *  | 0x12 | 0x34 | 0x56 | 0x78 | mode |
@@ -90,18 +99,22 @@ bool YaesuCAT::read() {
  */
 bool YaesuCAT::requestFrequencyAndMode() {
 
+//#ifdef DEBUG
+  Serial << F("requestFrequencyAndMode") << endl;
+//#endif // DEBUG
+
   byte txMsg[5];
-  
+
   rxBytesExpected = 5; // 5 byte reply expected
   lastCommand = YaesuCAT::eREAD_FREQ_MODE;
-  
+
   txMsg[0] = 0x00;
   txMsg[1] = 0x00;
   txMsg[2] = 0x00;
   txMsg[3] = 0x00;
-  txMsg[4] = lastCommand;  
-  //txData[txDataLen++] = YaesuCAT::eREAD_RX_STATUS;  // 1 byte reply
-  //txData[txDataLen++] = YaesuCAT::eREAD_TX_STATUS;  // 1 byte reply
+  txMsg[4] = lastCommand;
+  //txData[4] = YaesuCAT::eREAD_RX_STATUS;  // 1 byte reply
+  //txData[4] = YaesuCAT::eREAD_TX_STATUS;  // 1 byte reply
 
 #ifdef DEBUG
   Serial << F("Tx(5): ");
@@ -112,23 +125,26 @@ bool YaesuCAT::requestFrequencyAndMode() {
 }
 
 bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
-  
-  if (!msgLen ) return false;
 
-#ifdef DEBUG
+  if (!msgLen ) return false;
+  if ( txBytes ) return false;
+
+  txBytes = msgLen;
+
+//#ifdef DEBUG
   Serial << F("Tx(") << msgLen << F("): ");
   CATutil::print(msg, msgLen);
-#endif // DEBUG
-  
+//#endif // DEBUG
+
   for (size_t i=0; i<msgLen; ++i) {
 
     // SoftwareSerial will not receive during send
     //if ( myStream.available() ) read();
-    
+
     // should return 1 on success (i.e. 1 byte written)
     if ( !myStream.write(msg[i]) ) return false;
   }
-  
+
   return true;
 }
 
@@ -137,14 +153,18 @@ bool YaesuCAT::sendMessage(const byte* msg,size_t msgLen) {
  *  +------+------+------+------+------+
  *  | 0x12 | 0x34 | 0x56 | 0x78 | 0x01 |
  *  +------+------+------+------+------+
- *  
+ *
  * - message from Yaesu:
  *   NONE
  */
 bool YaesuCAT::writeFrequency(uint32_t frequency) {
 
+//#ifdef DEBUG
+  Serial << F("writerequency") << endl;
+//#endif // DEBUG
+
   byte message[5];
-  
+
     // convert the integer frequency into a string of 10 bytes length
   char freq_str[12];
   ultoa(frequency, freq_str, 10);
@@ -179,11 +199,15 @@ bool YaesuCAT::writeFrequency(uint32_t frequency) {
  *  +------+------+------+------+------+
  *  | mode | 0x00 | 0x00 | 0x00 | 0x07 |
  *  +------+------+------+------+------+
- *  
+ *
  * - message from Yaesu:
  *   NONE
  */
 bool YaesuCAT::writeMode(byte mode) {
+
+//#ifdef DEBUG
+  Serial << F("writeMode") << endl;
+//#endif // DEBUG
 
   byte message[5];
 

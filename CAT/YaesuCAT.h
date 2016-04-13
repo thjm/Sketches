@@ -115,16 +115,19 @@ public:
   bool writeMode(byte mode);
 
 protected:
+
   /** Parse frequency in BCD format to integer representation. */
   uint32_t parseFrequency(const byte* msg);
+
   /** Send string of bytes to the rig. */
   bool sendMessage(const byte* txMsg,size_t msgLen);
 
   Stream&   myStream;
-  byte      rxMessage[MAXLEN+1];
-  int       rxMsgLength;
-  int       rxBytesExpected;
-  byte      lastCommand;
+  byte      txBytes;              // number of bytes sent
+  byte      rxMessage[MAXLEN+1];  // buffer for received message
+  int       rxMsgLength;          // current length of received message
+  int       rxBytesExpected;      // number of RX bytes expected
+  byte      lastCommand;          // last command issued
   
   byte      myMode;
   uint32_t  myFrequency;
