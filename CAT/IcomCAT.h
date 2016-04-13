@@ -103,6 +103,7 @@ public:
   /** Return true if a message is complete for parsing. */
   bool msgIsComplete()
    { return rxMsgComplete; }
+
   /**  */
   bool parseMessage();
   
@@ -123,8 +124,10 @@ public:
   bool writeMode(byte mode);
 
 protected:
+
   /** Parse frequency in BCD format to integer representation. */
   uint32_t parseFrequency(const byte* message);
+
   /** Send string of bytes to the rig. */
   bool sendMessage(const byte* txMsg,size_t msgLen);
 
