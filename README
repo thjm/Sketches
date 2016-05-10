@@ -1,0 +1,19 @@
+$Id$
+
+README 4m-Transverter project directory.
+-----------------------------------------------------------------------------
+
+Sub-directories:
+-----------------
+
+Eagle - eagle sketches etc.
+
+LCDtest - test program for LCD via LCM1602 (I2C)
+
+LEDtest - test of the LEDs attached to the Teensy
+
+Rotary - test of a rotary encoder connected to the Teensy
+
+SwitchTest - test of the switches attached to the Teensy
+
+================================================================================
