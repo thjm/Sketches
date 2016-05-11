@@ -136,7 +136,7 @@ void loop() {
       break;
 
     case 2:
-      if ( (millis() - tx_init) > 5000 ) {
+      if ( (millis() - tx_init) > 500 ) {
         FT817.requestFrequencyAndMode();
         tx_init = millis();
       }
@@ -163,7 +163,8 @@ void loop() {
   } // txSerial.available()
 
   // display of frequency and mode from time to time
-  if ( millis() - loop_init > 2000 ) {
+  if (    (txState != 2 && (millis() - loop_init > 200))
+       || (txState == 2 && (millis() - loop_init > 2000)) ) {
     
     loop_init = millis();
 
