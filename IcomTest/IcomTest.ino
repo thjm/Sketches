@@ -20,9 +20,6 @@
 #include <CATutil.h>
 #include <IcomCAT.h>
 
-/** LED which indicates that RX loop is 'locked'. */
-#define RX_LOCKED_LED     13
-
 #if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
@@ -45,7 +42,7 @@ SoftwareSerial rxSerial(10, 11); // RX, TX for the RX
  #define rxSerial  Serial2
 #endif // (__AVR__)
 
-IcomCAT Icom706(rxSerial,IC706MK2G_ADDR);
+IcomCAT Icom706(rxSerial,kIC706MK2G_ADDR);
 
 // local prototypes
 #if defined (__AVR__)
@@ -55,9 +52,11 @@ static int availableMemory();
 // code for setup and initialisation
 void setup() {
 
-  pinMode(RX_LOCKED_LED, OUTPUT);
-  digitalWrite(RX_LOCKED_LED, LOW);
-  
+  pinMode(kRX_GREEN_LED, OUTPUT);
+  digitalWrite(kRX_GREEN_LED, LOW);
+  pinMode(kRX_RED_LED, OUTPUT);
+  digitalWrite(kRX_RED_LED, HIGH);
+
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
@@ -80,8 +79,8 @@ bool rxFrequencyOK(IcomCAT& icom) {
   uint32_t frequency = icom.getFrequency();
 
   //if ( frequency == IcomCAT::ILLEGAL_FREQ ) return false;
-  if ( frequency < 70000000 ) return false;
-  if ( frequency >= 70200000 ) return false;
+  if ( frequency < kRxFrequencyMin ) return false;
+  if ( frequency >= kRxFrequencyMax ) return false;
 
   return true;
 }
@@ -127,7 +126,7 @@ static void rxSetFrequency(IcomCAT& icom,uint32_t& frequency,byte& mode) {
 
   if ( !rxFrequencyOK(icom) && (millis() - s_time) > 200 ) {
 
-    icom.writeFrequency(70175000);
+    icom.writeFrequency(kRxFrequencyDefault);
     
     s_time = millis();
   }
@@ -175,10 +174,14 @@ void loop() {
   else
     rxState = 3;
 
-  if ( rxState == 3 )
-    digitalWrite(RX_LOCKED_LED, HIGH);
-  else
-    digitalWrite(RX_LOCKED_LED, LOW);
+  if ( rxState == 3 ) {
+    digitalWrite(kRX_GREEN_LED, HIGH);
+    digitalWrite(kRX_RED_LED, LOW);
+  }
+  else {
+    digitalWrite(kRX_GREEN_LED, LOW);
+    digitalWrite(kRX_RED_LED, HIGH);
+  }
 
   switch ( rxState ) {
     
