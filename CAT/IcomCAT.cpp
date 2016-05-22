@@ -14,8 +14,10 @@
 #include <CATutil.h>
 #include <IcomCAT.h>
 
+#define _DEBUG
+
 IcomCAT::IcomCAT(Stream& stream,byte address)
- : myStream(stream), rigAddress(address), 
+ : myStream(stream), rigAddress(address),
    rxMsgLength(0), rxMsgComplete(false),
    myMode(ILLEGAL_MODE), myFrequency(ILLEGAL_FREQ)
  {
@@ -48,15 +50,15 @@ bool IcomCAT::parseMessage() {
   if ( !rxMsgComplete ) return false;
 
 #ifdef DEBUG
-  Serial << F("Rx(") << rxMsgLength << F("): "); 
+  Serial << F("Rx(") << rxMsgLength << F("): ");
   CATutil::print(rxMessage,rxMsgLength);
 #endif // DEBUG
 
   // reset 'complete' flag
   rxMsgComplete = false;
-  
+
   bool err = false;
-  
+
   if (rxMessage[0] != IcomCAT::INTRO) err = true;
   if (rxMessage[1] != IcomCAT::INTRO) err = true;
   if (rxMessage[rxMsgLength-1] != IcomCAT::EOM) err = true;
@@ -73,12 +75,12 @@ bool IcomCAT::parseMessage() {
   if ( err ) {
     Serial << F("CAT message error!") << endl;
     rxMsgLength = 0;
-    
+
     return false;
   }
 
   bool status = true;
-  
+
   switch ( rxMessage[4] ) {
 
     case eTRANSFER_FREQ: // transfer operating frequency data
@@ -92,7 +94,7 @@ bool IcomCAT::parseMessage() {
       // 0x01 = wide, 0x02 = normal, 0x03 = narrow
       myMode = rxMessage[5];
       break;
-    
+
     default:
       Serial << F("Message ");
       CATutil::print(rxMessage[4]);
@@ -100,16 +102,16 @@ bool IcomCAT::parseMessage() {
       status = false;
       break;
   }
-  
+
   rxMsgLength = 0;
-  
+
   return status;
 }
 
 bool IcomCAT::read() {
 
   static int nIntro = 0;
-  
+
   byte ch = myStream.read();
 
 #ifdef DEBUG
@@ -142,7 +144,7 @@ bool IcomCAT::read() {
  *  +------+------+----+----+----+------+
  *  | 0xFE | 0xFE | 58 | E0 | 03 | 0xFD |
  *  +------+------+----+----+----+------+
- *  
+ *
  *  - message from ICom:
  *  +------+------+----+----+----+-------+-------+-------+-------+-------+------+
  *  | 0xFE | 0xFE | 00 | 58 | 00 | Data0 | Data1 | Data2 | Data3 | Data4 | 0xFD |
@@ -168,7 +170,7 @@ bool IcomCAT::requestFrequency() {
  *  +------+------+----+----+----+------+
  *  | 0xFE | 0xFE | 58 | E0 | 03 | 0xFD |
  *  +------+------+----+----+----+------+
- *  
+ *
  *  - message from ICom:
  *  +------+------+----+----+----+------+------+
  *  | 0xFE | 0xFE | 00 | 58 | 01 | mode | 0xFD |
@@ -190,23 +192,23 @@ bool IcomCAT::requestMode() {
 }
 
 bool IcomCAT::sendMessage(const byte* msg,size_t msgLen) {
-  
+
   if (!msgLen ) return false;
 
 #ifdef DEBUG
   Serial << F("Tx(") << msgLen << F("): ");
   CATutil::print(msg, msgLen);
 #endif // DEBUG
-  
+
   for (size_t i=0; i<msgLen; ++i) {
 
     // SoftwareSerial will not receive during send
     if ( myStream.available() ) read();
-    
+
     // should return 1 on success (i.e. 1 byte written)
     if ( !myStream.write(msg[i]) ) return false;
   }
-  
+
   return true;
 }
 
@@ -218,7 +220,7 @@ bool IcomCAT::sendMessage(const byte* msg,size_t msgLen) {
  *  +------+------+----+----+----+-------+-------+-------+-------+-------+------+
  *  | 0xFE | 0xFE | 58 | E0 | 05 | Data0 | Data1 | Data2 | Data3 | Data4 | 0xFD |
  *  +------+------+----+----+----+-------+-------+-------+-------+-------+------+
- *  
+ *
  *  - message from ICom:
  *  +------+------+----+----+------+------+
  *  | 0xFE | 0xFE | E0 | 58 | 0xFB | 0xFD |
@@ -236,7 +238,7 @@ bool IcomCAT::writeFrequency(uint32_t frequency) {
   message[msgLen++] = IcomCAT::eSET_OPERATING_FREQ;
 
   byte *ptr = &message[msgLen];
-  
+
   for (int i=0; i<5; ++i )
     message[msgLen++] = 0;
 
@@ -262,7 +264,7 @@ bool IcomCAT::writeFrequency(uint32_t frequency) {
   *ptr++ = bcd(freq_str[4], freq_str[5]);
   *ptr++ = bcd(freq_str[2], freq_str[3]);
   *ptr++ = bcd(freq_str[0], freq_str[1]);
-  
+
   message[msgLen++] = IcomCAT::EOM;
 
 #ifdef DEBUG
@@ -271,7 +273,7 @@ bool IcomCAT::writeFrequency(uint32_t frequency) {
 #endif // DEBUG
 
   myFrequency = IcomCAT::ILLEGAL_FREQ;
-  
+
   return sendMessage(message, msgLen);
 }
 
@@ -280,7 +282,7 @@ bool IcomCAT::writeFrequency(uint32_t frequency) {
  *  +------+------+----+----+----+------+------+
  *  | 0xFE | 0xFE | 58 | E0 | 06 | mode | 0xFD |
  *  +------+------+----+----+----+------+------+
- *  
+ *
  *  - message from ICom:
  *  +------+------+----+----+------+------+
  *  | 0xFE | 0xFE | E0 | 58 | 0xFB | 0xFD |
@@ -300,7 +302,7 @@ bool IcomCAT::writeMode(byte mode) {
   message[msgLen++] = IcomCAT::EOM;
 
   myMode = IcomCAT::ILLEGAL_MODE;
-  
+
   return sendMessage(message, msgLen);
 }
 
