@@ -17,6 +17,7 @@
 #include "IcomControl.h"
 
 #define DEBUG
+#define DEBUG_SWITCH
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
@@ -59,6 +60,9 @@ void setup() {
 
   // setup serial interface for RX
   rxSerial.begin(9600);
+
+  // setup serial interface for TX
+  //txSerial.begin(4800);
   
   // setup of the LCD display via LCM1602
   lcd.init();
@@ -74,11 +78,13 @@ void setup() {
 #ifdef DEBUG
   // serial interface for debugging etc.
   Serial.begin(9600);
-  
+
+#if 0
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  
+#endif
+
   Serial.println("Initialisation done!");
 #endif // DEBUG
 
@@ -106,8 +112,14 @@ TransvControlRec_t transvControl;
 void loop() {
 
   static bool first = true;
-  static unsigned long loop_init = millis();
+  static unsigned long loop_counter = millis();
+  static unsigned long lcd_counter = millis();
+  
+#ifdef DEBUG_SWITCH
   static bool left_switch = (bool)digitalRead(kLEFT_SWITCH);
+  static bool middle_switch = (bool)digitalRead(kMIDDLE_SWITCH);
+  static bool right_switch = (bool)digitalRead(kRIGHT_SWITCH);
+#endif // DEBUG_SWITCH
 
   transvControl.rxMode = Icom706.getMode();
   transvControl.rxFrequency = Icom706.getFrequency();
@@ -116,9 +128,17 @@ void loop() {
   //transvControl.txFrequency = FT817.getFrequency();
   
   if ( first ) {
-    
+
+#ifdef DEBUG_SWITCH    
     Serial.print("Left switch is ");
     Serial.println((left_switch ? "ON" : "OFF"));
+    
+    Serial.print("Middle switch is ");
+    Serial.println((middle_switch ? "ON" : "OFF"));
+
+    Serial.print("Right switch is ");
+    Serial.println((right_switch ? "ON" : "OFF"));
+#endif // DEBUG_SWITCH
 
     // prepare for RX frequency display
     // 0123456789012345
@@ -140,6 +160,7 @@ void loop() {
 
   Icom706.setEnable( isRxControlEnabled() );
 
+#ifdef DEBUG_SWITCH
   if ( (bool)digitalRead(kLEFT_SWITCH) != left_switch) {
     Serial.print("Left switch is ");
     left_switch = !left_switch;
@@ -147,13 +168,32 @@ void loop() {
 
     delay(20);  // 'debouncing'
   }
+  
+  if ( (bool)digitalRead(kMIDDLE_SWITCH) != middle_switch) {
+    Serial.print("Middle switch is ");
+    middle_switch = !middle_switch;
+    Serial.println((middle_switch ? "ON" : "OFF"));
+
+    delay(20);  // 'debouncing'
+  }
+  
+  if ( (bool)digitalRead(kRIGHT_SWITCH) != right_switch) {
+    Serial.print("Right switch is ");
+    right_switch = !right_switch;
+    Serial.println((right_switch ? "ON" : "OFF"));
+
+    delay(20);  // 'debouncing'
+  }
+#endif // DEBUG_SWITCH
 
   bool rxStatus = Icom706.run( transvControl.rxFrequency, transvControl.rxMode );
 
   bool txStatus = false;
   
   // write RX frequency to LCD
-  if ( transvControl.rxFrequency != IcomCAT::ILLEGAL_FREQ ) {
+  if ( transvControl.rxFrequency != IcomCAT::ILLEGAL_FREQ && lcd_counter > 1000 ) {
+
+    lcd_counter = millis();
     
     // convert the integer frequency into a string of 10 bytes length
     char freq_str[12];
@@ -166,7 +206,7 @@ void loop() {
         freq_str[i] = freq_str[i-1];
       freq_str[0] = ' ';
     }
-    
+
     lcd.setCursor(3, 0);
     for ( int i=0; i<3; ++i )
       lcd.print(freq_str[i]);
@@ -195,9 +235,9 @@ void loop() {
   }
 
   // display of frequency and mode from time to time
-  if ( millis() - loop_init > 2000 ) {
+  if ( millis() - loop_counter > 2000 ) {
     
-    loop_init = millis();
+    loop_counter = millis();
     
 #ifdef DEBUG
     Serial << F("RX(") << (int)rxStatus << F("): ") 
