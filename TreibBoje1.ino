@@ -9,7 +9,7 @@
 // debug via serial interface
 #define DEBUG
 // scan sensors (to inquire addresses)
-#undef SCAN_SENSORS
+#define SCAN_SENSORS
 // read temperature sensors
 #define READ_SENSORS
 // send the data via 433MHZ Tx
@@ -130,10 +130,19 @@ void setup()
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("Starting ...") << endl;
+  Serial << F("''TreibBoje' starting ...") << endl;
 
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());
+#ifdef SEND_DATA
+  Serial << F("Sending data...\n");
+#endif // SEND_DATA
+#ifdef USE_RCSWITCH
+  Serial << F("- with RCswitch protocol\n");
+#endif // USE_RCSWITCH
+#ifdef USE_MORSE
+  Serial << F("- with morse, speed="); Serial.println(MORSE_SPEED);
+#endif // USE_MORSE
 #endif // DEBUG
 
   // OneWire setup etc.
@@ -267,14 +276,30 @@ int getRawTemperature(float temp,int precision=12) {
   #define SEND_T4(_x) theSender.send((_x & 0x1ff) | (0x0400 << 1), 12)
   #define SEND_T5(_x) theSender.send((_x & 0x1ff) | (0x0500 << 1), 12)
  #elif (defined USE_MORSE)
-  #define SEND_SYNC(_x) { morseGen.print("="); }
+  #define SEND_SYNC(_x) { if ( _x == 1 ) \
+                            morseGen.print("KA "); \
+                          else \
+                            morseGen.print("+"); \
+                        }
   #define SEND_CYCLE_COUNTER() { morseGen.print(gCycleCounter & 0x1ff); }
-  #define SEND_LDR(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T1(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T2(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T3(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T4(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T5(_x) { morseGen.print(_x & 0x1ff); }
+  // LDR
+  //#define SEND_LDR(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_LDR(_x) { morseGen.print("= LDR "); morseGen.print(_x & 0x1ff); }
+  // T1
+  //#define SEND_T1(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T1(_x) { morseGen.print("= T1 "); morseGen.print(_x & 0x1ff); }
+  // T2
+  //#define SEND_T2(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T2(_x) { morseGen.print("= T2 "); morseGen.print(_x & 0x1ff); }
+  // T3
+  //#define SEND_T3(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T3(_x) { morseGen.print("= T3 "); morseGen.print(_x & 0x1ff); }
+  // T4
+  //#define SEND_T4(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T4(_x) { morseGen.print("= T4 "); morseGen.print(_x & 0x1ff); }
+  // T5
+  //#define SEND_T5(_x) { morseGen.print(_x & 0x1ff); }
+  #define SEND_T5(_x) { morseGen.print("= T5 "); morseGen.print(_x & 0x1ff); }
   //#define SEND_T5(_x) { morseGen << "T5 " << (_x & 0x1ff); }
  #else
   #define SEND_SYNC(_x) {}
@@ -315,13 +340,12 @@ void loop() {
  #endif // USE_MORSE 
 #endif // SEND_DATA
 
-#ifdef USE_MORSE
-  morseGen.print("QAM de DC2IP");
-  
-#endif // USE_MORSE
-
   SEND_SYNC(1);
   
+#ifdef USE_MORSE
+  morseGen.print("QAM de DC2IP ");
+#endif // USE_MORSE
+
   SEND_CYCLE_COUNTER();
  #ifdef DEBUG
   Serial << "# " << gCycleCounter << endl;
@@ -410,10 +434,6 @@ void loop() {
   SEND_SYNC(2);
   
   gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
-
-#ifdef USE_MORSE
-  morseGen.print("+");
-#endif // USE_MORSE
 
 #if 1
   // wait a bit, if too few sensors
