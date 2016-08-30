@@ -1,0 +1,174 @@
+// File   : EEprom.cpp
+//
+// Purpose: Implementation of the class EEprom
+//
+// $Id$
+//
+
+#include "EEprom.h"
+
+// ---------------------------------------------------------------------------------
+
+EEprom::EEprom() {
+  
+  // !CE to high, output
+  CE_PORT |= CE_MASK;
+  CE_DDR |= CE_MASK;
+  
+  // !OE to high, output
+  OE_PORT |= OE_MASK;
+  OE_DDR |= OE_MASK;
+
+  // !WE to high, output
+  WE_PORT |= WE_MASK;
+  WE_DDR |= WE_MASK;
+
+  // strobe signals STR1 .. STR3 to high, output
+  STR1_PORT |= STR1_MASK;
+  STR1_DDR |= STR1_MASK;
+  STR2_PORT |= STR2_MASK;
+  STR2_DDR |= STR2_MASK;
+  STR3_PORT |= STR3_MASK;
+  STR3_DDR |= STR3_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+
+uint8_t EEprom::read(uint32_t addr) {
+
+  setAddress( addr );
+  
+  return read();
+}
+
+// ---------------------------------------------------------------------------------
+
+uint8_t EEprom::read() {
+  
+  // set 'data bus' to input
+  DATA_LOW_DDR &= ~DATA_LOW_MASK;
+  DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+
+  // first !CE to low then read when !OE is low
+  CE_PORT &= ~CE_MASK;
+  OE_PORT &= ~OE_MASK;
+
+  uint8_t data = (DATA_HIGH_PIN & DATA_HIGH_MASK) | (DATA_LOW_PIN & DATA_LOW_MASK);
+
+  // both !OE and !CE back to high
+  OE_PORT |= OE_MASK;
+  CE_PORT |= CE_MASK;
+
+  return data;
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::setAddress(uint32_t addr) {
+
+  setAddressLSB( (uint8_t)(addr & 0xff) );
+  setAddressMSB( (uint8_t)((addr & 0xff00) >> 8) );
+  setAddressHSB( (uint8_t)((addr & 0xff0000) >> 16) );
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::setAddressLSB(uint8_t addr) {
+
+  // write low nibble
+  DATA_LOW_DDR |= DATA_LOW_MASK;
+  DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (addr & DATA_LOW_MASK);
+  // write high nibble
+  DATA_HIGH_DDR |= DATA_HIGH_MASK;
+  DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
+
+  // latch it
+  STR1_PORT &= ~STR1_MASK;
+  // each nop is 62.5 ns, http://playground.arduino.cc/Main/AVR
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  STR1_PORT |= STR1_MASK;
+
+  // 'data bus' back to input
+  DATA_LOW_DDR &= ~DATA_LOW_MASK;
+  DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::setAddressMSB(uint8_t addr) {
+  
+  // write low nibble
+  DATA_LOW_DDR |= DATA_LOW_MASK;
+  DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (addr & DATA_LOW_MASK);
+  // write high nibble
+  DATA_HIGH_DDR |= DATA_HIGH_MASK;
+  DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
+
+  // latch it
+  STR2_PORT &= ~STR2_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  STR2_PORT |= STR2_MASK;
+
+  // 'data bus' back to input
+  DATA_LOW_DDR &= ~DATA_LOW_MASK;
+  DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::setAddressHSB(uint8_t addr) {
+  
+  // write low nibble
+  DATA_LOW_DDR |= DATA_LOW_MASK;
+  DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (addr & DATA_LOW_MASK);
+  // write high nibble
+  DATA_HIGH_DDR |= DATA_HIGH_MASK;
+  DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
+
+  // latch it
+  STR3_PORT &= ~STR3_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  STR3_PORT |= STR3_MASK;
+
+  // 'data bus' back to input
+  DATA_LOW_DDR &= ~DATA_LOW_MASK;
+  DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::write(uint32_t addr,uint8_t data) {
+
+  setAddress( addr );
+  write( data );
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::write(uint8_t data) {
+
+  // select the chip
+  CE_PORT &= ~CE_MASK;
+  
+  // write low nibble
+  DATA_LOW_DDR |= DATA_LOW_MASK;
+  DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (data & DATA_LOW_MASK);
+  // write high nibble
+  DATA_HIGH_DDR |= DATA_HIGH_MASK;
+  DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (data & DATA_HIGH_MASK);
+
+  // write it into the EEPROM
+  WE_PORT &= ~WE_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  WE_PORT |= WE_MASK;
+
+  // deselect the chip
+  CE_PORT |= CE_MASK;
+
+  // 'data bus' back to input
+  DATA_LOW_DDR &= ~DATA_LOW_MASK;
+  DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
