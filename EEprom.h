@@ -65,7 +65,7 @@ class EEprom {
 public:
   /** Constructor for the class EEprom.
    *
-   *  Modes of the used pins as well as their default state is set.
+   *  Modes of the used pins as well as their default state are set.
    */
   EEprom();
 

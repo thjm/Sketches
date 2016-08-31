@@ -16,13 +16,15 @@
 	* reserved lines:
 	  - PC4/PC5 for SDA/SCL (A4/A5)
 	  - PD0/PD1 for RxD/TxD (D0/D1)
-	  - PD2/PD3
+	  - PD2/PD3 not used
 
 	Created 30 Aug 2016
 	Hermann-Josef Mathes <dc2ip@darc.de>
 	Modified day month year
 	By author's name
 
+  $Id$
+  
 	https://www.arduino.cc/en/Reference/PortManipulation
   https://www.arduino.cc/en/Hacking/Atmega168Hardware
 

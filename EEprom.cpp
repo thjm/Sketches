@@ -23,12 +23,12 @@ EEprom::EEprom() {
   WE_PORT |= WE_MASK;
   WE_DDR |= WE_MASK;
 
-  // strobe signals STR1 .. STR3 to high, output
-  STR1_PORT |= STR1_MASK;
+  // strobe signals STR1 .. STR3 to low, output
+  STR1_PORT &= ~STR1_MASK;
   STR1_DDR |= STR1_MASK;
-  STR2_PORT |= STR2_MASK;
+  STR2_PORT &= ~STR2_MASK;
   STR2_DDR |= STR2_MASK;
-  STR3_PORT |= STR3_MASK;
+  STR3_PORT &= ~STR3_MASK;
   STR3_DDR |= STR3_MASK;
 }
 
@@ -82,11 +82,11 @@ void EEprom::setAddressLSB(uint8_t addr) {
   DATA_HIGH_DDR |= DATA_HIGH_MASK;
   DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
 
-  // latch it
-  STR1_PORT &= ~STR1_MASK;
+  // latch it, positive edge
+  STR1_PORT |= STR1_MASK;
   // each nop is 62.5 ns, http://playground.arduino.cc/Main/AVR
   __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-  STR1_PORT |= STR1_MASK;
+  STR1_PORT &= ~STR1_MASK;
 
   // 'data bus' back to input
   DATA_LOW_DDR &= ~DATA_LOW_MASK;
@@ -104,10 +104,10 @@ void EEprom::setAddressMSB(uint8_t addr) {
   DATA_HIGH_DDR |= DATA_HIGH_MASK;
   DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
 
-  // latch it
-  STR2_PORT &= ~STR2_MASK;
-  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  // latch it, positive edge
   STR2_PORT |= STR2_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  STR2_PORT &= ~STR2_MASK;
 
   // 'data bus' back to input
   DATA_LOW_DDR &= ~DATA_LOW_MASK;
@@ -125,10 +125,10 @@ void EEprom::setAddressHSB(uint8_t addr) {
   DATA_HIGH_DDR |= DATA_HIGH_MASK;
   DATA_HIGH_PORT = (DATA_HIGH_PORT & ~DATA_HIGH_MASK) | (addr & DATA_HIGH_MASK);
 
-  // latch it
-  STR3_PORT &= ~STR3_MASK;
-  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  // latch it, positive edge
   STR3_PORT |= STR3_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  STR3_PORT &= ~STR3_MASK;
 
   // 'data bus' back to input
   DATA_LOW_DDR &= ~DATA_LOW_MASK;
