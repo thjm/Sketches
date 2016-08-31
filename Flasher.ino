@@ -11,21 +11,21 @@
 	* OE is connected to PB4 (D12)
 	* WE is connected to PB3 (D11)
 	* STR1 (Strobe 1) latches LSB of address bus, connected to PB2 (D10)
-	* STR2 (Strobe 1) latches MSB of address bus, connected to PB1 (D9)
-	* STR3 (Strobe 1) latches HSB of address bus, connected to PB0 (D8)
+	* STR2 (Strobe 2) latches MSB of address bus, connected to PB1 (D9)
+	* STR3 (Strobe 3) latches HSB of address bus, connected to PB0 (D8)
 	* reserved lines:
 	  - PC4/PC5 for SDA/SCL (A4/A5)
 	  - PD0/PD1 for RxD/TxD (D0/D1)
 	  - PD2/PD3 not used
 
 	Created 30 Aug 2016
-	Hermann-Josef Mathes <dc2ip@darc.de>
+	 Hermann-Josef Mathes <dc2ip@darc.de>
 	Modified day month year
 	By author's name
 
   $Id$
 
-  Port manipulation: for the Arduino Nano we have:
+  Port manipulation, for the Arduino Nano we have:
   - PB0 .. PB5 = D8 .. D13
   - PC0 .. PC5 = A0 .. A5
   - PD0 .. PD7 = D0 .. D7
@@ -35,6 +35,8 @@
   https://www.arduino.cc/en/Hacking/Atmega168Hardware
 
 */
+
+#define DEBUG
 
 // http://arduiniana.org/libraries/streaming/
 #include <Streaming.h>
@@ -59,24 +61,24 @@ uint8_t addr = 0x01;
 /**  */
 void loop() {
 
+#ifdef DEBUG
   Serial.print("0x");
   if ( addr < 0x0f )
     Serial.print("0");
   Serial.println(addr, HEX);
-  
+#endif // DEBUG
+
   eeprom.setAddressLSB(addr);
 
-  delay(2000);
+  delay(100);
 
-#if 0
   eeprom.setAddressMSB(addr);
 
-  delay(200);
+  delay(100);
 
   eeprom.setAddressHSB(addr);
 
-  delay(2000);
-#endif
+  delay(2500);
 
   addr <<= 1;
   //addr += 1;
