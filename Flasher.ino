@@ -56,10 +56,77 @@ void setup() {
   Serial << F("Starting ...") << endl;
 }
 
-uint8_t addr = 0x01;
+// data buffer
+uint8_t eepromData[512];
+uint32_t eepromAddr = 0;
 
 /**  */
 void loop() {
+
+  static bool first = true;
+
+  if ( first ) {
+    
+    for ( int i=0; i<sizeof(eepromData); ++i )
+      eepromData[i] = (uint8_t)(i & 0xff);
+    
+    HexDump(eepromData, sizeof(eepromData), eepromAddr);
+
+    first = false;
+  }
+  
+  testAddressLatches();
+}
+
+/** Function to create hex dump from data, organized as 8 bit words. */
+void HexDump(uint8_t *data,size_t length,uint32_t addr) {
+
+  for ( size_t j=0; j<length/16+1; ++j ) {
+
+    if ( j*16 >= length ) break;
+
+    // to be fixed: https://forum.arduino.cc/index.php?topic=38107.0
+    Serial.print(F("0x"));
+    if ( addr+j*16 < 0x1000 )
+      Serial.print(F("0"));
+    if ( addr+j*16 < 0x100 )
+      Serial.print(F("0"));
+    if ( addr+j*16 < 0x10 )
+      Serial.print(F("0"));
+    Serial.print(addr+j*16, HEX);   // output real address
+
+    for (size_t i=0; i<16; ++i ) {  // output binary data, 1-byte format
+      if ( i == 8 )
+        Serial.print( " -");
+      if ( j*16+i >= length )
+        Serial.print(F("     "));
+      else {
+        Serial.print(F(" 0x"));
+        if ( data[j*16+i] < 0x10 )
+          Serial.print(F("0"));
+        Serial.print(data[j*16+i], HEX );
+      }
+    }
+
+    Serial.print(F("  "));
+
+    for (size_t i=0; i<16; ++i ) {  // output char representation (if any)
+
+      if ( j*16+i >= length ) break;
+
+      if ( data[j*16+i]<0x20 || data[j*16+i]>0x7f )
+        Serial.print(F("."));
+      else
+        Serial.write(data[j*16+i]);
+    }
+    Serial.println();
+  }
+}
+
+/** Test code to test the address latching unit. */
+void testAddressLatches() {
+
+  static uint8_t addr = 0x01;
 
 #ifdef DEBUG
   Serial.print("0x");
@@ -78,10 +145,11 @@ void loop() {
 
   eeprom.setAddressHSB(addr);
 
-  delay(2500);
-
   addr <<= 1;
   //addr += 1;
 
   if ( !addr ) addr = 0x01;
+
+  delay(2500);
 }
+
