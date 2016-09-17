@@ -66,16 +66,29 @@ void loop() {
   static bool first = true;
 
   if ( first ) {
-    
+
+#if 0
     for ( int i=0; i<sizeof(eepromData); ++i )
       eepromData[i] = (uint8_t)(i & 0xff);
     
     HexDump(eepromData, sizeof(eepromData), eepromAddr);
+#endif
 
     first = false;
   }
   
-  testAddressLatches();
+  //testAddressLatches();
+
+  // read 16 bytes from (E)EPROM
+  for ( int i=0; i<16; ++i ) {
+
+    eepromAddr = (uint32_t)(i + 0x0000);
+    eeprom.setAddress( eepromAddr );
+    
+    eepromData[i] = eeprom.read();
+  }
+
+  HexDump(eepromData, 16, eepromAddr);
 }
 
 /** Function to create hex dump from data, organized as 8 bit words. */
