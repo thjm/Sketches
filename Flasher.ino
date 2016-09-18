@@ -63,32 +63,48 @@ uint32_t eepromAddr = 0;
 /**  */
 void loop() {
 
+#if 0
   static bool first = true;
 
   if ( first ) {
 
-#if 0
+    Serial.println("Fake data:");
+    
     for ( int i=0; i<sizeof(eepromData); ++i )
       eepromData[i] = (uint8_t)(i & 0xff);
     
     HexDump(eepromData, sizeof(eepromData), eepromAddr);
-#endif
 
     first = false;
   }
-  
+#endif
+
   //testAddressLatches();
 
-  // read 16 bytes from (E)EPROM
-  for ( int i=0; i<16; ++i ) {
+  int nBytes = 256;
 
-    eepromAddr = (uint32_t)(i + 0x0000);
-    eeprom.setAddress( eepromAddr );
+#if 0
+  Serial.println("EEPROM data (single read):");
+  
+  // read 'nBytes' bytes from (E)EPROM
+  for ( int i=0; i<nBytes; ++i ) {
+
+    eeprom.setAddress( (uint32_t)(i + eepromAddr) );
     
     eepromData[i] = eeprom.read();
   }
 
-  HexDump(eepromData, 16, eepromAddr);
+  HexDump(eepromData, nBytes, eepromAddr);
+#endif
+
+#if 1
+  Serial.println("EEPROM data (block read):");
+
+  eeprom.read(eepromAddr, eepromData, nBytes);
+  HexDump(eepromData, nBytes, eepromAddr);
+#endif
+
+  delay(5000);
 }
 
 /** Function to create hex dump from data, organized as 8 bit words. */

@@ -43,6 +43,16 @@ uint8_t EEprom::read(uint32_t addr) {
 
 // ---------------------------------------------------------------------------------
 
+void EEprom::read(uint32_t addr,uint8_t *data,uint32_t length) {
+
+  for (uint32_t i=0; i<length; ++i) {
+    setAddress( addr + i );
+    data[i] = read();
+  }
+}
+
+// ---------------------------------------------------------------------------------
+
 uint8_t EEprom::read() {
   
   // set 'data bus' to input
@@ -51,12 +61,16 @@ uint8_t EEprom::read() {
 
   // first !CE to low then read when !OE is low
   CE_PORT &= ~CE_MASK;
+  // each nop is 62.5 ns, http://playground.arduino.cc/Main/AVR
+  __asm__("nop\n\t""nop\n\t");
   OE_PORT &= ~OE_MASK;
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
 
   uint8_t data = (DATA_HIGH_PIN & DATA_HIGH_MASK) | (DATA_LOW_PIN & DATA_LOW_MASK);
 
   // both !OE and !CE back to high
   OE_PORT |= OE_MASK;
+  __asm__("nop\n\t""nop\n\t");
   CE_PORT |= CE_MASK;
 
   return data;

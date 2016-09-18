@@ -72,6 +72,9 @@ public:
   /** Read a byte from the specified address. */
   uint8_t read(uint32_t);
 
+  /** Read a block of 'length' bytes from the specified address. */
+  void read(uint32_t addr,uint8_t *data,uint32_t length);
+
   /** Write a byte to the specified address. */
   void write(uint32_t,uint8_t);
 
