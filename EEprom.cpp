@@ -62,15 +62,15 @@ uint8_t EEprom::read() {
   // first !CE to low then read when !OE is low
   CE_PORT &= ~CE_MASK;
   // each nop is 62.5 ns, http://playground.arduino.cc/Main/AVR
-  __asm__("nop\n\t""nop\n\t");
+  __asm__("nop\n\t""nop\n\t");  // 125 ns
   OE_PORT &= ~OE_MASK;
-  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+  __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");  // 500 ns
 
   uint8_t data = (DATA_HIGH_PIN & DATA_HIGH_MASK) | (DATA_LOW_PIN & DATA_LOW_MASK);
 
   // both !OE and !CE back to high
   OE_PORT |= OE_MASK;
-  __asm__("nop\n\t""nop\n\t");
+  __asm__("nop\n\t""nop\n\t");  // 125 ns
   CE_PORT |= CE_MASK;
 
   return data;

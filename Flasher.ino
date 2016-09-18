@@ -37,11 +37,34 @@
 */
 
 #define DEBUG
+// execute test code (if any)
+#undef TEST
+#define INTERACTIVE   1
+#if (INTERACTIVE == 0)
+ #undef DEBUG
+#endif
 
 // http://arduiniana.org/libraries/streaming/
+// has to be included BEFORE Flash
 #include <Streaming.h>
 
+// http://arduiniana.org/libraries/flash/
+// https://github.com/mikalhart/Flash/releases
+//
+// all 'prog_char' types in this library (Flash.h/Flash.cpp) must be replaced by the 'char' type
+//
+// my 'local copy':
+// https://svn.ikp.kit.edu/svn/users/mathes/sketchbook/libraries/Flash
+//
+#include <Flash.h>
+
+// check version of Flash library, V4 isn't compatible with Arduino 1.5.x and higher
+#if (defined FLASH_LIBRARY_VERSION) && (FLASH_LIBRARY_VERSION < 5)
+ #error "Flash version >= 5 is required!"
+#endif // FLASH_LIBRARY_VERSION
+
 #include "EEprom.h"
+#include "utils.h"
 
 // UART baud rate
 #define UART_BAUD_RATE  9600
@@ -53,19 +76,92 @@ void setup() {
 
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("Starting ...") << endl;
+  Serial << F("Flasher.ino starting ...") << endl;
 }
 
+//
+// flash strings for the main menu
+//
+FLASH_STRING(help_main, "Main menu, options:\n"
+        "a    - enter <a>address from where to read\n"
+        "l    - enter <l>ength of data to read\n"
+        "r    - <r>ead length bytes\n"
+        "h, ? - display this <h>elp\n"
+        "Ctrl-] - leave miniterm.py\n");
+
+static const int kMAX_BLOCK_SIZE = 256;
+
 // data buffer
-uint8_t eepromData[512];
+uint8_t eepromData[kMAX_BLOCK_SIZE];
 uint32_t eepromAddr = 0;
 
 /**  */
 void loop() {
 
-#if 0
   static bool first = true;
 
+#ifdef TEST
+  testCode();
+#endif // TEST
+
+#if (INTERACTIVE != 0)
+  uint32_t total_length = 16;
+  uint32_t i, len, nBytes;
+  
+  if ( first ) {
+    help_main.print(Serial);
+    first = false;
+  }
+
+  while (1) {
+
+    int ch = Serial.read();
+
+    // ignore also LFs (from windowish systems)
+    if ( ch == -1 || ch == 0x0a ) continue;
+    
+    switch (ch) {
+
+      case 'a':  // --- set the base address
+      case 'A':
+        break;
+
+      case 'l':  // --- set the length
+      case 'L':
+        break;
+
+      case 'r':  // --- read length bytes starting from address
+      case 'R':
+          len = total_length;
+          while ( len > 0 ) {
+            nBytes = min(len, kMAX_BLOCK_SIZE);
+            len -= nBytes;
+            
+            eeprom.read(eepromAddr, eepromData, nBytes);
+            dumpHex(eepromData, nBytes, eepromAddr);
+            
+            eepromAddr += nBytes;
+          }
+        break;
+
+      case 'h':
+      case 'H':
+      case '?':
+          help_main.print(Serial);
+        break;
+
+      default:
+          Serial << "?" << endl;
+    }
+  }
+#endif // INTERACTIVE
+}
+
+/** Test code frame ... */
+void testCode() {
+  
+  static bool first = true;
+#if 0
   if ( first ) {
 
     Serial.println("Fake data:");
@@ -73,7 +169,7 @@ void loop() {
     for ( int i=0; i<sizeof(eepromData); ++i )
       eepromData[i] = (uint8_t)(i & 0xff);
     
-    HexDump(eepromData, sizeof(eepromData), eepromAddr);
+    dumpHex(eepromData, sizeof(eepromData), eepromAddr);
 
     first = false;
   }
@@ -81,7 +177,7 @@ void loop() {
 
   //testAddressLatches();
 
-  int nBytes = 256;
+  int nBytes = kMAX_BLOCK_SIZE;
 
 #if 0
   Serial.println("EEPROM data (single read):");
@@ -94,62 +190,17 @@ void loop() {
     eepromData[i] = eeprom.read();
   }
 
-  HexDump(eepromData, nBytes, eepromAddr);
+  dumpHex(eepromData, nBytes, eepromAddr);
 #endif
 
 #if 1
   Serial.println("EEPROM data (block read):");
 
   eeprom.read(eepromAddr, eepromData, nBytes);
-  HexDump(eepromData, nBytes, eepromAddr);
+  dumpHex(eepromData, nBytes, eepromAddr);
 #endif
 
   delay(5000);
-}
-
-/** Function to create hex dump from data, organized as 8 bit words. */
-void HexDump(uint8_t *data,size_t length,uint32_t addr) {
-
-  for ( size_t j=0; j<length/16+1; ++j ) {
-
-    if ( j*16 >= length ) break;
-
-    // to be fixed: https://forum.arduino.cc/index.php?topic=38107.0
-    Serial.print(F("0x"));
-    if ( addr+j*16 < 0x1000 )
-      Serial.print(F("0"));
-    if ( addr+j*16 < 0x100 )
-      Serial.print(F("0"));
-    if ( addr+j*16 < 0x10 )
-      Serial.print(F("0"));
-    Serial.print(addr+j*16, HEX);   // output real address
-
-    for (size_t i=0; i<16; ++i ) {  // output binary data, 1-byte format
-      if ( i == 8 )
-        Serial.print( " -");
-      if ( j*16+i >= length )
-        Serial.print(F("     "));
-      else {
-        Serial.print(F(" 0x"));
-        if ( data[j*16+i] < 0x10 )
-          Serial.print(F("0"));
-        Serial.print(data[j*16+i], HEX );
-      }
-    }
-
-    Serial.print(F("  "));
-
-    for (size_t i=0; i<16; ++i ) {  // output char representation (if any)
-
-      if ( j*16+i >= length ) break;
-
-      if ( data[j*16+i]<0x20 || data[j*16+i]>0x7f )
-        Serial.print(F("."));
-      else
-        Serial.write(data[j*16+i]);
-    }
-    Serial.println();
-  }
 }
 
 /** Test code to test the address latching unit. */
