@@ -62,6 +62,8 @@
 
 /**  */
 class EEprom {
+  friend void testAddressLatches();
+
 public:
   /** Constructor for the class EEprom.
    *
@@ -78,7 +80,10 @@ public:
   /** Write a byte to the specified address. */
   void write(uint32_t,uint8_t);
 
-//protected:
+  /** Write a block of 'length' bytes to the specified addess (Tbd!). */
+  //void write(uint32_t addr,uint8_t *data,uint32_t length);
+
+protected:
 
   /** Read a byte. */
   uint8_t read();
