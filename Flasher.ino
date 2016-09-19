@@ -84,6 +84,7 @@ void setup() {
 //
 FLASH_STRING(help_main, "Main menu, options:\n"
         "a    - enter <a>address from where to read\n"
+	      "f    - toggle output <f>ormat\n"
         "l    - enter <l>ength of data to read\n"
         "r    - <r>ead length bytes\n"
         "h, ? - display this <h>elp\n"
@@ -99,13 +100,14 @@ uint32_t eepromAddr = 0;
 void loop() {
 
   static bool first = true;
+  static byte output_format = 0;
 
 #ifdef TEST
   testCode();
 #endif // TEST
 
 #if (INTERACTIVE != 0)
-  uint32_t total_length = 16;
+  uint32_t total_length = 64;
   uint32_t i, len, nBytes;
   
   if ( first ) {
@@ -124,10 +126,26 @@ void loop() {
 
       case 'a':  // --- set the base address
       case 'A':
+          Serial.print("\nEnter start address? "); Serial.flush();
+          eepromAddr = readInt(); // readUInt32();
+        break;
+
+      case 'f':  // --- toggle output format
+      case 'F':
+          if ( output_format == 0 ) {
+	          output_format = 1;
+	          Serial.println("Switched to IHEX output format!");
+	        }
+	        else {
+	          output_format = 0;
+	          Serial.println("Switched to DUMP output format!");
+      	  }
         break;
 
       case 'l':  // --- set the length
       case 'L':
+        Serial.print("\nEnter block length? "); Serial.flush();
+        total_length = readInt(); // readUInt32();
         break;
 
       case 'r':  // --- read length bytes starting from address
@@ -138,12 +156,24 @@ void loop() {
             len -= nBytes;
             
             eeprom.read(eepromAddr, eepromData, nBytes);
-            dumpHex(eepromData, nBytes, eepromAddr);
+	          if ( output_format == 0 )
+              dumpHex(eepromData, nBytes, eepromAddr);
+            else
+              writeIhexData(Serial, eepromData, nBytes, eepromAddr);
             
             eepromAddr += nBytes;
           }
+          if ( output_format == 1 )
+            writeIhexEOF(Serial);
         break;
 
+      case 's':  // --- show information
+      case 'S':
+          Serial.println();
+          Serial.print("Start address: "); Serial.println(eepromAddr);
+          Serial.print("Block length:  "); Serial.println(total_length);
+        break;
+      
       case 'h':
       case 'H':
       case '?':
@@ -155,6 +185,76 @@ void loop() {
     }
   }
 #endif // INTERACTIVE
+}
+
+static void writeByteHex(Stream& stream,uint8_t data) {
+  if ( data < 0x10 )
+    stream.print("0");
+  stream.print(data, HEX);
+}
+
+// https://en.wikipedia.org/wiki/Intel_HEX
+void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,const uint32_t eprom_addr) {
+
+  static const size_t eIhexBlocksize = 16;  // 32
+  uint32_t addr = eprom_addr;
+  size_t cur_length = data_length;
+  size_t offset = 0;
+
+  while ( cur_length > 0 ) {
+
+    size_t len = min(cur_length, eIhexBlocksize);
+    
+    uint8_t addr_lo = (uint8_t)(addr & 0xff);
+    uint8_t addr_hi = (uint8_t)((addr & 0xff00) >> 8);
+
+    byte checksum = 0;
+  
+    checksum += len;
+    checksum += addr_hi;
+    checksum += addr_lo;
+  
+    stream.print(":");
+    writeByteHex(stream, eIhexBlocksize);
+    writeByteHex(stream, addr_hi);
+    writeByteHex(stream, addr_lo);
+    stream.print("00");   // block type 'data'
+
+    for ( size_t i=0; i<len; ++i ) {
+      writeByteHex(stream, data[offset + i]);
+      checksum += data[offset + i];
+    }
+
+    writeByteHex(stream, checksum);
+    stream.println("");
+
+    cur_length -= len;
+    addr += len;
+    offset += len;
+  }
+}
+
+void writeIhexEOF(Stream& stream) {
+  
+  stream.println(":000001FF");  // block type 'EOF'
+}
+
+uint32_t readUInt32(void) {
+
+  byte line[20];
+
+  while (Serial.available() > 0)       /* clear old garbage */
+    Serial.read();
+
+  String l = Serial.readString();
+
+  Serial.print(l);
+  
+  l.getBytes(line, sizeof(line));
+  
+  uint32_t data = strtol((const char *)line, NULL, 0);
+  
+  return data;
 }
 
 /** Test code frame ... */

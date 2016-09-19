@@ -69,7 +69,7 @@ uint16_t readInt(void) {
   int8_t i = READ_INT_MAX_DIGITS-1;
 
   while (Serial.available() > 0)       /* clear old garbage */
-      Serial.read();
+    Serial.read();
 
   for (;;) {
     if (Serial.available() <= 0)
