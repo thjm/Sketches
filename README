@@ -1,0 +1,24 @@
+$Id$
+
+README for Sketchbook/Memory/Flasher.
+------------------------------------------------------------------------------
+
+Device to read contents of E(E)PROM and Flash chips in 24 ... 32 pin DIP cases,
+only for 5V types.
+
+Future:
+-------
+- program 5V only flash chips
+
+Requirements:
+-------------
+- Arduino 1.5.x
+- Streaming library, http://arduiniana.org/libraries/streaming
+- Flash library (read strings from flash memory),
+  http://arduiniana.org/libraries/flash
+
+References:
+-----------
+- EPROM.pdf from http://cambridgearcade.dyndns.org/files/EPROM.pdf
+
+==============================================================================
