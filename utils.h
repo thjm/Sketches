@@ -16,6 +16,9 @@
 /** Function to create hex dump from data, organized as 8 bit words. */
 extern void dumpHex(uint8_t *data,size_t length,uint32_t addr);
 
+/** Print a number in hexadecimal format. */
+void printHex(uint32_t number,size_t len=2);
+
 #define READ_INT_MAX_DIGITS 5
 
 /** Read up to READ_INT_MAX_DIGITS digits until CR or non-digit is entered.

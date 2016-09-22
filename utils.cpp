@@ -61,6 +61,25 @@ void dumpHex(uint8_t *data,size_t length,uint32_t addr) {
 
 // ---------------------------------------------------------------------------
 
+static void printByteHex(Stream& stream,uint8_t data) {
+  if ( data < 0x10 )
+    stream.print("0");
+  stream.print(data, HEX);
+}
+
+void printHex(uint32_t number,size_t precision) {
+
+  char tmp[20];
+  char format[128];
+
+  sprintf(format, "0x%%.%dX", min(precision,16));
+
+  sprintf(tmp, format, number);
+  Serial.print(tmp);
+}
+
+// ---------------------------------------------------------------------------
+
 uint16_t readInt(void) {
 
   uint32_t num = 0;
