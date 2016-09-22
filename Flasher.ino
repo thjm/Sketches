@@ -84,7 +84,7 @@ void setup() {
 //
 FLASH_STRING(help_main, "Main menu, options:\n"
         "a    - enter <a>address from where to read\n"
-	      "f    - toggle output <f>ormat\n"
+        "f    - toggle output <f>ormat\n"
         "l    - enter <l>ength of data to read\n"
         "r    - <r>ead length bytes\n"
         "h, ? - display this <h>elp\n"
@@ -126,26 +126,30 @@ void loop() {
 
       case 'a':  // --- set the base address
       case 'A':
-          Serial.print("\nEnter start address? "); Serial.flush();
-          eepromAddr = readInt(); // readUInt32();
+          Serial.print(F("\nEnter start address? ")); Serial.flush();
+          //eepromAddr = readInt(); // readUInt32();
+          eepromAddr = Serial.parseInt();
+          Serial.println(eepromAddr);
         break;
 
       case 'f':  // --- toggle output format
       case 'F':
           if ( output_format == 0 ) {
 	          output_format = 1;
-	          Serial.println("Switched to IHEX output format!");
+	          Serial.println(F("Switched to IHEX output format!"));
 	        }
 	        else {
 	          output_format = 0;
-	          Serial.println("Switched to DUMP output format!");
+	          Serial.println(F("Switched to DUMP output format!"));
       	  }
         break;
 
       case 'l':  // --- set the length
       case 'L':
-        Serial.print("\nEnter block length? "); Serial.flush();
-        total_length = readInt(); // readUInt32();
+        Serial.print(F("\nEnter block length? ")); Serial.flush();
+        //total_length = readInt(); // readUInt32();
+        total_length = Serial.parseInt();
+        Serial.println(total_length);
         break;
 
       case 'r':  // --- read length bytes starting from address
@@ -170,8 +174,10 @@ void loop() {
       case 's':  // --- show information
       case 'S':
           Serial.println();
-          Serial.print("Start address: "); Serial.println(eepromAddr);
-          Serial.print("Block length:  "); Serial.println(total_length);
+          Serial.print(F("Start address: ")); printHex(eepromAddr, 6);
+          Serial.println();
+          Serial.print(F("Block length:    ")); printHex(total_length, 4);
+          Serial.println();
         break;
       
       case 'h':
