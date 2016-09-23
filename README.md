@@ -1,4 +1,4 @@
-About
+# About
 
 The Sketches repository contains a collection of my sketches for the Arduino, Teensy
 and ESP8266 platform.
