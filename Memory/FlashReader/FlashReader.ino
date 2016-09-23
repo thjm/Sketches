@@ -1,5 +1,5 @@
 /*
-	Flasher.ino
+	FlashReader.ino
 
 	This sketch reads/writes data from PC flash memory chips in 28 to 32 pin
 	chips.
