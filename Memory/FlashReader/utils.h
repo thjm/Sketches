@@ -13,6 +13,10 @@
 
 #include <Arduino.h>
 
+extern void printHex8(Stream& stream,uint8_t data);
+extern void printHex16(Stream& stream,uint16_t data);
+extern void printHex32(Stream& stream,uint32_t data);
+
 /** Function to create hex dump from data, organized as 8 bit words. */
 extern void dumpHex(uint8_t *data,size_t length,uint32_t addr);
 

@@ -213,12 +213,6 @@ void loop() {
 #endif // INTERACTIVE
 }
 
-static void writeByteHex(Stream& stream,uint8_t data) {
-  if ( data < 0x10 )
-    stream.print("0");
-  stream.print(data, HEX);
-}
-
 // https://en.wikipedia.org/wiki/Intel_HEX
 void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,const uint32_t eprom_addr) {
 
@@ -241,17 +235,17 @@ void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,c
     checksum += addr_lo;
   
     stream.print(":");
-    writeByteHex(stream, eIhexBlocksize);
-    writeByteHex(stream, addr_hi);
-    writeByteHex(stream, addr_lo);
+    printHex8(stream, eIhexBlocksize);
+    printHex8(stream, addr_hi);
+    printHex8(stream, addr_lo);
     stream.print("00");   // block type 'data'
 
     for ( size_t i=0; i<len; ++i ) {
-      writeByteHex(stream, data[offset + i]);
+      printHex8(stream, data[offset + i]);
       checksum += data[offset + i];
     }
 
-    writeByteHex(stream, checksum);
+    printHex8(stream, checksum);
     stream.println("");
 
     cur_length -= len;

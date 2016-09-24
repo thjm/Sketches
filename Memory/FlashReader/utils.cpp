@@ -15,20 +15,24 @@
 
 // ---------------------------------------------------------------------------
 
-static void printHex8(Stream& stream,uint8_t data) {
+void printHex8(Stream& stream,uint8_t data) {
   
   if ( data < 0x10 )
     stream.print("0");
   stream.print(data, HEX);
 }
 
-static void printHex16(Stream& stream,uint16_t data) {
+// ---------------------------------------------------------------------------
+
+void printHex16(Stream& stream,uint16_t data) {
   
   printHex8(stream, (uint8_t)((data & 0xff00) >> 8));
   printHex8(stream, (uint8_t)(data & 0x00ff));
 }
 
-static void printHex32(Stream& stream,uint32_t data) {
+// ---------------------------------------------------------------------------
+
+void printHex32(Stream& stream,uint32_t data) {
 
   printHex16(stream, (uint16_t)((data & 0xffff0000) >> 16));
   printHex16(stream, (uint16_t)(data & 0x0000ffff));
