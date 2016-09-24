@@ -69,14 +69,24 @@
 // UART baud rate
 #define UART_BAUD_RATE  9600
 
+// EEPROM object
 EEprom eeprom;
+
+static const int kMAX_BLOCK_SIZE = 256;
+
+// data buffer etc.
+uint8_t eepromData[kMAX_BLOCK_SIZE];
+uint32_t eepromSize = 4096;
+uint32_t eepromAddr = 0;
 
 /**  */
 void setup() {
 
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("Flasher.ino starting ...") << endl;
+  Serial << F("FlashReader.ino starting ...") << endl;
+
+  eeprom.setSize(eepromSize);
 }
 
 //
@@ -86,15 +96,12 @@ FLASH_STRING(help_main, "Main menu, options:\n"
         "a    - enter <a>address from where to read\n"
         "f    - toggle output <f>ormat\n"
         "l    - enter <l>ength of data to read\n"
+        "p    - <p>rint some information\n"
         "r    - <r>ead length bytes\n"
+        "s    - set EPROM <s>ize\n"
         "h, ? - display this <h>elp\n"
-        "Ctrl-] - leave miniterm.py\n");
+      /*  "Ctrl-] - leave miniterm.py\n" */ );
 
-static const int kMAX_BLOCK_SIZE = 256;
-
-// data buffer
-uint8_t eepromData[kMAX_BLOCK_SIZE];
-uint32_t eepromAddr = 0;
 
 /**  */
 void loop() {
@@ -115,6 +122,12 @@ void loop() {
     first = false;
   }
 
+#if 0
+  // test, is working
+  uint32_t t = strtol("1000", NULL, 0); Serial.println(t);
+  t = strtol("0x1000", NULL, 0); Serial.println(t);
+#endif
+  
   while (1) {
 
     int ch = Serial.read();
@@ -171,8 +184,11 @@ void loop() {
             writeIhexEOF(Serial);
         break;
 
-      case 's':  // --- show information
-      case 'S':
+      case 'p':  // --- print some information
+      case 'P':
+          Serial.println();
+          Serial.print(F("E(E)PROM size: ")); printHex(eepromSize, 6); 
+          Serial << " (" << eepromSize << ")";
           Serial.println();
           Serial.print(F("Start address: ")); printHex(eepromAddr, 6);
           Serial.println();
@@ -180,6 +196,10 @@ void loop() {
           Serial.println();
         break;
       
+      case 's':
+      case 'S':
+        break;
+
       case 'h':
       case 'H':
       case '?':

@@ -71,12 +71,26 @@ public:
    */
   EEprom();
 
+  /** Get the size in bytes of teh E(E)PROM. */
+  uint32_t getSize() {
+    return eepromSize;
+  }
+
   /** Read a byte from the specified address. */
   uint8_t read(uint32_t);
 
-  /** Read a block of 'length' bytes from the specified address. */
-  void read(uint32_t addr,uint8_t *data,uint32_t length);
+  /** Read a block of 'length' bytes from the specified address. 
+   *  
+   *  Returns the number of bytes read, as this is limited by the maximum 
+   *  possible address of the EEPROM.
+   */
+  size_t read(uint32_t addr,uint8_t *data,uint32_t length);
 
+  /** Set the maximum size of the E(E)PROM. */
+  void setSize(uint32_t size) {
+    eepromSize = size;
+  }
+  
   /** Write a byte to the specified address. */
   void write(uint32_t,uint8_t);
 
@@ -100,6 +114,9 @@ protected:
   void setAddressMSB(uint8_t);
   /** Set the HSB of the address. */
   void setAddressHSB(uint8_t);
+
+private:
+  uint32_t eepromSize;
 };
 
 #endif // _EEprom_h_

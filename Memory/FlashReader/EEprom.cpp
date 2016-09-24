@@ -23,7 +23,7 @@ EEprom::EEprom() {
   WE_PORT |= WE_MASK;
   WE_DDR |= WE_MASK;
 
-  // strobe signals STR1 .. STR3 to low, output
+  // strobe signals STR1 .. STR3 to low, output, HCT574 has positive strobe sigs
   STR1_PORT &= ~STR1_MASK;
   STR1_DDR |= STR1_MASK;
   STR2_PORT &= ~STR2_MASK;
@@ -43,12 +43,22 @@ uint8_t EEprom::read(uint32_t addr) {
 
 // ---------------------------------------------------------------------------------
 
-void EEprom::read(uint32_t addr,uint8_t *data,uint32_t length) {
+size_t EEprom::read(uint32_t addr,uint8_t *data,uint32_t len) {
 
-  for (uint32_t i=0; i<length; ++i) {
-    setAddress( addr + i );
-    data[i] = read();
+  size_t n_read = 0;
+  
+  memset(data, 0x00, (size_t)len);
+  
+  for (uint32_t i=0; i<len; ++i) {
+
+    if ( (addr + i) < eepromSize ) {
+      setAddress( addr + i );
+      data[i] = read();
+      n_read++;
+    }
   }
+
+  return n_read;
 }
 
 // ---------------------------------------------------------------------------------
