@@ -10,3 +10,9 @@ In order not to conflict with other license models, third party libraries are no
 included into these projects but links to them (for downloading) are be provided.
 For some third party libraries patch instructions are given, if applicable.
 
+# Sub-projects
+
+## Memory/FlashReader
+
+Arduino based device which can read EPROMs and EEPROMs in 24 .. 32 pin DIP cases.
+
