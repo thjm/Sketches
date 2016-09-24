@@ -15,22 +15,38 @@
 
 // ---------------------------------------------------------------------------
 
+static void printHex8(Stream& stream,uint8_t data) {
+  
+  if ( data < 0x10 )
+    stream.print("0");
+  stream.print(data, HEX);
+}
+
+static void printHex16(Stream& stream,uint16_t data) {
+  
+  printHex8(stream, (uint8_t)((data & 0xff00) >> 8));
+  printHex8(stream, (uint8_t)(data & 0x00ff));
+}
+
+static void printHex32(Stream& stream,uint32_t data) {
+
+  printHex16(stream, (uint16_t)((data & 0xffff0000) >> 16));
+  printHex16(stream, (uint16_t)(data & 0x0000ffff));
+}
+
+// ---------------------------------------------------------------------------
+
 void dumpHex(uint8_t *data,size_t length,uint32_t addr) {
 
   for ( size_t j=0; j<length/16+1; ++j ) {
 
     if ( j*16 >= length ) break;
 
-    // to be fixed: https://forum.arduino.cc/index.php?topic=38107.0
     Serial.print(F("0x"));
-    if ( addr+j*16 < 0x1000 )
-      Serial.print(F("0"));
-    if ( addr+j*16 < 0x100 )
-      Serial.print(F("0"));
-    if ( addr+j*16 < 0x10 )
-      Serial.print(F("0"));
-    Serial.print(addr+j*16, HEX);   // output real address
-
+    //printHex(addr+j*16, 4);
+    printHex16(Serial, (uint16_t)(addr+j*16));
+    Serial.print(":");
+    
     for (size_t i=0; i<16; ++i ) {  // output binary data, 1-byte format
       if ( i == 8 )
         Serial.print( " -");
@@ -38,9 +54,7 @@ void dumpHex(uint8_t *data,size_t length,uint32_t addr) {
         Serial.print(F("     "));
       else {
         Serial.print(F(" 0x"));
-        if ( data[j*16+i] < 0x10 )
-          Serial.print(F("0"));
-        Serial.print(data[j*16+i], HEX );
+        printHex8(Serial, data[j*16+i]);
       }
     }
 
@@ -60,12 +74,6 @@ void dumpHex(uint8_t *data,size_t length,uint32_t addr) {
 }
 
 // ---------------------------------------------------------------------------
-
-static void printByteHex(Stream& stream,uint8_t data) {
-  if ( data < 0x10 )
-    stream.print("0");
-  stream.print(data, HEX);
-}
 
 void printHex(uint32_t number,size_t precision) {
 
