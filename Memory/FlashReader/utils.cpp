@@ -4,8 +4,6 @@
 //
 // Purpose: Collection of some useful functions
 //
-// $Id$
-//
 
 
 // http://arduiniana.org/libraries/streaming/
