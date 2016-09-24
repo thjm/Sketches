@@ -9,6 +9,7 @@ only for 5V types.
 Future:
 -------
 - program 5V only flash chips
+- command line interface and/or remote control suitable interface?
 
 Requirements:
 -------------
