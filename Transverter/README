@@ -1,0 +1,25 @@
+$Id$
+
+README 4m-Transverter project directory.
+-----------------------------------------------------------------------------
+
+README for my CAT based transverter control project.
+
+Sub-directories:
+-----------------
+
+Eagle - Eagle sketches etc.
+
+IcomTest  - some test code for CAT interaction with my ICom IC706MkIIG
+
+LCDtest - test program for LCD via LCM1602 (I2C)
+
+LEDtest - test of the LEDs attached to the Teensy
+
+RotaryTest - test of a rotary encoder connected to the Teensy
+
+SwitchTest - test of the switches attached to the Teensy
+
+YaesuTest - some test code for CAT interaction with my Yaesu FT-817ND
+
+================================================================================
