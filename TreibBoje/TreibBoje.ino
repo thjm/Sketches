@@ -1,7 +1,7 @@
 //
-// File   : TreibBoje1.ino
+// File   : TreibBoje.ino
 //
-// Purpose: Frame for fun project 'Treibboje1' (experimental)
+// Purpose: Frame for fun project 'Treibboje' (experimental)
 //
 // $Id$
 //
