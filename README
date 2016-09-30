@@ -1,0 +1,10 @@
+$Id$
+
+README for AVR/Sketchbook/libraries
+------------------------------------------------------------------------------
+
+In order to make these libraries visible to your Arduino IDE, it is necessary
+to create sym-links to each sub-directory from your ~/sketchbook/libraries
+folder.
+
+==============================================================================
