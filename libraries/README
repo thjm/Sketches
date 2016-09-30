@@ -1,0 +1,9 @@
+README file for the Sketches/libraries directory.
+
+Sub-directories:
+----------------
+
+CAT - A class to communicate via an Icom rig (here MK706MkIIG) via the CAT
+      protocol. Only a subset of the possible CAT commands are implemented.
+
+==============================================================================
