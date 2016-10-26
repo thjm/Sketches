@@ -94,10 +94,7 @@ public:
   /** Set the maximum size of the E(E)PROM. */
   void setSize(uint32_t size) {
     eepromSize = size;
-    // calculate the address mask
-    addrMask = ~eepromSize;
-    // clears the other bits finally
-    while ( addrMask > eepromSize ) addrMask -= eepromSize;
+    addrMask = eepromSize - 1;
   }
   
   /** Write a byte to the specified address. */
