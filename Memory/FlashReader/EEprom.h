@@ -73,12 +73,12 @@ public:
 
   /** Get the address mask for the E(E)PROM. */
   uint32_t getAddressMask() {
-    return addrMask;
+    return _addrMask;
   }
   
   /** Get the size in bytes of the E(E)PROM. */
   uint32_t getSize() {
-    return eepromSize;
+    return _eepromSize;
   }
 
   /** Read a byte from the specified address. */
@@ -93,8 +93,8 @@ public:
 
   /** Set the maximum size of the E(E)PROM. */
   void setSize(uint32_t size) {
-    eepromSize = size;
-    addrMask = eepromSize - 1;
+    _eepromSize = size;
+    _addrMask = _eepromSize - 1;
   }
   
   /** Write a byte to the specified address. */
@@ -122,8 +122,10 @@ protected:
   void setAddressHSB(uint8_t);
 
 private:
-  uint32_t eepromSize;
-  uint32_t addrMask;
+  
+  uint32_t _eepromSize;   // size of the E(E)PROM in bytes
+  
+  uint32_t _addrMask;     // can be used to mask out unneeded address bits
 };
 
 #endif // _EEprom_h_

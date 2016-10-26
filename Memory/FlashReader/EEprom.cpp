@@ -53,7 +53,7 @@ size_t EEprom::read(uint32_t addr,uint8_t *data,uint32_t len) {
   
   for (uint32_t i=0; i<len; ++i) {
 
-    if ( (addr + i) < eepromSize ) {
+    if ( (addr + i) < _eepromSize ) {
       setAddress( addr + i );
       data[i] = read();
       n_read++;
