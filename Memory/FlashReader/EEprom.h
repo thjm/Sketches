@@ -71,6 +71,11 @@ public:
    */
   EEprom();
 
+  /** Get the address mask for the E(E)PROM. */
+  uint32_t getAddressMask() {
+    return addrMask;
+  }
+  
   /** Get the size in bytes of the E(E)PROM. */
   uint32_t getSize() {
     return eepromSize;
@@ -89,6 +94,10 @@ public:
   /** Set the maximum size of the E(E)PROM. */
   void setSize(uint32_t size) {
     eepromSize = size;
+    // calculate the address mask
+    addrMask = ~eepromSize;
+    // clears the other bits finally
+    while ( addrMask > eepromSize ) addrMask -= eepromSize;
   }
   
   /** Write a byte to the specified address. */
@@ -117,6 +126,7 @@ protected:
 
 private:
   uint32_t eepromSize;
+  uint32_t addrMask;
 };
 
 #endif // _EEprom_h_
