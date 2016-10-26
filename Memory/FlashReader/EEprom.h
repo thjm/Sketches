@@ -71,7 +71,7 @@ public:
    */
   EEprom();
 
-  /** Get the size in bytes of teh E(E)PROM. */
+  /** Get the size in bytes of the E(E)PROM. */
   uint32_t getSize() {
     return eepromSize;
   }
