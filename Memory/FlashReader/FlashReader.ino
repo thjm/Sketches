@@ -190,7 +190,8 @@ void loop() {
       case 'P':
           Serial.println();
           Serial.print(F("E(E)PROM type: ")); 
-          Serial << (int)eeprom.getType() << "(" << ")" << endl;
+          Serial << (int)eeprom.getType() << " (" 
+                 << EEprom::getTypeString(eeprom.getType()) << ")" << endl;
           Serial.print(F("Size:          ")); printHex(eeprom.getSize(), 6); 
           Serial << " (" << eeprom.getSize() << ")";
           Serial.println();

@@ -100,6 +100,9 @@ public:
     return _eepromType;
   }
 
+  /** Get the type of the E(E)PROM as String. */
+  static String getTypeString(eEEPROMtype eType);
+  
   /** Set the type of E(E)PROM to be used (required). 
    *  
    *  This method wil set the size of the E(E)PROM automatically.

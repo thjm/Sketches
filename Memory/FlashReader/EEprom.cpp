@@ -39,6 +39,38 @@ EEprom::EEprom() {
 
 // ---------------------------------------------------------------------------------
 
+String EEprom::getTypeString(eEEPROMtype eType) {
+  
+  switch ( eType ) {
+
+    case eEEPROM_NONE:
+        return String("None");
+    
+    case eEEPROM_2716:
+        return String("2716");
+      
+    case eEEPROM_2732:
+        return String("2732");
+
+    case eEEPROM_2764:
+        return String("2764");
+
+    case eEEPROM_27128:
+        return String("27128");
+
+    case eEEPROM_27256:
+        return String("27256");
+
+    case eEEPROM_27512:
+        return String("27512");
+
+    default:
+      return String("unknown");
+  }
+}
+
+// ---------------------------------------------------------------------------------
+
 uint8_t EEprom::read(uint32_t addr) {
 
   setAddress( addr );
@@ -186,7 +218,7 @@ void EEprom::setType(eEEPROMtype eType) {
 
   _eepromType = eType;
   
-  switch (_eepromType) {
+  switch ( _eepromType ) {
     
     case eEEPROM_2716:
         eepromSize = 0x0800;
