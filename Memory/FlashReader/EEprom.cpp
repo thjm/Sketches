@@ -92,9 +92,15 @@ uint8_t EEprom::read() {
 
 void EEprom::setAddress(uint32_t addr) {
 
+  uint8_t msb_mask = 0;
+  uint8_t hsb_mask = 0;
+
+  // EPROM 2764: A14 = A15 = HIGH
+  if ( _eepromSize == 0x2000 ) msb_mask = 0xC0;
+  
   setAddressLSB( (uint8_t)(addr & 0xff) );
-  setAddressMSB( (uint8_t)((addr & 0xff00) >> 8) );
-  setAddressHSB( (uint8_t)((addr & 0xff0000) >> 16) );
+  setAddressMSB( (uint8_t)((addr & 0xff00) >> 8) | msb_mask );
+  setAddressHSB( (uint8_t)((addr & 0xff0000) >> 16) | hsb_mask );
 }
 
 // ---------------------------------------------------------------------------------
