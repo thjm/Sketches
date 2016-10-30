@@ -95,8 +95,16 @@ void EEprom::setAddress(uint32_t addr) {
   uint8_t msb_mask = 0;
   uint8_t hsb_mask = 0;
 
-  // EPROM 2764: A14 = A15 = HIGH
+  // In my tests, keeping !P at high is crucial but Vpp=Vcc seems
+  // to be not required but according to the data sheets it is
+  //
+  // EPROM 2764: A14 = A15 = HIGH (!P and Vpp)
   if ( _eepromSize == 0x2000 ) msb_mask = 0xC0;
+  // EPROM 27128: A14 = A15 = HIGH (!P and Vpp)
+  else if ( _eepromSize == 0x4000 ) msb_mask = 0xC0;
+  // EPROM 27256: A15 = HIGH (Vpp)
+  else if ( _eepromSize == 0x8000 ) msb_mask = 0x80;
+  // EPROM 27512: Vpp is put on pin !OE (!G)
   
   setAddressLSB( (uint8_t)(addr & 0xff) );
   setAddressMSB( (uint8_t)((addr & 0xff00) >> 8) | msb_mask );
