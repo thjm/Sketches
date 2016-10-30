@@ -1,8 +1,8 @@
 /*
 	FlashReader.ino
 
-	This sketch reads/writes data from PC flash memory chips in 28 to 32 pin
-	chips.
+	This sketch reads data from EPROM chips and  reads/writes data from/to PC flash 
+	memory chips (EEPROM) in 24, 28 and 32 pin cases.
 	
 	The circuit:
 	* low nibble of data lines is connected to PC0 .. PC3 (A0..A3)
@@ -78,8 +78,8 @@ static const int kMAX_BLOCK_SIZE = 256;
 
 // data buffer etc.
 uint8_t eepromData[kMAX_BLOCK_SIZE];
-uint32_t eepromSize = 4096;
 uint32_t eepromAddr = 0;
+EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_2732;
 
 /**  */
 void setup() {
@@ -88,7 +88,7 @@ void setup() {
   Serial.begin(UART_BAUD_RATE);
   Serial << F("FlashReader.ino starting ...") << endl;
 
-  eeprom.setSize(eepromSize);
+  eeprom.setType(eepromType);
 }
 
 //
@@ -189,8 +189,10 @@ void loop() {
       case 'p':  // --- print some information
       case 'P':
           Serial.println();
-          Serial.print(F("E(E)PROM size: ")); printHex(eepromSize, 6); 
-          Serial << " (" << eepromSize << ")";
+          Serial.print(F("E(E)PROM type: ")); 
+          Serial << (int)eeprom.getType() << "(" << ")" << endl;
+          Serial.print(F("Size:          ")); printHex(eeprom.getSize(), 6); 
+          Serial << " (" << eeprom.getSize() << ")";
           Serial.println();
           Serial.print(F("Start address: ")); printHex(eepromAddr, 6);
           Serial.println();
@@ -200,6 +202,21 @@ void loop() {
       
       case 's':
       case 'S':
+          Serial.println();
+          Serial.println(F("Select any possible E(E)PROM size:"));
+          Serial.print(EEprom::eEEPROM_2716); Serial.println(F(" - 2716 (2K * 8)"));
+          Serial.print(EEprom::eEEPROM_2732); Serial.println(F(" - 2732 (4K * 8)"));
+          Serial.print(EEprom::eEEPROM_2764); Serial.println(F(" - 2764 (8K * 8)"));
+          Serial.print(EEprom::eEEPROM_27128); Serial.println(F(" - 27128 (16K * 8)"));
+          Serial.print(EEprom::eEEPROM_27256); Serial.println(F(" - 27256 (32K * 8)"));
+          Serial.print(EEprom::eEEPROM_27512); Serial.println(F(" - 27512 (64K * 8)"));
+          Serial.println(F("EEprom::eEEPROM_NONE - Cancel"));
+          Serial.print(F("E(E)PROM type? ")); Serial.flush();
+          eepromType = Serial.parseInt();
+          if (eepromType) {
+            Serial.println(eepromType);
+            eeprom.setType(eepromType);
+          }
         break;
 
       case 'h':

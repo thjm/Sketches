@@ -65,6 +65,20 @@ class EEprom {
   friend void testAddressLatches();
 
 public:
+
+  /** EEPROM types, or EPROM types ? */
+  typedef enum {
+
+    eEEPROM_NONE = 0,
+    eEEPROM_2716 = 1,
+    eEEPROM_2732,
+    eEEPROM_2764,
+    eEEPROM_27128,
+    eEEPROM_27256,
+    eEEPROM_27512,
+  
+  } eEEPROMtype;
+
   /** Constructor for the class EEprom.
    *
    *  Modes of the used pins as well as their default state are set.
@@ -81,6 +95,17 @@ public:
     return _eepromSize;
   }
 
+  /** Get the type of the E(E)PROM. */
+  eEEPROMtype getType() {
+    return _eepromType;
+  }
+
+  /** Set the type of E(E)PROM to be used (required). 
+   *  
+   *  This method wil set the size of the E(E)PROM automatically.
+   */
+  void setType(eEEPROMtype eType);
+  
   /** Read a byte from the specified address. */
   uint8_t read(uint32_t);
 
@@ -91,12 +116,6 @@ public:
    */
   size_t read(uint32_t addr,uint8_t *data,uint32_t length);
 
-  /** Set the maximum size of the E(E)PROM. */
-  void setSize(uint32_t size) {
-    _eepromSize = size;
-    _addrMask = _eepromSize - 1;
-  }
-  
   /** Write a byte to the specified address. */
   void write(uint32_t,uint8_t);
 
@@ -105,6 +124,12 @@ public:
 
 protected:
 
+  /** Set the maximum size of the E(E)PROM. */
+  void setSize(uint32_t eSize) {
+    _eepromSize = eSize;
+    _addrMask = _eepromSize - 1;
+  }
+  
   /** Read a byte. */
   uint8_t read();
 
@@ -123,9 +148,10 @@ protected:
 
 private:
   
-  uint32_t _eepromSize;   // size of the E(E)PROM in bytes
+  uint32_t     _eepromSize;   // size of the E(E)PROM in bytes
+  eEEPROMtype  _eepromType;   // type 'code' for the used E(E)PROM chip
   
-  uint32_t _addrMask;     // can be used to mask out unneeded address bits
+  uint32_t     _addrMask;     // can be used to mask out unneeded address bits
 };
 
 #endif // _EEprom_h_

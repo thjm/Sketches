@@ -12,6 +12,9 @@
 // ---------------------------------------------------------------------------------
 
 EEprom::EEprom() {
+
+  _eepromSize = 0;
+  _eepromType = eEEPROM_NONE;
   
   // !CE to high, output
   CE_PORT |= CE_MASK;
@@ -173,6 +176,47 @@ void EEprom::setAddressHSB(uint8_t addr) {
   // 'data bus' back to input
   DATA_LOW_DDR &= ~DATA_LOW_MASK;
   DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
+}
+
+// ---------------------------------------------------------------------------------
+
+void EEprom::setType(eEEPROMtype eType) {
+
+  uint32_t eepromSize;
+
+  _eepromType = eType;
+  
+  switch (_eepromType) {
+    
+    case eEEPROM_2716:
+        eepromSize = 0x0800;
+      break;
+      
+    case eEEPROM_2732:
+        eepromSize = 0x1000;
+      break;
+
+    case eEEPROM_2764:
+        eepromSize = 0x2000;
+      break;
+
+    case eEEPROM_27128:
+        eepromSize = 0x4000;
+      break;
+
+    case eEEPROM_27256:
+        eepromSize = 0x8000;
+      break;
+
+    case eEEPROM_27512:
+        eepromSize = 0x10000L;
+      break;
+
+    default:
+      eepromSize = 4096;
+  }
+
+  setSize(eepromSize);
 }
 
 // ---------------------------------------------------------------------------------
