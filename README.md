@@ -21,6 +21,13 @@ Arduino libraries directory.
 
 Arduino based device which can read EPROMs and EEPROMs in 24 .. 32 pin DIP cases.
 
+Tested (so far) with the following devices:
+- EPROM 2732
+- EPROM 2764
+- EPROM 27128
+- EPROM 27256
+- EPROM 27512
+
 ## Transverter
 
 Control software to steer two rigs, one for transmitting in the 28 MHz band 
