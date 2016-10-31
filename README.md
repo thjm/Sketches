@@ -29,6 +29,7 @@ Tested (so far) with the following devices (reading):
 - EPROM 27256
 - EPROM 27512
 - Flash W29C020
+
 and writing:
 - None
 
