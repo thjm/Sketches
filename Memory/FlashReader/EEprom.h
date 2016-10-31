@@ -76,7 +76,10 @@ public:
     eEEPROM_27128,
     eEEPROM_27256,
     eEEPROM_27512,
-  
+    eEEPROM_27010, // 27C1001
+    eEEPROM_27020, // 27C2001
+    eEEPROM_27040, // 27C4001, 27C4002
+
   } eEEPROMtype;
 
   /** Constructor for the class EEprom.

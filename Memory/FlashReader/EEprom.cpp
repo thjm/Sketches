@@ -64,6 +64,15 @@ String EEprom::getTypeString(eEEPROMtype eType) {
     case eEEPROM_27512:
         return String("27512");
 
+    case eEEPROM_27010:
+        return String("27010");
+
+    case eEEPROM_27020:
+        return String("27020");
+
+    case eEEPROM_27040:
+        return String("27040");
+
     default:
       return String("unknown");
   }
@@ -244,7 +253,19 @@ void EEprom::setType(eEEPROMtype eType) {
         eepromSize = 0x10000L;
       break;
 
-    default:
+    case eEEPROM_27010:
+        eepromSize = 0x20000L;
+      break;
+
+    case eEEPROM_27020:
+        eepromSize = 0x40000L;
+      break;
+
+    case eEEPROM_27040:
+        eepromSize = 0x80000L;
+      break;
+
+default:
       eepromSize = 4096;
   }
 

@@ -211,6 +211,9 @@ void loop() {
           Serial.print(EEprom::eEEPROM_27128); Serial.println(F(" - 27128 (16K * 8)"));
           Serial.print(EEprom::eEEPROM_27256); Serial.println(F(" - 27256 (32K * 8)"));
           Serial.print(EEprom::eEEPROM_27512); Serial.println(F(" - 27512 (64K * 8)"));
+          Serial.print(EEprom::eEEPROM_27010); Serial.println(F(" - 271001, 27C010 (128K * 8)"));
+          Serial.print(EEprom::eEEPROM_27020); Serial.println(F(" - 272001, 27C020 (256K * 8)"));
+          Serial.print(EEprom::eEEPROM_27040); Serial.println(F(" - 274001, 27C040 (512K * 8)"));
           Serial.println(F("EEprom::eEEPROM_NONE - Cancel"));
           Serial.print(F("E(E)PROM type? ")); Serial.flush();
           eepromType = (EEprom::eEEPROMtype)Serial.parseInt();
