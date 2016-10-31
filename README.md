@@ -19,14 +19,18 @@ Arduino libraries directory.
 
 ## Memory/FlashReader
 
-Arduino based device which can read EPROMs and EEPROMs in 24 .. 32 pin DIP cases.
+Arduino based device which can read EPROMs and EEPROMs in 24 .. 32 pin DIP cases
+but not in 40 pin cases.
 
-Tested (so far) with the following devices:
+Tested (so far) with the following devices (reading):
 - EPROM 2732
 - EPROM 2764
 - EPROM 27128
 - EPROM 27256
 - EPROM 27512
+- Flash W29C020
+and writing:
+- None
 
 ## Transverter
 
