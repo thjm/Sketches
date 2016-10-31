@@ -100,7 +100,7 @@ FLASH_STRING(help_main, "Main menu, options:\n"
         "l    - enter <l>ength of data to read\n"
         "p    - <p>rint some information\n"
         "r    - <r>ead length bytes\n"
-        "s    - set EPROM <s>ize\n"
+        "t    - set EPROM <t>ype\n"
         "h, ? - display this <h>elp\n"
       /*  "Ctrl-] - leave miniterm.py\n" */ );
 
@@ -201,10 +201,10 @@ void loop() {
           Serial.println();
         break;
       
-      case 's':
-      case 'S':
+      case 't':
+      case 'T':
           Serial.println();
-          Serial.println(F("Select any possible E(E)PROM size:"));
+          Serial.println(F("Select any possible E(E)PROM type:"));
           Serial.print(EEprom::eEEPROM_2716); Serial.println(F(" - 2716 (2K * 8)"));
           Serial.print(EEprom::eEEPROM_2732); Serial.println(F(" - 2732 (4K * 8)"));
           Serial.print(EEprom::eEEPROM_2764); Serial.println(F(" - 2764 (8K * 8)"));
@@ -213,10 +213,11 @@ void loop() {
           Serial.print(EEprom::eEEPROM_27512); Serial.println(F(" - 27512 (64K * 8)"));
           Serial.println(F("EEprom::eEEPROM_NONE - Cancel"));
           Serial.print(F("E(E)PROM type? ")); Serial.flush();
-          eepromType = Serial.parseInt();
+          eepromType = (EEprom::eEEPROMtype)Serial.parseInt();
           if (eepromType) {
             Serial.println(eepromType);
             eeprom.setType(eepromType);
+            eepromAddr = 0;  // start again with first addr
           }
         break;
 
@@ -252,7 +253,10 @@ uint32_t readUInt32(void) {
   return data;
 }
 
-/** Test code frame ... */
+/** Test code frame ... 
+  *  
+  *  Various code and hardware test sequences, to be activated by pre-processor directives
+  */
 void testCode() {
   
   static bool first = true;
@@ -298,7 +302,10 @@ void testCode() {
   delay(5000);
 }
 
-/** Test code to test the address latching unit. */
+/** Test code to test the address latching unit. 
+  *
+  * The address bits are switched through subsequently (shift register mode).
+  */
 void testAddressLatches() {
 
   static uint8_t addr = 0x01;
