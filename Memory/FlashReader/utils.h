@@ -15,6 +15,8 @@ extern void printHex8(Stream& stream,uint8_t data);
 /** Print a uint16_t in hexadecimal format with leading '0's if necessary (without 0x prefix). */
 extern void printHex16(Stream& stream,uint16_t data);
 /** Print a uint32_t in hexadecimal format with leading '0's if necessary (without 0x prefix). */
+extern void printHex24(Stream& stream,uint32_t data);
+/** Print a uint32_t in hexadecimal format with leading '0's if necessary (without 0x prefix). */
 extern void printHex32(Stream& stream,uint32_t data);
 
 /** Function to create hex dump from data, organized as 8 bit words. */
