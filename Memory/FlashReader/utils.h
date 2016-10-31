@@ -38,4 +38,12 @@ extern uint16_t readInt(void);
 /** Read integer within specified limits. */
 extern uint16_t readInt(uint16_t imin,uint16_t imax);
 
+/** Read up to 10 digits until CR or non-digit is entered. */
+extern uint32_t readInt32(void);
+
+/** Read integer-32 within specified limits. */
+extern uint32_t readInt(uint32_t imin,uint32_t imax);
+
+
+
 #endif // _utils_h_

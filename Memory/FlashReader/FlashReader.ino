@@ -79,7 +79,8 @@ static const int kMAX_BLOCK_SIZE = 256;
 // data buffer etc.
 uint8_t eepromData[kMAX_BLOCK_SIZE];
 uint32_t eepromAddr = 0;
-EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_2732;
+//EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_2732;
+EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_27040;
 
 /**  */
 void setup() {
@@ -142,9 +143,9 @@ void loop() {
       case 'a':  // --- set the base address
       case 'A':
           Serial.print(F("\nEnter start address? ")); Serial.flush();
-          //eepromAddr = readInt(); // readUInt32();
-          eepromAddr = Serial.parseInt();
-          Serial.println(eepromAddr);
+          eepromAddr = readInt32();
+          //eepromAddr = Serial.parseInt();
+          //Serial.println(eepromAddr);
         break;
 
       case 'f':  // --- toggle output format
@@ -162,9 +163,9 @@ void loop() {
       case 'l':  // --- set the length
       case 'L':
         Serial.print(F("\nEnter block length? ")); Serial.flush();
-        //total_length = readInt(); // readUInt32();
-        total_length = Serial.parseInt();
-        Serial.println(total_length);
+        total_length = readInt();
+        //total_length = Serial.parseInt();
+        //Serial.println(total_length);
         break;
 
       case 'r':  // --- read length bytes starting from address
@@ -214,11 +215,12 @@ void loop() {
           Serial.print(EEprom::eEEPROM_27010); Serial.println(F(" - 271001, 27C010 (128K * 8)"));
           Serial.print(EEprom::eEEPROM_27020); Serial.println(F(" - 272001, 27C020 (256K * 8)"));
           Serial.print(EEprom::eEEPROM_27040); Serial.println(F(" - 274001, 27C040 (512K * 8)"));
-          Serial.println(F("EEprom::eEEPROM_NONE - Cancel"));
+          Serial.print(EEprom::eEEPROM_NONE); Serial.println(F(" - Cancel"));
           Serial.print(F("E(E)PROM type? ")); Serial.flush();
-          eepromType = (EEprom::eEEPROMtype)Serial.parseInt();
+          eepromType = (EEprom::eEEPROMtype)readInt((uint16_t)EEprom::eEEPROM_NONE, 
+                                                    (uint16_t)EEprom::eEEPROM_27040); // Serial.parseInt();
           if (eepromType) {
-            Serial.println(eepromType);
+            //Serial.println(eepromType);
             eeprom.setType(eepromType);
             eepromAddr = 0;  // start again with first addr
           }

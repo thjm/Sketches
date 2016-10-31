@@ -140,6 +140,43 @@ uint16_t readInt(void) {
 
 // ---------------------------------------------------------------------------
 
+uint32_t readInt32(void) {
+
+  uint32_t num = 0;
+  uint32_t c;
+  byte digits[10];
+  int8_t i = sizeof(digits) - 1;
+
+  while (Serial.available() > 0)       /* clear old garbage */
+    Serial.read();
+
+  for (;;) {
+    if (Serial.available() <= 0)
+      continue;
+    c = Serial.read();
+    if ((c < '0') || (c > '9'))     // non numeric
+      break;
+    Serial.print(c - '0', DEC);     // echo input
+    digits[i--] = c - '0';
+    if (i < 0)
+      break;
+  }
+
+  uint32_t factor = 1;
+  for (c = i+1; c <10; c++) {
+    num += digits[c] * (uint32_t)factor;  // force 32 bit operation
+    factor *= 10;
+  }
+
+  delay(10); // AVR is too fast, still getting the LF of the CRLF
+  while (Serial.available() > 0)
+    Serial.read();
+
+  return num;
+}
+
+// ---------------------------------------------------------------------------
+
 uint16_t readInt(uint16_t imin,uint16_t imax) {
 
   uint16_t input;
@@ -147,9 +184,9 @@ uint16_t readInt(uint16_t imin,uint16_t imax) {
   do {
 
     Serial << " [";
-    Serial.print( imin, DEC );
+    Serial.print(imin, DEC);
     Serial << "..";
-    Serial.print( imax, DEC );
+    Serial.print(imax, DEC);
     Serial << "]: ";
 
     input = readInt();
