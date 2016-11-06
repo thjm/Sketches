@@ -80,7 +80,7 @@ static const int kMAX_BLOCK_SIZE = 256;
 uint8_t eepromData[kMAX_BLOCK_SIZE];
 uint32_t eepromAddr = 0;
 //EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_2732;
-EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_27040;
+EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_27020;
 
 /**  */
 void setup() {
@@ -122,6 +122,9 @@ void loop() {
   
   if ( first ) {
     help_main.print(Serial);
+    Serial.print(F("E(E)PROM type: ")); 
+    Serial << (int)eeprom.getType() << " (" 
+           << EEprom::getTypeString(eeprom.getType()) << ")" << endl;
     first = false;
   }
 
@@ -146,6 +149,7 @@ void loop() {
           eepromAddr = readInt32();
           //eepromAddr = Serial.parseInt();
           //Serial.println(eepromAddr);
+          Serial.println();
         break;
 
       case 'f':  // --- toggle output format
@@ -166,6 +170,7 @@ void loop() {
         total_length = readInt();
         //total_length = Serial.parseInt();
         //Serial.println(total_length);
+        Serial.println();
         break;
 
       case 'r':  // --- read length bytes starting from address
@@ -224,6 +229,7 @@ void loop() {
             eeprom.setType(eepromType);
             eepromAddr = 0;  // start again with first addr
           }
+          Serial.println();
         break;
 
       case 'h':
