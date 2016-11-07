@@ -141,8 +141,10 @@ void loopNonInteractive() {
   // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr> 
   //
   if ( lineComplete ) {
-    
+
+#if 0
     Serial << strlen(inputLine) << " '" << inputLine << "'" << endl;
+#endif
 
     char *command = NULL;
     int nopts = 0;
@@ -228,8 +230,15 @@ void loopNonInteractive() {
               err = 1;
               Serial << F("ERR: illegal length parameter") << endl;
             }
+
             if ( !err ) {
+
               len = total_length;
+
+              // if the end address is beyond the size of the E(E)PROM then reduce it accordingly
+              if ( (eepromAddr+len) >= eeprom.getSize() )
+                len -= eepromAddr+len - eeprom.getSize();
+
               while ( len > 0 ) {
                 nBytes = min(len, kMAX_BLOCK_SIZE);
                 len -= nBytes;
@@ -239,6 +248,7 @@ void loopNonInteractive() {
 
                 eepromAddr += nBytes;
               }
+              
               writeIhexEOF(Serial);
             }
           }
