@@ -419,24 +419,6 @@ void loopInteractive() {
 }
 #endif // INTERACTIVE
 
-/** Read unsigned integer, 32 bits from console (experimental). */
-uint32_t readUInt32(void) {
-
-  byte line[20];
-
-  while (Serial.available() > 0)       /* clear old garbage */
-    Serial.read();
-
-  String l = Serial.readString();
-
-  Serial.print(l);
-  
-  l.getBytes(line, sizeof(line));
-  
-  uint32_t data = strtol((const char *)line, NULL, 0);
-  
-  return data;
-}
 
 /** Test code frame ... 
   *  
