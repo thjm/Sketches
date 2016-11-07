@@ -184,19 +184,90 @@ void loopNonInteractive() {
       token = strtok(0, " ");
     }
 
+#if 0
     // final control output after tokenisation
     if ( command && !err ) {
       Serial << F("command= '") << command << "'" << endl;
       for ( int i=0; i<nopts; ++i )
         Serial << F("option[") << i << F("]= '") << option[i] << "'" << endl;
     }
+#endif
 
     if ( !err ) {
+
+      size_t total_length, len, nBytes;
+      
       switch ( command[0] ) {
-        case 't': break;
-        case 'r': break;
-        case 'w': break;
-        case '?': break;
+
+        case 't': 
+        case 'T': 
+          // requires exactly one parameter
+          if ( nopts != 1 ) {
+            err = 1;
+            Serial << F("ERR: number of parameters mismatch") << endl;
+          }
+          else if ( *option[0] == '?' ) {
+            Serial << F("T ") << (int)eepromType << endl;
+          }
+          else if (    atoi(option[0]) > (int)EEprom::eEEPROM_2716
+                    || atoi(option[0]) <= (int)EEprom::eEEPROM_27040 ) {
+            eepromType = (EEprom::eEEPROMtype)atoi(option[0]);
+            eeprom.setType( eepromType );
+          }
+          else {
+            err = 1;
+            Serial << F("ERR: parameter range mismatch") << endl;
+          }
+        break;
+
+        case 'r': 
+        case 'R': 
+          // requires exactly two parameters
+          if ( nopts != 2 ) {
+            err = 1;
+            Serial << F("ERR: number of parameters mismatch") << endl;
+          }
+          else {
+            eepromAddr = atoi(option[0]);
+            total_length = atoi(option[1]);
+
+            if ( eepromAddr >= eeprom.getSize() ) {
+              err = 1;
+              Serial << F("ERR: start address outside E(E)PROM address range") << endl;
+            }
+            if ( total_length <= 0 ) {
+              err = 1;
+              Serial << F("ERR: illegal length parameter") << endl;
+            }
+            if ( !err ) {
+              len = total_length;
+              while ( len > 0 ) {
+                nBytes = min(len, kMAX_BLOCK_SIZE);
+                len -= nBytes;
+
+                eeprom.read(eepromAddr, eepromData, nBytes);
+                writeIhexData(Serial, eepromData, nBytes, eepromAddr);
+
+                eepromAddr += nBytes;
+              }
+              writeIhexEOF(Serial);
+            }
+          }
+        break;
+
+        case 'w': 
+        case 'W': 
+          // requires exactly two parameters
+          if ( nopts != 2 ) {
+            err = 1;
+            Serial << F("ERR: number of parameters mismatch") << endl;
+          }
+        break;
+
+        case '?': 
+          Serial << F("R W T") << endl;
+        break;
+
         default:
           Serial << F("ERR: unknown command entered!") << endl;
           err = true;
@@ -285,8 +356,6 @@ void loopInteractive() {
       case 'L':
         Serial.print(F("\nEnter block length? ")); Serial.flush();
         total_length = readInt();
-        //total_length = Serial.parseInt();
-        //Serial.println(total_length);
         Serial.println();
         break;
 
@@ -342,7 +411,6 @@ void loopInteractive() {
           eepromType = (EEprom::eEEPROMtype)readInt((uint16_t)EEprom::eEEPROM_NONE, 
                                                     (uint16_t)EEprom::eEEPROM_27040); // Serial.parseInt();
           if (eepromType) {
-            //Serial.println(eepromType);
             eeprom.setType(eepromType);
             eepromAddr = 0;  // start again with first addr
           }
