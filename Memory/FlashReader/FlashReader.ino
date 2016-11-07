@@ -37,13 +37,6 @@
 
 */
 
-#define DEBUG
-// execute test code (if any)
-#undef TEST
-#define INTERACTIVE   0
-#if (INTERACTIVE == 0)
- //#undef DEBUG
-#endif
 
 // http://arduiniana.org/libraries/streaming/
 // has to be included BEFORE Flash
@@ -64,17 +57,13 @@
  #error "Flash version >= 5 is required!"
 #endif // FLASH_LIBRARY_VERSION
 
-#include "EEprom.h"
+#include "FlashReader.h"
+
 #include "utils.h"
 #include "ihex.h"
 
-// UART baud rate
-#define UART_BAUD_RATE  9600
-
 // EEPROM object
 EEprom eeprom;
-
-static const int kMAX_BLOCK_SIZE = 256;
 
 // data buffer etc.
 uint8_t eepromData[kMAX_BLOCK_SIZE];
