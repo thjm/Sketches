@@ -102,7 +102,7 @@ void loop() {
  // Calculated based on max input size expected for one command
  #define INPUT_SIZE   64
  // Maximum number of options expected
- #define MAX_OPTIONS   3
+ #define MAX_OPTIONS   5
 
 static char inputLine[INPUT_SIZE+1] = { 0 };
 static int lineLength = 0;
@@ -144,10 +144,43 @@ static bool getInputLine() {
   return lineComplete;
 }
 
+/** Tokenize the given string 'inputLine' using the separator 'separator'. Upon initialisation, the max.
+  * number of tokens (options) must be passed via the variable 'nopts'.
+  * 
+  * The functions returns the number of found tokens (options) in the variable 'nopts' and their
+  * values in the array 'option' which must be sufficiently large to hold 'nopts' entries.
+  */
+bool tokenize(const char *inputline,int& nopts,char **options,const char *separator=" ") {
+
+  int max_nopts = nopts;
+  
+  nopts = 0;
+  
+  char* token = strtok(inputLine, separator);
+  bool err = false;
+
+  while ( token && !err ) {
+
+    if ( nopts == max_nopts ) {
+      err = true;
+      Serial << F("ERR: maximum number of options exceeded") << endl;
+    }
+    else
+      options[nopts++] = token;
+
+    // find next token
+    token = strtok(0, separator);
+  }
+
+  return err;
+}
+
 /** loop() function for the non-interactive version. */
 void loopNonInteractive() {
 
   if ( getInputLine() ) {
+
+    bool err = false;
 
 #if 0
     Serial << strlen(inputLine) << " '" << inputLine << "'" << endl;
@@ -161,36 +194,23 @@ void loopNonInteractive() {
     //
 
     char *command = NULL;
-    int nopts = 0;
-    char* token = strtok(inputLine, " ");
+    int nopts = MAX_OPTIONS;
     char *option[MAX_OPTIONS];
-    bool err = false;
 
-    while ( token && !err ) {
-      
-      // 'command' token must have length of 1
-      if ( strlen(token) == 1 && !command ) {
-        command = token;
-      }
-      // 'command' token found, now check for options
-      else if ( command ) {
-        if ( nopts == MAX_OPTIONS ) {
-          err = true;
-          Serial << F("ERR: maximum number of options exceeded") << endl;
-        }
-        option[nopts++] = token;
-      }
-      else if ( !command ) {
+    err = tokenize(inputLine, nopts, option, " ");
+
+    if ( !err && nopts ) {
+      command = option[0];
+
+      if ( strlen(command) != 1 ) {
         Serial << F("ERR: no command found!") << endl;
         err = true;
       }
-
-      // find next token
-      token = strtok(0, " ");
     }
 
 #if 0
     // final control output after tokenisation
+    Serial << F("nopts= ") << nopts << endl;
     if ( command && !err ) {
       Serial << F("command= '") << command << "'" << endl;
       for ( int i=0; i<nopts; ++i )
@@ -207,16 +227,16 @@ void loopNonInteractive() {
         case 't': 
         case 'T': 
           // requires exactly one parameter
-          if ( nopts != 1 ) {
+          if ( nopts != 2 ) {
             err = 1;
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
-          else if ( *option[0] == '?' ) {
+          else if ( *option[1] == '?' ) {
             Serial << F("T ") << (int)eepromType << endl;
           }
-          else if (    atoi(option[0]) > (int)EEprom::eEEPROM_2716
-                    || atoi(option[0]) <= (int)EEprom::eEEPROM_27040 ) {
-            eepromType = (EEprom::eEEPROMtype)atoi(option[0]);
+          else if (    atoi(option[1]) > (int)EEprom::eEEPROM_2716
+                    || atoi(option[1]) <= (int)EEprom::eEEPROM_27040 ) {
+            eepromType = (EEprom::eEEPROMtype)atoi(option[1]);
             eeprom.setType( eepromType );
           }
           else {
@@ -228,13 +248,13 @@ void loopNonInteractive() {
         case 'r': 
         case 'R': 
           // requires exactly two parameters
-          if ( nopts != 2 ) {
+          if ( nopts != 3 ) {
             err = 1;
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
           else {
-            eepromAddr = atoi(option[0]);
-            total_length = atoi(option[1]);
+            eepromAddr = atoi(option[1]);
+            total_length = atoi(option[2]);
 
             if ( eepromAddr >= eeprom.getSize() ) {
               err = 1;
@@ -271,7 +291,7 @@ void loopNonInteractive() {
         case 'w': 
         case 'W': 
           // requires exactly two parameters
-          if ( nopts != 2 ) {
+          if ( nopts != 3 ) {
             err = 1;
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
