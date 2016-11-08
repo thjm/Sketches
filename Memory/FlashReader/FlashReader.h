@@ -15,7 +15,7 @@
 #undef TEST
 #define INTERACTIVE   0
 #if (INTERACTIVE == 0)
- //#undef DEBUG
+ #undef DEBUG
 #endif
 
 // UART baud rate

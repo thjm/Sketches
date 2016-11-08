@@ -70,6 +70,7 @@ uint8_t eepromData[kMAX_BLOCK_SIZE];
 uint32_t eepromAddr = 0;
 //EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_2732;
 EEprom::eEEPROMtype eepromType = EEprom::eEEPROM_27020;
+static int verbosity = 0;
 
 /**  */
 void setup() {
@@ -123,9 +124,12 @@ static bool getInputLine() {
   int ch = Serial.read();
 
   if ( ch == -1 ) return false;
+
+  // CR will be ignored
+  if ( ch == 0x0d ) return false;
   
-  // check for LF or add character to inputLine
-  if ( ch == 0x0a || ch == 0x0d ) {
+  // check for LF (aka. EOL) or add character to inputLine
+  if ( ch == 0x0a ) {
     lineComplete = true;
   }
   else {
@@ -149,6 +153,9 @@ static bool getInputLine() {
   * 
   * The functions returns the number of found tokens (options) in the variable 'nopts' and their
   * values in the array 'option' which must be sufficiently large to hold 'nopts' entries.
+  * 
+  * The function returns 'true' when the line is properly terminated (CR/LF) otherwise it has to be called
+  * again (in order to complete the line).
   */
 bool tokenize(const char *inputline,int& nopts,char **options,const char *separator=" ") {
 
@@ -232,10 +239,12 @@ void loopNonInteractive() {
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
           else if ( *option[1] == '?' ) {
+            Serial << F("OK") << endl;
             Serial << F("T ") << (int)eepromType << endl;
           }
           else if (    atoi(option[1]) > (int)EEprom::eEEPROM_2716
                     || atoi(option[1]) <= (int)EEprom::eEEPROM_27040 ) {
+            Serial << F("OK") << endl;
             eepromType = (EEprom::eEEPROMtype)atoi(option[1]);
             eeprom.setType( eepromType );
           }
@@ -267,6 +276,8 @@ void loopNonInteractive() {
 
             if ( !err ) {
 
+              Serial << F("OK") << endl;
+              
               len = total_length;
 
               // if the end address is beyond the size of the E(E)PROM then reduce it accordingly
@@ -283,6 +294,7 @@ void loopNonInteractive() {
                 eepromAddr += nBytes;
               }
 
+              // do we really want this?
               writeIhexEOF(Serial);
             }
           }
@@ -295,20 +307,18 @@ void loopNonInteractive() {
             err = 1;
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
+          Serial << F("OK") << endl;
         break;
 
         case '?': 
-          Serial << F("R W T") << endl;
+          Serial << F("OK") << endl;
+          Serial << F("R T V W") << endl;
         break;
 
         default:
           Serial << F("ERR: unknown command entered!") << endl;
           err = true;
       }
-    }
-
-    if ( !err ) {
-      Serial << F("OK") << endl;
     }
 
     lineLength = 0;
