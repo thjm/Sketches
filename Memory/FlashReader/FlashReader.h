@@ -13,7 +13,7 @@
 #define DEBUG
 // execute test code (if any)
 #undef TEST
-#define INTERACTIVE   1
+#define INTERACTIVE   0
 #if (INTERACTIVE == 0)
  //#undef DEBUG
 #endif
@@ -24,6 +24,7 @@
 // the E(E)PROM object
 extern EEprom eeprom;
 
+/** Size of the local data buffer, more cannot be read/flashed in one go. */
 const int kMAX_BLOCK_SIZE = 256;
 
 // 'global' variables

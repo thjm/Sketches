@@ -106,9 +106,12 @@ void loop() {
 
 static char inputLine[INPUT_SIZE+1] = { 0 };
 static int lineLength = 0;
+static int errorCode = 0;
 
-/** Reads characters from the serial inputs and returns 'true' when 
- *  a complete line has been read.
+/** Reads characters from the serial inputs, puts them into the 'inputLine' 
+ *  buffer and returns 'true' when a complete line has been read.
+ *  
+ *  The maximum length of the input line is limited by the INPUT_SIZE constant.
  */
 static bool getInputLine() {
 
@@ -144,18 +147,18 @@ static bool getInputLine() {
 /** loop() function for the non-interactive version. */
 void loopNonInteractive() {
 
-  //
-  // valid commands:
-  // 't ?' - get E(E)PROM type
-  // 't <t>' - set E(E)PROM type
-  // 'r <addr> <len>' - read <len> bytes starting from address <addr>
-  // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr> 
-  //
   if ( getInputLine() ) {
 
 #if 0
     Serial << strlen(inputLine) << " '" << inputLine << "'" << endl;
 #endif
+    //
+    // valid commands:
+    // 't ?' - get E(E)PROM type
+    // 't <t>' - set E(E)PROM type
+    // 'r <addr> <len>' - read <len> bytes starting from address <addr>
+    // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr> 
+    //
 
     char *command = NULL;
     int nopts = 0;

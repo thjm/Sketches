@@ -30,6 +30,7 @@
 #include "ihex.h"
 
 #if (INTERACTIVE != 0)
+
 //
 // flash strings for the main menu
 //
