@@ -7,7 +7,7 @@ Each directory contains its corresponding README file which describes the
 specific requirements etc.
 
 In order not to conflict with other license models, third party libraries are not
-included into these projects but links to them (for downloading) are be provided.
+included into these projects but links to them (for downloading) are provided.
 For some third party libraries patch instructions are given, if applicable.
 
 # Sub-projects
@@ -16,6 +16,10 @@ For some third party libraries patch instructions are given, if applicable.
 
 A collection of my own libraries. They have to be copied/symlinked to the
 Arduino libraries directory.
+
+## Python
+
+Here are some Python support/steering scripts for the various projects located.
 
 ## Memory/FlashReader
 
