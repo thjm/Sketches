@@ -285,10 +285,13 @@ void loopNonInteractive() {
                 len -= eepromAddr+len - eeprom.getSize();
 
               while ( len > 0 ) {
+                // limit number of bytes to be read into buffer
                 nBytes = min(len, kMAX_BLOCK_SIZE);
                 len -= nBytes;
 
+                // read data from E(E)PROM into local buffer
                 eeprom.read(eepromAddr, eepromData, nBytes);
+                // and output buffered data in IHEX format
                 writeIhexData(Serial, eepromData, nBytes, eepromAddr);
 
                 eepromAddr += nBytes;

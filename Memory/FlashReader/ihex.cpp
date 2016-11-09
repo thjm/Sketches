@@ -14,6 +14,7 @@
 // https://en.wikipedia.org/wiki/Intel_HEX
 void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,const uint32_t eprom_addr) {
 
+  // I prefer the shorter record format
   static const size_t eIhexBlocksize = 16;  // 32
   uint32_t addr = eprom_addr;
   size_t cur_length = data_length;
@@ -21,6 +22,7 @@ void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,c
 
   while ( cur_length > 0 ) {
 
+    // number of bytes in one IHEX record
     size_t len = min(cur_length, eIhexBlocksize);
 
     uint8_t addr_lo = (uint8_t)(addr & 0xff);
@@ -33,7 +35,7 @@ void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,c
     checksum += addr_lo;
 
     stream.print(":");
-    printHex8(stream, eIhexBlocksize);
+    printHex8(stream, len);  // current block length
     printHex8(stream, addr_hi);
     printHex8(stream, addr_lo);
     stream.print("00");   // block type 'data'
