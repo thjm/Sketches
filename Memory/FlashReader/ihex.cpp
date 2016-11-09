@@ -43,6 +43,9 @@ void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,c
       checksum += data[offset + i];
     }
 
+    // create two's complement
+    checksum = ~checksum + 1;
+    
     printHex8(stream, checksum);
     stream.println("");
 
