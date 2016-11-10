@@ -42,6 +42,67 @@ SERIAL_DEVICE = '/dev/ttyACM0'
 
 # ---
 
+def decodeRecord(ih, record='', line=0):
+    """Decode a record in Intel HEX format and write the resulting data
+       in case of no error into the object of type Intelhex.
+       
+       This function is similar (but simplified) to the the method 
+       _decode_record() of the class IntelHex. It is only able to read
+       the record types 0 (data) and -1 (end of file).
+       
+       Return the number of bytes read or -1 in the case the EOF record 
+       was found.
+    """
+
+    from array import array
+    from intelhex import unhexlify, asbytes
+
+    record = record.rstrip('\r\n')
+    if not record:
+    	return 0	 # empty line
+
+    if record[0] == ':':
+    	try:
+    	    bin = array('B', unhexlify(asbytes(record[1:])))
+    	except (TypeError, ValueError):
+    	    # this might be raised by unhexlify when odd hexascii digits
+    	    raise HexRecordError(line=line)
+    	length = len(bin)
+    	if length < 5:
+    	    raise HexRecordError(line=line)
+    else:
+    	raise HexRecordError(line=line)
+
+    record_length = bin[0]
+    if length != (5 + record_length):
+    	raise RecordLengthError(line=line)
+
+    addr = bin[1]*256 + bin[2]
+
+    record_type = bin[3]
+    if not (0 <= record_type <= 5):
+    	raise RecordTypeError(line=line)
+
+    crc = sum(bin)
+    crc &= 0x0FF
+    if crc != 0:
+    	raise RecordChecksumError(line=line)
+
+    # data record
+    if record_type == 0:
+        for i in range(record_length):
+   	    ih[addr+i] = bin[i]
+
+    elif record_type == 1:
+    	# end of file record
+    	if record_length != 0:
+    	    raise EOFRecordError(line=line)
+    	return -1
+
+    return record_length
+
+# ---
+
 KNOWN_EPROMS = [eprom for eprom in EEprom]
 
 description = """Read data from the FLASH of the specified type in given address range."""
@@ -115,22 +176,28 @@ while response != 'OK':
     response = ser.readline().strip()
     print "response='%s'" % response
 
+# http://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script
+from inspect import currentframe, getframeinfo
+
 # read data from FLASH in chunks of 16 bytes
 for address in range(args.start_address, args.end_address, 16):
     request = "r %d %d\r\n" % (address, 16)
-    print "request='%s'" % request.strip()
+    #print "request='%s'" % request.strip()
     ser.write(request)
     time.sleep(0.1)
     response = ser.readline().strip()
     #print "response='%s'" % response
-    response = ser.readline().strip()
-    print "response='%s'" % response
-    response = ser.readline().strip()
-    print "response='%s'" % response
-
-#ser.write("r %d %d\n" % (args.start_address, args.end_address - args.start_address))
-#serial_data = ser.read(100).strip()
-#print serial_data
+    if 'OK' in response:
+        response = ser.readline().strip()
+        print "response='%s'" % response
+        #ih._decode_record(response,getframeinfo(currentframe()).lineno)
+	nBytes += decodeRecord(ih, response)
+        response = ser.readline().strip()
+        print "response='%s'" % response
+    elif 'ERR' in response:
+        print "Error in response to request '%s'!" % request.strip()
+    else:
+        print "Unknown response '%s' to request '%s'!" % (response,request.strip())
 
 ser.close()
 

@@ -1,4 +1,4 @@
 .*.lck
 FlashReader.s#?
 FlashReader.pdf
-Python/*.hex
+Python/Flasher/*.hex
