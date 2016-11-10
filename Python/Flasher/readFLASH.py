@@ -80,7 +80,8 @@ def decodeRecord(ih, record='', line=0):
     addr = bin[1]*256 + bin[2]
 
     record_type = bin[3]
-    if not (0 <= record_type <= 5):
+    #if not (0 <= record_type <= 5):
+    if not (0 <= record_type <= 1):
     	raise RecordTypeError(line=line)
 
     crc = sum(bin)
@@ -91,7 +92,7 @@ def decodeRecord(ih, record='', line=0):
     # data record
     if record_type == 0:
         for i in range(record_length):
-   	    ih[addr+i] = bin[i]
+   	    ih[addr+i] = bin[i+4]
 
     elif record_type == 1:
     	# end of file record
