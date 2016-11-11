@@ -198,6 +198,7 @@ for address in range(args.start_address, args.end_address, 16):
     if 'OK' in response:
         response = ser.readline().strip()
         if args.verbose: print "response='%s'" % response
+	# line number of the calling code or of some input file ?
         #ih._decode_record(response,getframeinfo(currentframe()).lineno)
 	nBytes += decodeRecord(ih, response)
         # reads EOF record ':000001FF'
