@@ -56,6 +56,11 @@ def decodeRecord(ih, record='', line=0):
 
     from array import array
     from intelhex import unhexlify, asbytes
+    from intelhex import HexRecordError
+    from intelhex import RecordLengthError
+    from intelhex import RecordTypeError
+    from intelhex import RecordChecksumError
+    from intelhex import EOFRecordError
 
     record = record.rstrip('\r\n')
     if not record:
