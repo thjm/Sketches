@@ -118,6 +118,8 @@ parser.add_argument('-s', '--show-eproms', action='store_true', default=False,
                           help='show known E(E)PROM types and exit')
 parser.add_argument('-t', '--type', type=str, default='2732',
                           help='set the E(E)PROM type')
+parser.add_argument('--verbose', default=0,
+                          help='set output to be more verbose')
 parser.add_argument('--start-address', type=long, default=0x0,
                           help='start address of E(E)PROM from where to read')
 parser.add_argument('--end-address', type=long, default=0x0,
@@ -171,11 +173,11 @@ nBytes = 0
 response = ''
 while response != 'OK':
     request = "t %d\r\n" % eprom['type']
-    print "request='%s'" % request.strip()
+    if args.verbose: print "request='%s'" % request.strip()
     ser.write(request)
     # read from serial interface, strip CR/LF
     response = ser.readline().strip()
-    print "response='%s'" % response
+    if args.verbose: print "response='%s'" % response
 
 # http://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script
 from inspect import currentframe, getframeinfo
@@ -183,18 +185,19 @@ from inspect import currentframe, getframeinfo
 # read data from FLASH in chunks of 16 bytes
 for address in range(args.start_address, args.end_address, 16):
     request = "r %d %d\r\n" % (address, 16)
-    #print "request='%s'" % request.strip()
+    if args.verbose: print "request='%s'" % request.strip()
     ser.write(request)
     time.sleep(0.1)
     response = ser.readline().strip()
-    #print "response='%s'" % response
+    if args.verbose: print "response='%s'" % response
     if 'OK' in response:
         response = ser.readline().strip()
-        print "response='%s'" % response
+        if args.verbose: print "response='%s'" % response
         #ih._decode_record(response,getframeinfo(currentframe()).lineno)
 	nBytes += decodeRecord(ih, response)
-        response = ser.readline().strip()
-        print "response='%s'" % response
+        # reads EOF record ':000001FF'
+	response = ser.readline().strip()
+        if args.verbose: print "response='%s'" % response
     elif 'ERR' in response:
         print "Error in response to request '%s'!" % request.strip()
     else:
@@ -213,7 +216,7 @@ hexfile = open(args.output_file, 'w')
 ih.tofile(hexfile, 'hex')
 hexfile.close()
 
-print "Written %d bytes to Intel Hex-record formatted file %s!" % \
+print "Written %d bytes to Intel Hex formatted file %s!" % \
       (nBytes, args.output_file)
 
 # eof
