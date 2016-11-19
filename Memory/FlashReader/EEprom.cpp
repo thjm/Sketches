@@ -143,7 +143,9 @@ void EEprom::setAddress(uint32_t addr) {
   // to be not required but according to the data sheets it is
   //
   // EPROM 2764: A14 = A15 = HIGH (!P and Vpp)
-  if ( _eepromSize == 0x2000 ) msb_mask = 0xC0;
+  // RAM 6264: A13 = HIGH (CS2), this doesn't conflict with 
+  // E(E)PROM where pin 26 is NC
+  if ( _eepromSize == 0x2000 ) msb_mask = 0xE0;
   // EPROM 27128: A14 = A15 = HIGH (!P and Vpp)
   else if ( _eepromSize == 0x4000 ) msb_mask = 0xC0;
   // EPROM 27256: A15 = HIGH (Vpp)
