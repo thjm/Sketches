@@ -2,7 +2,7 @@
 //
 // File   : EEprom.h
 //
-// Purpose: Declaration for the class EEprom
+// Purpose: Declaration of the class EEprom
 //
 // $Id$
 //
@@ -116,6 +116,9 @@ public:
    */
   EEprom();
 
+  /**  */
+  virtual ~EEprom() { }
+  
   /** Get the address mask for the E(E)PROM. */
   uint32_t getAddressMask() {
     return _addrMask;
@@ -140,21 +143,21 @@ public:
    */
   void setType(eEEPROMtype eType);
   
-  /** Read a byte from the specified address. */
-  uint8_t read(uint32_t);
+  /** Read a byte from a previously set address. */
+  virtual uint8_t read(uint32_t);
 
   /** Read a block of 'length' bytes from the specified address. 
    *  
    *  Returns the number of bytes read, as this is limited by the maximum 
    *  possible address of the EEPROM.
    */
-  size_t read(uint32_t addr,uint8_t *data,uint32_t length);
+  virtual size_t read(uint32_t addr,uint8_t *data,uint32_t length);
 
   /** Write a byte to the specified address. */
-  void write(uint32_t,uint8_t);
+  virtual void write(uint32_t,uint8_t);
 
   /** Write a block of 'length' bytes to the specified addess (Tbd!). */
-  //void write(uint32_t addr,uint8_t *data,uint32_t length);
+  //virtual void write(uint32_t addr,uint8_t *data,uint32_t length);
 
 protected:
 
@@ -164,16 +167,16 @@ protected:
     _addrMask = _eepromSize - 1;
   }
   
-  /** Read a byte. */
-  uint8_t read();
+  /** Read a byte froma  previously set address. */
+  virtual uint8_t read();
 
-  /** Write a byte. */
-  void write(uint8_t);
+  /** Write a byte to a previously set address. */
+  virtual void write(uint8_t);
 
   /** Set the address. */
   void setAddress(uint32_t);
 
-  /** Set the LSB of the address. */
+  /** Set the LSB (least significant byte) of the address. */
   void setAddressLSB(uint8_t);
   /** Set the MSB of the address. */
   void setAddressMSB(uint8_t);

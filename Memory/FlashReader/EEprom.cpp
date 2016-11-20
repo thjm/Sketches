@@ -1,11 +1,11 @@
+
+//
 // File   : EEprom.cpp
 //
 // Purpose: Implementation of the class EEprom
 //
 // $Id$
 //
-
-#include <Arduino.h>
 
 #include "EEprom.h"
 
