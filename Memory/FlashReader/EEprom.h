@@ -7,7 +7,7 @@
 // $Id$
 //
 
-#ifndef _EEPROM_h_
+#ifndef _EEprom_h_
  #define _EEprom_h_
 
 #include <Arduino.h>
