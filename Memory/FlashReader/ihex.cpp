@@ -11,6 +11,7 @@
 
 // ---------------------------------------------------------------------------
 
+// from https://www.pjrc.com/tech/8051/ihex.c
 int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,uint8_t &code) {
   
   int sum, len, cksum;
