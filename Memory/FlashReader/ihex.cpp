@@ -11,6 +11,48 @@
 
 // ---------------------------------------------------------------------------
 
+int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,uint8_t &code) {
+  
+  int sum, len, cksum;
+  const char *ptr;
+  
+  num = 0;
+  addr = 0;
+  
+  // check basic format and length requirements
+  if ( theline[0] != ':' ) return 0;
+  if ( strlen(theline) < 11 ) return 0;
+  
+  ptr = theline+1;
+  if ( !sscanf(ptr, "%02x", &len) ) return 0;
+  
+  // length of data and load address
+  ptr += 2;
+  if ( strlen(theline) < (11 + (len * 2)) ) return 0;
+  if (!sscanf(ptr, "%04x", &addr)) return 0;
+      
+  ptr += 4;
+  if ( !sscanf(ptr, "%02x", &code) ) return 0;
+  
+  ptr += 2;
+  sum = (len & 255) + ((addr >> 8) & 255) + (addr & 255) + (code & 255);
+  while ( num != len ) {
+    
+    if (!sscanf(ptr, "%02x", &bytes[num])) return 0;
+    ptr += 2;
+    sum += bytes[num] & 255;
+    num++;
+    if ( num >= 256 ) return 0;
+  }
+  
+  if ( !sscanf(ptr, "%02x", &cksum) ) return 0;
+  if ( ((sum & 255) + (cksum & 255)) & 255 ) return 0; /* checksum error */
+  
+  return 1;
+}
+
+// ---------------------------------------------------------------------------
+
 // https://en.wikipedia.org/wiki/Intel_HEX
 void writeIhexData(Stream& stream,const uint8_t *data,const size_t data_length,const uint32_t eprom_addr) {
 
