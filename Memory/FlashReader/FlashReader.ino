@@ -181,6 +181,7 @@ void loopNonInteractive() {
     char *command = NULL;
     int nopts = MAX_OPTIONS;
     char *option[MAX_OPTIONS];
+    char *ihex_string;
 
     err = tokenize(inputLine, nopts, option, " ");
 
@@ -283,12 +284,51 @@ void loopNonInteractive() {
 
         case 'w': 
         case 'W': 
-          // requires exactly two parameters
-          if ( nopts != 3 ) {
+          // requires only one parameters, the IHEX string
+          if ( nopts != 2 ) {
             err = 1;
             Serial << F("ERR: number of parameters mismatch") << endl;
           }
-          Serial << F("OK") << endl;
+          else {
+ 
+            ihex_string = option[1];
+
+            uint8_t code;
+            uint16_t addr;
+            
+            if ( !parseIhexString(ihex_string, eepromData, addr, len, code) ) {
+              err = 1;
+              Serial << F("ERR: parsing Ihex string") << endl;
+            }
+
+            // only code=1 contains relevant data
+            if ( !err && code==0 ) {
+              Serial << F("Line: len=") << len << F(" addr=") << addr 
+                     << F(" code=") << code << endl;
+            
+              if ( addr >= eeprom.getSize() ) {
+                err = 1;
+                Serial << F("ERR: start address outside E(E)PROM address range") << endl;
+                break;
+              }
+              if ( (addr+len) >= eeprom.getSize() ) {
+                //err = 1;
+                Serial << F("WRN: end address will be outside E(E)PROM address range") << endl;
+              }
+
+              // now write the data into the device
+              for ( eepromAddr=addr; eepromAddr<min(addr+len,eeprom.getSize()); ++eepromAddr) {
+                Serial << F("Writing to 0x"); printHex16(Serial, eepromAddr); 
+                Serial << F(": 0x"); printHex8(Serial, eepromData[eepromAddr-addr]); Serial << endl;
+              }
+              
+              Serial << F("next address 0x"); printHex16(Serial, eepromAddr); Serial << endl;
+            }
+            
+            if ( !err ) {             
+              Serial << F("OK") << endl;
+            }
+          }
         break;
 
         case '?': 
