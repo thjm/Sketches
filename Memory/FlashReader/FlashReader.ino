@@ -160,12 +160,139 @@ bool tokenize(const char *inputline,int& nopts,char **options,const char *separa
   return err;
 }
 
+/** Check passed parameters and execute the 'read' command. */
+int execReadCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
+
+  // requires exactly two parameters
+  if ( nopts != 3 ) {
+    Serial << F("ERR: number of parameters mismatch") << endl;
+    return 1;
+  }
+
+  eepromAddr = atoi(option[1]);
+  size_t total_length = atoi(option[2]);
+
+  if ( eepromAddr >= eeprom.getSize() ) {
+    Serial << F("ERR: start address outside E(E)PROM address range") << endl;
+    return 1;
+  }
+  
+  if ( total_length <= 0 ) {
+    Serial << F("ERR: illegal length parameter") << endl;
+    return 1;
+  }
+
+  Serial << F("OK") << endl;
+              
+  size_t len = total_length;
+
+  // if the end address is beyond the size of the E(E)PROM then reduce it accordingly
+  if ( (eepromAddr+len) >= eeprom.getSize() )
+    len -= eepromAddr+len - eeprom.getSize();
+
+  while ( len > 0 ) {
+
+    // limit number of bytes to be read into buffer
+    size_t nBytes = min(len, kMAX_BLOCK_SIZE);
+    len -= nBytes;
+
+    // read data from E(E)PROM into local buffer
+    eeprom.read(eepromAddr, eepromData, nBytes);
+    // and output buffered data in IHEX format
+    writeIhexData(Serial, eepromData, nBytes, eepromAddr);
+
+    eepromAddr += nBytes;
+  }
+
+  // do we really want this?
+  writeIhexEOF(Serial);
+
+  return 0;
+}
+
+/** Check passed parameters and execute the 'write' command. */
+int execWriteCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
+
+  // requires only one parameters, the IHEX string
+  if ( nopts != 2 ) {
+    Serial << F("ERR: number of parameters mismatch") << endl;
+    return 1;
+  }
+ 
+  char *ihex_string = option[1];
+  size_t len;
+
+  uint8_t code;
+  uint16_t addr;
+            
+  if ( !parseIhexString(ihex_string, eepromData, addr, len, code) ) {
+    Serial << F("ERR: parsing Ihex string") << endl;
+    return 1;
+  }
+
+  // only code=1 contains relevant data
+  if ( code == 0 ) {
+    Serial << F("Line: len=") << len << F(" addr=") << addr 
+           << F(" code=") << code << endl;
+            
+    if ( addr >= eeprom.getSize() ) {
+      Serial << F("ERR: start address outside E(E)PROM address range") << endl;
+      return 1;
+    }
+    if ( (addr+len) >= eeprom.getSize() ) {
+      Serial << F("WRN: end address will be outside E(E)PROM address range") << endl;
+      //return 1;
+    }
+
+    // now write the data into the device
+    for ( eepromAddr=addr; eepromAddr<min(addr+len,eeprom.getSize()); ++eepromAddr) {
+      Serial << F("Writing to 0x"); printHex16(Serial, eepromAddr); 
+      Serial << F(": 0x"); printHex8(Serial, eepromData[eepromAddr-addr]); Serial << endl;
+    }
+              
+    Serial << F("next address 0x"); printHex16(Serial, eepromAddr); Serial << endl;
+  }
+            
+  Serial << F("OK") << endl;
+
+  return 0;
+}
+
+/** Check passed parameters and execute the 'type' command. */
+int execTypeCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
+
+  // requires exactly one parameter
+  if ( nopts != 2 ) {
+    Serial << F("ERR: number of parameters mismatch") << endl;
+    return 1;
+  }
+
+  if ( *option[1] == '?' ) {
+    Serial << F("OK") << endl;
+    Serial << F("T ") << (int)eepromType << endl;
+    return 0;
+  }
+
+  if (    atoi(option[1]) > (int)EEprom::eEEPROM_2716
+                    || atoi(option[1]) <= (int)EEprom::eEEPROM_27040 ) {
+    Serial << F("OK") << endl;
+    eepromType = (EEprom::eEEPROMtype)atoi(option[1]);
+    eeprom.setType( eepromType );
+  }
+  else {
+    Serial << F("ERR: parameter range mismatch") << endl;
+    return 1;
+  }
+
+  return 0;
+}
+
 /** loop() function for the non-interactive version. */
 void loopNonInteractive() {
 
   if ( getInputLine() ) {
 
-    bool err = false;
+    int err = 0;
 
 #if 0
     Serial << strlen(inputLine) << " '" << inputLine << "'" << endl;
@@ -181,7 +308,6 @@ void loopNonInteractive() {
     char *command = NULL;
     int nopts = MAX_OPTIONS;
     char *option[MAX_OPTIONS];
-    char *ihex_string;
 
     err = tokenize(inputLine, nopts, option, " ");
 
@@ -190,7 +316,7 @@ void loopNonInteractive() {
 
       if ( strlen(command) != 1 ) {
         Serial << F("ERR: no command found!") << endl;
-        err = true;
+        err = 1;
       }
     }
 
@@ -205,130 +331,22 @@ void loopNonInteractive() {
 #endif
 
     if ( !err ) {
-
-      size_t total_length, len, nBytes;
       
       switch ( command[0] ) {
 
         case 't': 
-        case 'T': 
-          // requires exactly one parameter
-          if ( nopts != 2 ) {
-            err = 1;
-            Serial << F("ERR: number of parameters mismatch") << endl;
-          }
-          else if ( *option[1] == '?' ) {
-            Serial << F("OK") << endl;
-            Serial << F("T ") << (int)eepromType << endl;
-          }
-          else if (    atoi(option[1]) > (int)EEprom::eEEPROM_2716
-                    || atoi(option[1]) <= (int)EEprom::eEEPROM_27040 ) {
-            Serial << F("OK") << endl;
-            eepromType = (EEprom::eEEPROMtype)atoi(option[1]);
-            eeprom.setType( eepromType );
-          }
-          else {
-            err = 1;
-            Serial << F("ERR: parameter range mismatch") << endl;
-          }
+        case 'T':
+          err = execTypeCommand(nopts, option);
         break;
 
         case 'r': 
-        case 'R': 
-          // requires exactly two parameters
-          if ( nopts != 3 ) {
-            err = 1;
-            Serial << F("ERR: number of parameters mismatch") << endl;
-          }
-          else {
-            eepromAddr = atoi(option[1]);
-            total_length = atoi(option[2]);
-
-            if ( eepromAddr >= eeprom.getSize() ) {
-              err = 1;
-              Serial << F("ERR: start address outside E(E)PROM address range") << endl;
-            }
-            if ( total_length <= 0 ) {
-              err = 1;
-              Serial << F("ERR: illegal length parameter") << endl;
-            }
-
-            if ( !err ) {
-
-              Serial << F("OK") << endl;
-              
-              len = total_length;
-
-              // if the end address is beyond the size of the E(E)PROM then reduce it accordingly
-              if ( (eepromAddr+len) >= eeprom.getSize() )
-                len -= eepromAddr+len - eeprom.getSize();
-
-              while ( len > 0 ) {
-                // limit number of bytes to be read into buffer
-                nBytes = min(len, kMAX_BLOCK_SIZE);
-                len -= nBytes;
-
-                // read data from E(E)PROM into local buffer
-                eeprom.read(eepromAddr, eepromData, nBytes);
-                // and output buffered data in IHEX format
-                writeIhexData(Serial, eepromData, nBytes, eepromAddr);
-
-                eepromAddr += nBytes;
-              }
-
-              // do we really want this?
-              writeIhexEOF(Serial);
-            }
-          }
+        case 'R':
+          err = execReadCommand(nopts, option);
         break;
 
         case 'w': 
-        case 'W': 
-          // requires only one parameters, the IHEX string
-          if ( nopts != 2 ) {
-            err = 1;
-            Serial << F("ERR: number of parameters mismatch") << endl;
-          }
-          else {
- 
-            ihex_string = option[1];
-
-            uint8_t code;
-            uint16_t addr;
-            
-            if ( !parseIhexString(ihex_string, eepromData, addr, len, code) ) {
-              err = 1;
-              Serial << F("ERR: parsing Ihex string") << endl;
-            }
-
-            // only code=1 contains relevant data
-            if ( !err && code==0 ) {
-              Serial << F("Line: len=") << len << F(" addr=") << addr 
-                     << F(" code=") << code << endl;
-            
-              if ( addr >= eeprom.getSize() ) {
-                err = 1;
-                Serial << F("ERR: start address outside E(E)PROM address range") << endl;
-                break;
-              }
-              if ( (addr+len) >= eeprom.getSize() ) {
-                //err = 1;
-                Serial << F("WRN: end address will be outside E(E)PROM address range") << endl;
-              }
-
-              // now write the data into the device
-              for ( eepromAddr=addr; eepromAddr<min(addr+len,eeprom.getSize()); ++eepromAddr) {
-                Serial << F("Writing to 0x"); printHex16(Serial, eepromAddr); 
-                Serial << F(": 0x"); printHex8(Serial, eepromData[eepromAddr-addr]); Serial << endl;
-              }
-              
-              Serial << F("next address 0x"); printHex16(Serial, eepromAddr); Serial << endl;
-            }
-            
-            if ( !err ) {             
-              Serial << F("OK") << endl;
-            }
-          }
+        case 'W':
+          err = execWriteCommand(nopts, option);
         break;
 
         case '?': 
