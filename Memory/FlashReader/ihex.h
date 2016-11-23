@@ -15,7 +15,7 @@
 /** Parse a line (string) containing IHEX formatted data, i.e. address, length and data bytes and
  *  return this information to the calling function.
  */
-extern int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,uint8_t &code);
+extern int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,int& code);
 
 /** Write IHEX (I8HEX) data to the specified stream. */
 extern void writeIhexData(Stream& stream,const uint8_t *data,

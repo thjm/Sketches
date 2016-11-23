@@ -81,7 +81,7 @@ void loop() {
  // Calculated based on max input size expected for one command
  #define INPUT_SIZE   64
  // Maximum number of options expected
- #define MAX_OPTIONS   5
+ #define MAX_OPTIONS   3
 
 static char inputLine[INPUT_SIZE+1] = { 0 };
 static int lineLength = 0;
@@ -135,7 +135,7 @@ static bool getInputLine() {
   * The function returns 'true' when the line is properly terminated (CR/LF) otherwise it has to be called
   * again (in order to complete the line).
   */
-bool tokenize(const char *inputline,int& nopts,char **options,const char *separator=" ") {
+bool tokenize(const char *inputline,int& nopts,char *options[],const char *separator=" ") {
 
   int max_nopts = nopts;
   
@@ -219,22 +219,24 @@ int execWriteCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
     return 1;
   }
  
-  char *ihex_string = option[1];
   size_t len;
 
-  uint8_t code;
+  int code;
   uint16_t addr;
-            
-  if ( !parseIhexString(ihex_string, eepromData, addr, len, code) ) {
+   
+  if ( !parseIhexString(option[1], eepromData, addr, len, code) ) {
     Serial << F("ERR: parsing Ihex string") << endl;
     return 1;
   }
 
-  // only code=1 contains relevant data
-  if ( code == 0 ) {
+#if 0
     Serial << F("Line: len=") << len << F(" addr=") << addr 
            << F(" code=") << code << endl;
-            
+#endif
+
+  // only code=1 contains relevant data
+  if ( code == 0 ) {
+
     if ( addr >= eeprom.getSize() ) {
       Serial << F("ERR: start address outside E(E)PROM address range") << endl;
       return 1;
@@ -244,13 +246,17 @@ int execWriteCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
       //return 1;
     }
 
-    // now write the data into the device
-    for ( eepromAddr=addr; eepromAddr<min(addr+len,eeprom.getSize()); ++eepromAddr) {
-      Serial << F("Writing to 0x"); printHex16(Serial, eepromAddr); 
-      Serial << F(": 0x"); printHex8(Serial, eepromData[eepromAddr-addr]); Serial << endl;
+#if 0
+    for (size_t i=0; i<len; ++i) {
+      printHex8(Serial, eepromData[i]); Serial << endl;
     }
-              
-    Serial << F("next address 0x"); printHex16(Serial, eepromAddr); Serial << endl;
+    Serial << F("next address 0x"); printHex16(Serial, addr+len); Serial << endl;
+#endif
+
+    // now write the data into the device
+    for ( size_t i=0, epromAddr = addr; i<len && epromAddr<eeprom.getSize(); ++i, ++epromAddr ) {
+      eeprom.write(eepromAddr, eepromData[i]);
+    }
   }
             
   Serial << F("OK") << endl;
@@ -290,6 +296,13 @@ int execTypeCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
 /** loop() function for the non-interactive version. */
 void loopNonInteractive() {
 
+  static bool first = true;
+
+  if ( first ) {
+    Serial << endl << F("OK") << endl;
+    first = false;
+  }
+  
   if ( getInputLine() ) {
 
     int err = 0;
@@ -305,16 +318,14 @@ void loopNonInteractive() {
     // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr> 
     //
 
-    char *command = NULL;
     int nopts = MAX_OPTIONS;
     char *option[MAX_OPTIONS];
 
     err = tokenize(inputLine, nopts, option, " ");
 
     if ( !err && nopts ) {
-      command = option[0];
 
-      if ( strlen(command) != 1 ) {
+      if ( strlen(option[0]) != 1 ) {
         Serial << F("ERR: no command found!") << endl;
         err = 1;
       }
@@ -323,8 +334,8 @@ void loopNonInteractive() {
 #if 0
     // final control output after tokenisation
     Serial << F("nopts= ") << nopts << endl;
-    if ( command && !err ) {
-      Serial << F("command= '") << command << "'" << endl;
+    if ( option[0] && !err ) {
+      Serial << F("command= '") << option[0] << "'" << endl;
       for ( int i=0; i<nopts; ++i )
         Serial << F("option[") << i << F("]= '") << option[i] << "'" << endl;
     }
@@ -332,7 +343,7 @@ void loopNonInteractive() {
 
     if ( !err ) {
       
-      switch ( command[0] ) {
+      switch ( option[0][0] ) {
 
         case 't': 
         case 'T':

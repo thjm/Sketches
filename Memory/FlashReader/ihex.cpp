@@ -12,44 +12,48 @@
 // ---------------------------------------------------------------------------
 
 // from https://www.pjrc.com/tech/8051/ihex.c
-int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,uint8_t &code) {
-  
-  int sum, len, cksum;
+int parseIhexString(const char* theline,uint8_t bytes[],uint16_t& addr,size_t& num,int& code) {
+
+  int len;
+  uint8_t sum = 0, chksum;
   const char *ptr;
-  
+
   num = 0;
   addr = 0;
-  
+
   // check basic format and length requirements
   if ( theline[0] != ':' ) return 0;
   if ( strlen(theline) < 11 ) return 0;
-  
+
   ptr = theline+1;
   if ( !sscanf(ptr, "%02x", &len) ) return 0;
-  
+
   // length of data and load address
   ptr += 2;
   if ( strlen(theline) < (11 + (len * 2)) ) return 0;
   if (!sscanf(ptr, "%04x", &addr)) return 0;
-      
+
   ptr += 4;
   if ( !sscanf(ptr, "%02x", &code) ) return 0;
-  
+
   ptr += 2;
-  sum = (len & 255) + ((addr >> 8) & 255) + (addr & 255) + (code & 255);
+  sum = (len & 0xff) + ((addr >> 8) & 0xff) + (addr & 0xff) + (code & 0xff);
   while ( num != len ) {
-    
-    if (!sscanf(ptr, "%02x", &bytes[num])) return 0;
+
+    if (!sscanf(ptr, "%02hhx", &bytes[num])) return 0;
     ptr += 2;
-    sum += bytes[num] & 255;
+    sum += bytes[num];
     num++;
     if ( num >= 256 ) return 0;
   }
-  
-  if ( !sscanf(ptr, "%02x", &cksum) ) return 0;
-  if ( ((sum & 255) + (cksum & 255)) & 255 ) return 0; /* checksum error */
-  
-  return 1;
+
+  if ( !sscanf(ptr, "%02hhx", &chksum) ) return 0;
+  sum += chksum;
+
+
+  if ( sum & 0xff ) return 0; /* checksum error */
+
+  return 1; // OK
 }
 
 // ---------------------------------------------------------------------------
