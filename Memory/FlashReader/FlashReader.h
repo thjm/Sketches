@@ -39,4 +39,7 @@ extern void loopInteractive();
 /** 'loop()' function for the non-interactive version. */
 extern void loopNonInteractive();
 
+/** Run the various tests for the hardware (tests.cpp). */
+extern void runTests(void);
+
 #endif // _FlashReader_h_
