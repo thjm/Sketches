@@ -27,12 +27,12 @@
  #define _Morse_h_
 
 #if defined(ARDUINO) && ARDUINO >= 100
-    #include "Arduino.h"
+ #include "Arduino.h"
  // LaunchPad, FraunchPad and StellarPad specific
 #elif defined(ENERGIA)
-    #include "Energia.h"	
+ #include "Energia.h"	
 #else
-    #include "WProgram.h"
+ #include "WProgram.h"
 #endif
 
 #include <stdint.h>
@@ -51,18 +51,22 @@ public:
 
     Morse();
     
+    /**  */
     void enableTransmit(int nTransmitterPin);
+    /**  */
     void disableTransmit();
     
-    // set speed in wpm
+    /** set speed in wpm */
     void setSpeed(unsigned int speed);
     
-    // to be implemented from class Print
+    /** to be implemented from class Print */
     size_t write(uint8_t val);
 
 protected:
     
+    /** create a 'dit' (dot - short beep) */
     void dit();
+    /** create a 'dah' (dash - long beep) */
     void dah();
     
     int nTransmitterPin;

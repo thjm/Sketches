@@ -8,10 +8,12 @@
 
 // debug via serial interface
 #define DEBUG
+
 // scan sensors (to inquire addresses)
 #define SCAN_SENSORS
 // read temperature sensors
 #define READ_SENSORS
+
 // send the data via 433MHZ Tx
 #define SEND_DATA
 // send the data using the RCSwitch library
@@ -19,8 +21,10 @@
 // send the data using the Morse library
 #define USE_MORSE
 #define MORSE_SPEED     20
+
 // read photo resistor (LDR)
 #undef USE_LDR
+
 // use up to four LEDs, will blink
 #define USE_LEDS
 
@@ -96,8 +100,8 @@ extern void printAddress(DeviceAddress);
 extern void printResolution(DeviceAddress);
 
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 2
-#define TEMPERATURE_PRECISION 10
+#define ONE_WIRE_BUS            2
+#define TEMPERATURE_PRECISION  10
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
@@ -123,8 +127,8 @@ static uint16_t gCycleCounter = 0;
 /**
  * Initialization
  */
-void setup()
-{
+void setup() {
+
   if (LED > 0 ) pinMode(LED, OUTPUT);
   
 #ifdef DEBUG
@@ -134,15 +138,15 @@ void setup()
 
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());
-#ifdef SEND_DATA
+ #ifdef SEND_DATA
   Serial << F("Sending data...\n");
-#endif // SEND_DATA
-#ifdef USE_RCSWITCH
+ #endif // SEND_DATA
+ #ifdef USE_RCSWITCH
   Serial << F("- with RCswitch protocol\n");
-#endif // USE_RCSWITCH
-#ifdef USE_MORSE
+ #endif // USE_RCSWITCH
+ #ifdef USE_MORSE
   Serial << F("- with morse, speed="); Serial.println(MORSE_SPEED);
-#endif // USE_MORSE
+ #endif // USE_MORSE
 #endif // DEBUG
 
   // OneWire setup etc.
@@ -234,6 +238,7 @@ void setup()
 }
 
 int getRawTemperature(float temp,int precision=12) {
+
   switch (precision) {
     case 12:
       return ((int)(temp / 0.0625)) & 0x0fff;
@@ -443,25 +448,15 @@ void loop() {
 
 /**
  * Try to inquire max. available memory by allocating until heap is exhausted.
- *
- * from: https://devel-ik.fzk.de/wsvn/fd-online/Diverse/Oktokopter/Arduino2Flasher/trunk/Arduino2Flasher.ino
  */
 int availableMemory() {
 
-#if 0
-  int size = 10000;
-  byte *buf;
-  while ((buf = (byte *) malloc(--size)) == NULL);
-  free(buf);
-  return size;
-#else
   // see also:
   // https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
   extern int __heap_start, *__brkval; 
   int v; 
 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
-#endif
 }
 
 /** function to print a device address */

@@ -125,6 +125,7 @@ void Morse::enableTransmit(int pin) {
 // ---------------------------------------------------------------------------
 
 void Morse::disableTransmit() {
+
   pinMode(nTransmitterPin, INPUT);
   nTransmitterPin = 0;
 }
@@ -132,6 +133,7 @@ void Morse::disableTransmit() {
 // ---------------------------------------------------------------------------
 
 void Morse::setSpeed(unsigned int speed) {
+
   dotLength = 1200 / speed;
 }
 
@@ -180,6 +182,7 @@ size_t Morse::write(uint8_t val) {
 // ---------------------------------------------------------------------------
 
 void Morse::dit() {
+
   digitalWrite(nTransmitterPin, HIGH);
   delay(dotLength);
   digitalWrite(nTransmitterPin, LOW);
@@ -189,6 +192,7 @@ void Morse::dit() {
 // ---------------------------------------------------------------------------
 
 void Morse::dah() {
+
   digitalWrite(nTransmitterPin, HIGH);
   delay(3*dotLength);
   digitalWrite(nTransmitterPin, LOW);
