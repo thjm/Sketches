@@ -1,7 +1,7 @@
 # About
 
-The Sketches repository contains a collection of my sketches for the Arduino, Teensy
-and ESP8266 platform.
+The Sketches repository contains a collection of some of my sketches for the 
+Arduino, Teensy and ESP8266 micro controller platforms.
 
 Each directory contains its corresponding README file which describes the
 specific requirements etc.
