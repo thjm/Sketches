@@ -1,0 +1,30 @@
+README for TreibBoje project directory.
+--------------------------------------------------------------------------------
+
+Pre-requisites:
+----------------
+
+- for debugging and during program development the 'Streaming'
+  library is used, see:
+  http://arduiniana.org/libraries/streaming
+- OneWire based sensors are access through the OneWire library,
+  see:
+  http://www.pjrc.com/teensy/td_libs_OneWire.html
+- Dallas OneWire temperature sensors are accessed via
+  https://github.com/milesburton/Arduino-Temperature-Control-Library
+  see also:
+  http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library
+- sending the data via the 13bit RCSwitch protocol requires the
+  RCSwitch library, see:
+  https://github.com/sui77/rc-switch
+- decoding the GPS messages from a NEO-6M based GPS receiver is
+  done via:
+  https://github.com/SlashDevin/NeoGPS
+
+Sub-directories:
+-----------------
+
+None at the moment.
+
+================================================================================
+
