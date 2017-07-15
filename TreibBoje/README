@@ -17,6 +17,8 @@ Pre-requisites:
 - sending the data via the 13bit RCSwitch protocol requires the
   RCSwitch library, see:
   https://github.com/sui77/rc-switch
+- for reading the DS1307 RTC module we are using the  RTClib from Adafruit:
+  https://github.com/adafruit/RTClib
 - decoding the GPS messages from a NEO-6M based GPS receiver is
   done via:
   https://github.com/SlashDevin/NeoGPS

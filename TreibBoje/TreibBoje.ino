@@ -25,8 +25,24 @@
 // read photo resistor (LDR)
 #undef USE_LDR
 
+// use the RTC for time tagging the data
+#define USE_RTC
+
 // use up to four LEDs, will blink
 #define USE_LEDS
+
+
+#ifdef USE_RTC
+// The required RTClib is from Adafruit:
+// https://github.com/adafruit/RTClib
+// Which is a fork of the RTClib from JeeLab:
+// https://github.com/jcw/rtclib
+
+ #include <Wire.h>     // RTClib won't work without this
+ #include <RTClib.h>
+
+RTC_DS1307 rtc;
+#endif // USE_RTC
 
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
@@ -147,6 +163,9 @@ void setup() {
  #ifdef USE_MORSE
   Serial << F("- with morse, speed="); Serial.println(MORSE_SPEED);
  #endif // USE_MORSE
+ #ifdef USE_RTC
+ Serial << F("- with DS1307 I2C RTC\n");
+ #endif // USE_RTC
 #endif // DEBUG
 
   // OneWire setup etc.
@@ -177,7 +196,25 @@ void setup() {
  
   morseGen.print("vvv");
  #endif // USE_MORSE
- 
+
+ #ifdef USE_RTC
+  Wire.begin();
+  rtc.begin();
+
+  if ( !rtc.isrunning() ) {
+  #ifdef DEBUG
+    Serial << F("RTC is NOT running!") << endl;
+  #endif // DEBUG
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+    DateTime now = rtc.now();
+  }
+  #ifdef DEBUG
+  else
+    Serial << F("RTC is running!") << endl;
+  #endif // DEBUG
+ #endif // USE_RTC
 #endif // SEND_DATA
 
 #if (defined SCAN_SENSORS) && (defined DEBUG)
@@ -235,8 +272,13 @@ void setup() {
   pinMode(LED3, OUTPUT);
   pinMode(LED4, OUTPUT);
 #endif // USE_LEDS
+
+#ifdef DEBUG
+  Serial << F("setup() done!\n");
+#endif // DEBUG
 }
 
+/** Get the raw temperature (aka. sensor reading) for a given temperature value. */
 int getRawTemperature(float temp,int precision=12) {
 
   switch (precision) {
@@ -333,7 +375,8 @@ int getRawTemperature(float temp,int precision=12) {
 void loop() {
 
   if ( LED > 0 ) digitalWrite(LED, gCycleCounter & 0x01);
-  
+
+
 #ifdef SEND_DATA
  #ifdef USE_RCSWITCH
   // send some dummy telegrams, cannot set 0!
@@ -352,9 +395,15 @@ void loop() {
 #endif // USE_MORSE
 
   SEND_CYCLE_COUNTER();
- #ifdef DEBUG
+#ifdef DEBUG
   Serial << "# " << gCycleCounter << endl;
- #endif // DEBUG
+#endif // DEBUG
+
+#ifdef USE_RTC
+  DateTime now = rtc.now();
+    
+  printDateTime(now);
+#endif // USE_RTC
 
 #ifdef READ_SENSORS
   if ( sensors.getDeviceCount() > 0 ) {
@@ -459,7 +508,7 @@ int availableMemory() {
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
-/** function to print a device address */
+/** function to print a Onewire device address */
 void printAddress(DeviceAddress deviceAddress) {
 
   for (uint8_t i = 0; i < 8; i++) {
@@ -471,10 +520,25 @@ void printAddress(DeviceAddress deviceAddress) {
   }
 }
 
-/** function to print a device's resolution */
+/** function to print a Onewire device's resolution */
 void printResolution(DeviceAddress deviceAddress) {
 
   Serial.print("Resolution: ");
   Serial.print(sensors.getResolution(deviceAddress));
   Serial.println();    
 }
+
+#ifdef USE_RTC
+/** function to print the current data and time to the Serial console. */
+static void printDateTime(DateTime& dt) {
+
+  Serial << dt.year() << '/' 
+         << ((dt.month()<10) ? "0" : "") << dt.month() << '/'
+         << ((dt.day()<10) ? "0" : "") << dt.day() << ' '
+         << ((dt.hour()<10) ? "0" : "") << dt.hour() << ':'
+         << ((dt.minute()<10) ? "0" : "") << dt.minute() << ':'
+         << ((dt.second()<10) ? "0" : "") << dt.second() 
+         << endl;
+}
+#endif // USE_RTC
+
