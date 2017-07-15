@@ -84,7 +84,7 @@ Morse morseGen = Morse();
 
 #ifdef USE_LDR
  // define a pin for Photo resistor (ADC input!)
- #define LDR_PIN    14
+ #define LDR_PIN    A0
 #endif // USE_LDR
 
 #ifdef USE_LEDS
@@ -478,5 +478,3 @@ void printResolution(DeviceAddress deviceAddress) {
   Serial.print(sensors.getResolution(deviceAddress));
   Serial.println();    
 }
-
-
