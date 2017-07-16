@@ -56,5 +56,12 @@ Wiring:
   SDA         A4     TWI for RTC
   SCL         A5
 
+ SD-Card interface (Arduino Uno & Nano):
+
+  MOSI        11
+  MISO        12
+  CLK         13
+  CS           8    (Sparkfun SD shield)
+
 ================================================================================
 
