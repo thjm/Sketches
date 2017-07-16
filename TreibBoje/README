@@ -14,10 +14,10 @@ Pre-requisites:
   https://github.com/milesburton/Arduino-Temperature-Control-Library
   see also:
   http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library
-- sending the data via the 13bit RCSwitch protocol requires the
+- sending the data via the (12+1)-bit RCSwitch protocol requires the
   RCSwitch library, see:
   https://github.com/sui77/rc-switch
-- for reading the DS1307 RTC module we are using the  RTClib from Adafruit:
+- for reading the DS1307 RTC module we are using the RTClib from Adafruit:
   https://github.com/adafruit/RTClib
 - decoding the GPS messages from a NEO-6M based GPS receiver is
   done via:
@@ -27,6 +27,34 @@ Sub-directories:
 -----------------
 
 None at the moment.
+
+Wiring:
+--------
+
+  TX-PIN      10
+
+  OneWire      2
+
+  LED 1        4
+  LED 2        5
+  LED 3        6
+  LED 4        7
+
+ SW-Serial:
+
+  TXD          ?
+  RXD          ?
+
+  LDR         A0 (14)
+  Batt.       A1 (15)
+
+ Builtin:
+
+  TX0          0
+  RX0          1
+
+  SDA         A4     TWI for RTC
+  SCL         A5
 
 ================================================================================
 
