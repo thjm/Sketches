@@ -6,85 +6,16 @@
 // $Id$
 //
 
-// debug via serial interface
-#define DEBUG
+// doesn't work ...
+#if (defined BOARD_AVR_UNO)
+ #warning Building for Arduino UNO!
+#endif
 
-// scan sensors (to inquire addresses)
-#define SCAN_SENSORS
-// read temperature sensors
-#define READ_SENSORS
-
-// send the data via 433MHZ Tx
-#define SEND_DATA
-// send the data using the RCSwitch library
-#undef USE_RCSWITCH
-// send the data using the Morse library
-#define USE_MORSE
-#define MORSE_SPEED     20
-
-// read photo resistor (LDR)
-#undef USE_LDR
-
-// use the RTC for time tagging the data
-#define USE_RTC
-
-// use up to four LEDs, will blink
-#define USE_LEDS
-
+#include "general.h"
 
 #ifdef USE_RTC
-// The required RTClib is from Adafruit:
-// https://github.com/adafruit/RTClib
-// Which is a fork of the RTClib from JeeLab:
-// https://github.com/jcw/rtclib
-
- #include <Wire.h>     // RTClib won't work without this
- #include <RTClib.h>
-
 RTC_DS1307 rtc;
 #endif // USE_RTC
-
-#ifdef DEBUG
- // http://arduiniana.org/libraries/streaming/
- // has to be included BEFORE Flash
- #include <Streaming.h>
- 
- // UART baud rate
- #define UART_BAUD_RATE  9600
-#endif // DEBUG
-
-#ifdef SEND_DATA
- #if (defined USE_RCSWITCH) && (defined USE_MORSE)
-  #error "Cannot use both RCSwitch and Morse!"
- #endif
- #if (defined USE_RCSWITCH)
-  #include <RCSwitch.h>
- #endif // USE_RCSWITCH
- #if (defined USE_MORSE)
-  #include "Morse.h"
- #endif // USE_MORSE
-#endif // SEND_DATA
-
-// http://www.pjrc.com/teensy/td_libs_OneWire.html
-#include <OneWire.h>
-
-// https://github.com/milesburton/Arduino-Temperature-Control-Library
-// http://milesburton.com/Main_Page?title=Dallas_Temperature_Control_Library
-// Note:
-// The library archive name is not well chosen and has to be renamed into DallasTemperature
-//
-// DS18B20       +-------+
-//               |       |
-//               | 18B20 |
-//               |       |
-//               ++--+--++
-//                |  |  |
-//              GND Dq  Vdd
-//
-#include <DallasTemperature.h>
-
-//#define LED         13
-#define LED          0
 
 #ifdef SEND_DATA
  #define TX_PIN     10
@@ -97,27 +28,6 @@ RCSwitch theSender = RCSwitch();
 Morse morseGen = Morse();
  #endif // USE_MORSE 
 #endif // SEND_DATA
-
-#ifdef USE_LDR
- // define a pin for Photo resistor (ADC input!)
- #define LDR_PIN    A0
-#endif // USE_LDR
-
-#ifdef USE_LEDS
- #define LED1       4
- #define LED2       5
- #define LED3       6
- #define LED4       7
-#endif // USE_LEDS
-
-// local prototypes
-extern int availableMemory();
-extern void printAddress(DeviceAddress);
-extern void printResolution(DeviceAddress);
-
-// Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS            2
-#define TEMPERATURE_PRECISION  10
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
@@ -137,7 +47,7 @@ DeviceAddress gSensor4 = { 0x28, 0x7A, 0x31, 0xE0, 0x06, 0x00, 0x00, 0x98 };
 // sensor #5
 DeviceAddress gSensor5 = { 0x28, 0x6B, 0x84, 0xDF, 0x06, 0x00, 0x00, 0xBB };
 
-// a global cycle counter
+// the global cycle counter
 static uint16_t gCycleCounter = 0;
 
 /**
@@ -145,7 +55,7 @@ static uint16_t gCycleCounter = 0;
  */
 void setup() {
 
-  if (LED > 0 ) pinMode(LED, OUTPUT);
+  if (LED > 0) pinMode(LED, OUTPUT);
   
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
