@@ -31,9 +31,9 @@ None at the moment.
 Wiring:
 --------
 
-  TX-PIN      10
-
   OneWire      2
+
+  Spare        3
 
   LED 1        4
   LED 2        5
@@ -42,8 +42,10 @@ Wiring:
 
  SW-Serial:
 
-  TXD          ?
-  RXD          ?
+  TXD          8
+  RXD          9
+
+  TX-PIN      10
 
   LDR         A0 (14)
   Batt.       A1 (15)
