@@ -6,9 +6,12 @@
 // $Id$
 //
 
-// doesn't work ...
-#if (defined BOARD_AVR_UNO)
- #warning Building for Arduino UNO!
+// see also: https://arduino.stackexchange.com/questions/19892/list-of-arduino-board-preprocessor-defines
+#if (defined ARDUINO_AVR_UNO)
+ #warning Building for Arduino Uno!
+#endif
+#if (defined ARDUINO_AVR_NANO)
+ #warning Building for Arduino Nano!
 #endif
 
 #include "general.h"
@@ -18,12 +21,10 @@ RTC_DS1307 rtc;
 #endif // USE_RTC
 
 #ifdef SEND_DATA
- #define TX_PIN     10
- //#define TX_PIN     13
-
  #if (defined USE_RCSWITCH)
 RCSwitch theSender = RCSwitch();
  #endif // USE_RCSWITCH
+
  #if (defined USE_MORSE)
 Morse morseGen = Morse();
  #endif // USE_MORSE 

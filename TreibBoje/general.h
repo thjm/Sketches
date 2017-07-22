@@ -27,6 +27,11 @@
 // use up to four LEDs, will blink
 #define USE_LEDS
 
+#ifdef SEND_DATA
+ #define TX_PIN     10
+ //#define TX_PIN     13
+#endif // SEND_DATA
+
 #ifdef USE_RTC
 // The required RTClib is from Adafruit:
 // https://github.com/adafruit/RTClib
@@ -97,6 +102,8 @@
 
 // local prototypes
 extern int availableMemory();
+
+// Tbd: put in tsensor.cpp
 extern void printAddress(DeviceAddress);
 extern void printResolution(DeviceAddress);
 
