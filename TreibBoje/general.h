@@ -1,4 +1,10 @@
 
+//
+// general.h
+//
+// File with general definitions etc.
+//
+
 #ifndef _general_h_
  #define _general_h_
 
@@ -46,7 +52,7 @@
  // http://arduiniana.org/libraries/streaming/
  // has to be included BEFORE Flash
  #include <Streaming.h>
- 
+
  // UART baud rate
  #define UART_BAUD_RATE  9600
 #endif // DEBUG
@@ -57,9 +63,15 @@
  #endif
  #if (defined USE_RCSWITCH)
   #include <RCSwitch.h>
+ 
+ /** Instance of tht RCSwitch class. */
+ extern RCSwitch theSender;
  #endif // USE_RCSWITCH
  #if (defined USE_MORSE)
   #include "Morse.h"
+
+ /** Instance of the Morse class. */
+ extern Morse morseGen;
  #endif // USE_MORSE
 #endif // SEND_DATA
 
