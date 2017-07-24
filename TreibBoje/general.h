@@ -22,8 +22,11 @@
 #undef USE_RCSWITCH
 // send the data using the Morse library
 #define USE_MORSE
-//#define MORSE_SPEED     20
-#define MORSE_SPEED     25
+// temperatures are sent as raw values (integer)
+// otherwise as temp * 10 to cover one decimal digit
+#define SEND_RAW_TEMPERATURE
+#define MORSE_SPEED     20
+//#define MORSE_SPEED     25
 
 // read photo resistor (LDR)
 #undef USE_LDR
@@ -94,6 +97,15 @@
 //
 #include <DallasTemperature.h>
 
+extern OneWire oneWire;
+extern DallasTemperature sensors;
+
+extern DeviceAddress gSensor1;
+extern DeviceAddress gSensor2;
+extern DeviceAddress gSensor3;
+extern DeviceAddress gSensor4;
+extern DeviceAddress gSensor5;
+
 //#define LED         13
 #define LED          0
 
@@ -116,7 +128,8 @@
 // local prototypes
 extern int availableMemory();
 
-// Tbd: put in tsensor.cpp
+// to be found in tsensor.cpp
+extern int getRawTemperature(float temp,int precision=12);
 extern void printAddress(DeviceAddress);
 extern void printResolution(DeviceAddress);
 
