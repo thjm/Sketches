@@ -81,28 +81,52 @@ static inline void sendTemperature(uint8_t sensor,float temp) {
 }
 
 // T1
-static inline void SEND_T1(uint16_t raw_temp) {
+static inline void SEND_T1(float temp) {
+#ifdef SEND_RAW_TEMPERATURE
+  uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(1, raw_temp);
+#else
+  sendTemperature(1, temp);
+#endif
 }
 
 // T2
-static inline void SEND_T2(uint16_t raw_temp) {
+static inline void SEND_T2(float temp) {
+#ifdef SEND_RAW_TEMPERATURE
+  uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(2, raw_temp);
+#else
+  sendTemperature(2, temp);
+#endif
 }
 
 // T3
-static inline void SEND_T3(uint16_t raw_temp) {
+static inline void SEND_T3(float temp) {
+#ifdef SEND_RAW_TEMPERATURE
+  uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(3, raw_temp);
+#else
+  sendTemperature(3, temp);
+#endif
 }
 
 // T4
-static inline void SEND_T4(uint16_t raw_temp) {
+static inline void SEND_T4(float temp) {
+#ifdef SEND_RAW_TEMPERATURE
+  uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(4, raw_temp);
+#else
+  sendTemperature(4, temp);
+#endif
 }
 
 // T5
-static inline void SEND_T5(uint16_t raw_temp) {
+static inline void SEND_T5(float temp) {
+#ifdef SEND_RAW_TEMPERATURE
+  uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(5, raw_temp);
+  sendTemperature(5, temp);
+#endif
 }
 
  #else

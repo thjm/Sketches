@@ -225,7 +225,7 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
-      SEND_T1(getRawTemperature(temp, TEMPERATURE_PRECISION));
+      SEND_T1(temp);
     }
     if ( sensors.isConnected( gSensor2 ) ) {
       temp = sensors.getTempC( gSensor2 );
@@ -234,7 +234,7 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
-      SEND_T2(getRawTemperature(temp, TEMPERATURE_PRECISION));
+      SEND_T2(temp);
     }
     if ( sensors.isConnected( gSensor3 ) ) {
       temp = sensors.getTempC( gSensor3 );
@@ -243,7 +243,7 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
-      SEND_T3(getRawTemperature(temp, TEMPERATURE_PRECISION));
+      SEND_T3(temp);
     }
     if ( sensors.isConnected( gSensor4 ) ) {
       temp = sensors.getTempC( gSensor4 );
@@ -252,7 +252,7 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
-      SEND_T4(getRawTemperature(temp, TEMPERATURE_PRECISION));
+      SEND_T4(temp);
     }
     if ( sensors.isConnected( gSensor5 ) ) {
       temp = sensors.getTempC( gSensor5 );
@@ -261,9 +261,7 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
-      // only for testing
-      sendTemperature(5, temp);
-      SEND_T5(getRawTemperature(temp, TEMPERATURE_PRECISION));
+      SEND_T5(temp);
     }
  #ifdef DEBUG
     Serial.println();
