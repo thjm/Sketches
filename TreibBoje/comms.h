@@ -42,32 +42,68 @@
 
  #elif (defined USE_MORSE)
 
-  #define SEND_SYNC(_x) { if ( _x == 1 ) \
-                            morseGen.print("KA "); \
-                          else \
-                            morseGen.print("+"); \
-                        }
+ static inline void SEND_SYNC(uint16_t ctr) {
+   if ( ctr == 1 )
+     morseGen.print("KA ");
+   else
+     morseGen.print("+");
+ }
+
+ static inline void SEND_CYCLE_COUNTER(uint16_t ctr) {
+    morseGen.print(" nr ");
+    morseGen.print(ctr & 0x1ff);
+ }
   
-  #define SEND_CYCLE_COUNTER() { morseGen.print(" nr "); morseGen.print(gCycleCounter & 0x1ff); }
-  // LDR
-  //#define SEND_LDR(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_LDR(_x) { morseGen.print("= LDR "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  // T1
-  //#define SEND_T1(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T1(_x) { morseGen.print("= T1 "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  // T2
-  //#define SEND_T2(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T2(_x) { morseGen.print("= T2 "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  // T3
-  //#define SEND_T3(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T3(_x) { morseGen.print("= T3 "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  // T4
-  //#define SEND_T4(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T4(_x) { morseGen.print("= T4 "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  // T5
-  //#define SEND_T5(_x) { morseGen.print(_x & 0x1ff); }
-  #define SEND_T5(_x) { morseGen.print("= T5 "); morseGen.print(_x & 0x1ff); morseGen.print(" "); }
-  //#define SEND_T5(_x) { morseGen << "T5 " << (_x & 0x1ff); }
+ // LDR
+static inline void SEND_LDR(uint16_t value) {
+  morseGen.print("= LDR ");
+  morseGen.print(value & 0x1ff);
+  morseGen.print(" ");
+}
+
+// send raw temperature
+static inline void sendRawTemperature(uint8_t sensor,uint16_t raw_temp) {
+  morseGen.print("= T");
+  morseGen.print((int)sensor);
+  morseGen.print(" ");
+  morseGen.print(raw_temp & 0x1ff);
+  morseGen.print(" ");
+}
+
+// send temperature
+static inline void sendTemperature(uint8_t sensor,float temp) {
+  morseGen.print("= T");
+  morseGen.print((int)sensor);
+  morseGen.print(" ");
+  morseGen.print((int)(temp * 10.0));
+  //morseGen.print((float)((int)(temp * 10.0))/ 10.0);
+  morseGen.print(" ");
+}
+
+// T1
+static inline void SEND_T1(uint16_t raw_temp) {
+  sendRawTemperature(1, raw_temp);
+}
+
+// T2
+static inline void SEND_T2(uint16_t raw_temp) {
+  sendRawTemperature(2, raw_temp);
+}
+
+// T3
+static inline void SEND_T3(uint16_t raw_temp) {
+  sendRawTemperature(3, raw_temp);
+}
+
+// T4
+static inline void SEND_T4(uint16_t raw_temp) {
+  sendRawTemperature(4, raw_temp);
+}
+
+// T5
+static inline void SEND_T5(uint16_t raw_temp) {
+  sendRawTemperature(5, raw_temp);
+}
 
  #else
 

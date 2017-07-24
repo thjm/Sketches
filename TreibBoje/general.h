@@ -22,7 +22,8 @@
 #undef USE_RCSWITCH
 // send the data using the Morse library
 #define USE_MORSE
-#define MORSE_SPEED     20
+//#define MORSE_SPEED     20
+#define MORSE_SPEED     25
 
 // read photo resistor (LDR)
 #undef USE_LDR

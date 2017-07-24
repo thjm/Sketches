@@ -106,7 +106,7 @@ void setup() {
   // set the speed with which we output the morse chars
   morseGen.setSpeed(MORSE_SPEED);
  
-  morseGen.print("vvv");
+  morseGen.print("vvv ");
  #endif // USE_MORSE
 
  #ifdef USE_RTC
@@ -232,7 +232,7 @@ void loop() {
   morseGen.print("QAM de DC2IP ");
 #endif // USE_MORSE
 
-  SEND_CYCLE_COUNTER();
+  SEND_CYCLE_COUNTER(gCycleCounter);
 #ifdef DEBUG
   Serial << "# " << gCycleCounter << endl;
 #endif // DEBUG
@@ -296,6 +296,8 @@ void loop() {
              << getRawTemperature(temp, TEMPERATURE_PRECISION)
              << " ";
  #endif // DEBUG
+      // only for testing
+      sendTemperature(5, temp);
       SEND_T5(getRawTemperature(temp, TEMPERATURE_PRECISION));
     }
  #ifdef DEBUG
