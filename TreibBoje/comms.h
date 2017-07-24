@@ -125,6 +125,7 @@ static inline void SEND_T5(float temp) {
 #ifdef SEND_RAW_TEMPERATURE
   uint16_t raw_temp = getRawTemperature(temp, TEMPERATURE_PRECISION);
   sendRawTemperature(5, raw_temp);
+#else
   sendTemperature(5, temp);
 #endif
 }

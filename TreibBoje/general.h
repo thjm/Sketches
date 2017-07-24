@@ -24,9 +24,9 @@
 #define USE_MORSE
 // temperatures are sent as raw values (integer)
 // otherwise as temp * 10 to cover one decimal digit
-#define SEND_RAW_TEMPERATURE
-#define MORSE_SPEED     20
-//#define MORSE_SPEED     25
+#undef SEND_RAW_TEMPERATURE
+//#define MORSE_SPEED     20
+#define MORSE_SPEED     25
 
 // read photo resistor (LDR)
 #undef USE_LDR
