@@ -125,6 +125,10 @@ extern DeviceAddress gSensor5;
 #define ONE_WIRE_BUS            2
 #define TEMPERATURE_PRECISION  10
 
+// delay between transmission loop [usec]
+#define LOOP_DELAY   5*1000
+//#define LOOP_DELAY  10*1000
+
 // local prototypes
 extern int availableMemory();
 

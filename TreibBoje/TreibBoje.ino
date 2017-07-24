@@ -292,9 +292,11 @@ void loop() {
   
   gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
 
-#if 1
+#if 0
   // wait a bit, if too few sensors
   if ( sensors.getDeviceCount() <= 2 ) delay(2000);
+#else
+  delay(LOOP_DELAY);
 #endif
 }
 
