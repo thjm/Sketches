@@ -9,7 +9,7 @@
  #define _general_h_
 
 // debug via serial interface
-#define DEBUG
+#undef DEBUG
 
 // scan sensors (to inquire addresses)
 #define SCAN_SENSORS
@@ -131,6 +131,11 @@ extern DeviceAddress gSensor5;
 
 // local prototypes
 extern int availableMemory();
+
+// to be found ins leds.cpp
+extern void initLED();
+extern void helloLED(int nRounds=8);
+extern void flashLED();
 
 // to be found in tsensor.cpp
 extern int getRawTemperature(float temp,int precision=12);

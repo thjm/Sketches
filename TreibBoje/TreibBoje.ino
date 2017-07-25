@@ -66,6 +66,11 @@ void setup() {
   // Start up the library
   sensors.begin();
 
+#ifdef USE_LEDS
+  initLED();
+  helloLED();
+#endif // USE_LEDS
+
 #ifdef SEND_DATA
  #if (defined USE_RCSWITCH)
   // Transmitter is connected to Arduino Pin #10 (TX_PIN)
@@ -90,26 +95,26 @@ void setup() {
  
   morseGen.print("vvv ");
  #endif // USE_MORSE
+#endif // SEND_DATA
 
- #ifdef USE_RTC
+#ifdef USE_RTC
   Wire.begin();
   rtc.begin();
 
   if ( !rtc.isrunning() ) {
-  #ifdef DEBUG
+ #ifdef DEBUG
     Serial << F("RTC is NOT running!") << endl;
-  #endif // DEBUG
+ #endif // DEBUG
     // following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
     DateTime now = rtc.now();
   }
-  #ifdef DEBUG
+ #ifdef DEBUG
   else
     Serial << F("RTC is running!") << endl;
-  #endif // DEBUG
- #endif // USE_RTC
-#endif // SEND_DATA
+ #endif // DEBUG
+#endif // USE_RTC
 
 #if (defined SCAN_SENSORS) && (defined DEBUG)
   // locate devices on the bus
@@ -160,13 +165,6 @@ void setup() {
   analogReference(DEFAULT);
 #endif // USE_LDR
 
-#ifdef USE_LEDS
-  pinMode(LED1, OUTPUT);
-  pinMode(LED2, OUTPUT);
-  pinMode(LED3, OUTPUT);
-  pinMode(LED4, OUTPUT);
-#endif // USE_LEDS
-
 #ifdef DEBUG
   Serial << F("setup() done!\n");
 #endif // DEBUG
@@ -215,7 +213,8 @@ void loop() {
 
     float temp;
     
-    // printout of temperature sensor values in the order they are enumerated at the 1-wire bus
+    // printout of temperature sensor values in the order they are enumerated 
+    // when the 1-wire bus is initialized
     // reading will be prefixed via T1: .. T2: ... etc.
     // alternative printout, only known sensors correctly prefixed
     if ( sensors.isConnected( gSensor1 ) ) {
@@ -282,10 +281,13 @@ void loop() {
 #endif // USE_LDR
 
 #ifdef USE_LEDS
+  flashLED();
+#if 0
   digitalWrite(LED1, ((gCycleCounter & 0x02) ? HIGH : LOW));
   digitalWrite(LED2, ((gCycleCounter & 0x02) ? LOW : HIGH));
   digitalWrite(LED3, ((gCycleCounter & 0x04) ? HIGH : LOW));
   digitalWrite(LED4, ((gCycleCounter & 0x08) ? HIGH : LOW));
+#endif
 #endif // USE_LEDS
 
   SEND_SYNC(2);
@@ -296,7 +298,7 @@ void loop() {
   // wait a bit, if too few sensors
   if ( sensors.getDeviceCount() <= 2 ) delay(2000);
 #else
-  delay(LOOP_DELAY);
+  //delay(LOOP_DELAY);
 #endif
 }
 
@@ -317,6 +319,7 @@ int availableMemory() {
 /** function to print the current data and time to the Serial console. */
 static void printDateTime(DateTime& dt) {
 
+#ifdef DEBUG
   Serial << dt.year() << '/' 
          << ((dt.month()<10) ? "0" : "") << dt.month() << '/'
          << ((dt.day()<10) ? "0" : "") << dt.day() << ' '
@@ -324,5 +327,6 @@ static void printDateTime(DateTime& dt) {
          << ((dt.minute()<10) ? "0" : "") << dt.minute() << ':'
          << ((dt.second()<10) ? "0" : "") << dt.second() 
          << endl;
+#endif // DEBUG
 }
 #endif // USE_RTC
