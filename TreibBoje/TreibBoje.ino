@@ -282,12 +282,6 @@ void loop() {
 
 #ifdef USE_LEDS
   flashLED();
-#if 0
-  digitalWrite(LED1, ((gCycleCounter & 0x02) ? HIGH : LOW));
-  digitalWrite(LED2, ((gCycleCounter & 0x02) ? LOW : HIGH));
-  digitalWrite(LED3, ((gCycleCounter & 0x04) ? HIGH : LOW));
-  digitalWrite(LED4, ((gCycleCounter & 0x08) ? HIGH : LOW));
-#endif
 #endif // USE_LEDS
 
   SEND_SYNC(2);
