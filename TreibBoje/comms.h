@@ -44,26 +44,33 @@
 
  static inline void SEND_SYNC(uint16_t ctr) {
    if ( ctr == 1 )
-     morseGen.print("KA ");
+     morseGen.print(F(" KA "));
    else
-     morseGen.print("+");
+     morseGen.print(F(" + "));
  }
 
- static inline void SEND_CYCLE_COUNTER(uint16_t ctr) {
-    morseGen.print(" nr ");
+// send the contents of the "cycle counter"
+static inline void SEND_CYCLE_COUNTER(uint16_t ctr) {
+    morseGen.print(F(" = nr "));
     morseGen.print(ctr & 0x1ff);
  }
   
- // LDR
+// LDR
 static inline void SEND_LDR(uint16_t value) {
-  morseGen.print("= LDR ");
+  morseGen.print(F("= LDR "));
   morseGen.print(value & 0x1ff);
   morseGen.print(" ");
 }
 
+// UBAT
+static inline void SEND_UBAT(uint16_t value) {
+  morseGen.print(F("= UB "));
+  morseGen.print(value);
+}
+
 // send raw temperature
 static inline void sendRawTemperature(uint8_t sensor,uint16_t raw_temp) {
-  morseGen.print("= T");
+  morseGen.print(F("= T"));
   morseGen.print((int)sensor);
   morseGen.print(" ");
   morseGen.print(raw_temp & 0x1ff);
@@ -72,7 +79,7 @@ static inline void sendRawTemperature(uint8_t sensor,uint16_t raw_temp) {
 
 // send temperature
 static inline void sendTemperature(uint8_t sensor,float temp) {
-  morseGen.print("= T");
+  morseGen.print(F("= T"));
   morseGen.print((int)sensor);
   morseGen.print(" ");
   morseGen.print((int)(temp * 10.0));

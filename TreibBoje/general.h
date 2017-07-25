@@ -29,7 +29,13 @@
 #define MORSE_SPEED     25
 
 // read photo resistor (LDR)
-#define USE_LDR
+#undef USE_LDR
+// U_{Bat} (battery voltage) reading
+#define READ_UBAT
+
+#if (defined USE_LDR) || (defined READ_UBAT)
+ #define USE_ADC
+#endif // USE_LDR
 
 // use the RTC for time tagging the data
 #define USE_RTC
@@ -115,6 +121,11 @@ extern DeviceAddress gSensor5;
  #define LDR_PIN    A0
 #endif // USE_LDR
 
+#ifdef READ_UBAT
+ // define a pin for U_{Bat} measurement
+ #define UBAT_PIN   A1
+#endif // READ_UBAT
+
 #ifdef USE_LEDS
  #define LED1       4
  #define LED2       5
@@ -136,6 +147,7 @@ extern int availableMemory();
 // to be found in adc.cpp
 extern void initADC();
 extern int readLDR();
+extern int readUBAT();
 
 // to be found in leds.cpp
 extern void initLED();

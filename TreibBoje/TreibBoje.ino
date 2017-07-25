@@ -14,7 +14,6 @@
  #warning Building for Arduino Nano!
 #endif
 
-#include "general.h"
 #include "comms.h"
 
 #ifdef USE_RTC
@@ -49,17 +48,26 @@ void setup() {
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());
  #ifdef SEND_DATA
-  Serial << F("Sending data...\n");
+  Serial << F("Sending data:\n");
  #endif // SEND_DATA
  #ifdef USE_RCSWITCH
-  Serial << F("- with RCswitch protocol\n");
+  Serial << F("- via RCswitch protocol\n");
  #endif // USE_RCSWITCH
  #ifdef USE_MORSE
-  Serial << F("- with morse, speed="); Serial.println(MORSE_SPEED);
+  Serial << F("- via morse, speed="); Serial.println(MORSE_SPEED);
  #endif // USE_MORSE
+ #ifdef USE_LDR
+ Serial << F("+ with LDR readout\n");
+ #endif // USE_LDR
+ #ifdef READ_UBAT
+ Serial << F("+ with U_Bat readout\n");
+ #endif // READ_UBAT
  #ifdef USE_RTC
- Serial << F("- with DS1307 I2C RTC\n");
+ Serial << F("+ with DS1307 I2C RTC\n");
  #endif // USE_RTC
+ #ifdef USE_GPS
+ Serial << F("+ with NEO 6M GPS\n");
+ #endif // USE_GPS
 #endif // DEBUG
 
   // OneWire setup etc.
@@ -93,7 +101,7 @@ void setup() {
   // set the speed with which we output the morse chars
   morseGen.setSpeed(MORSE_SPEED);
  
-  morseGen.print("vvv ");
+  morseGen.print(F("vvv "));
  #endif // USE_MORSE
 #endif // SEND_DATA
 
@@ -153,9 +161,9 @@ void setup() {
   }
 #endif // SCAN_SENSORS && DEBUG
 
-#ifdef USE_LDR
+#ifdef USE_ADC
   initADC();
-#endif // USE_LDR
+#endif // USE_ADC
 
 #ifdef DEBUG
   Serial << F("setup() done!\n");
@@ -168,7 +176,6 @@ void setup() {
 void loop() {
 
   if ( LED > 0 ) digitalWrite(LED, gCycleCounter & 0x01);
-
 
 #ifdef SEND_DATA
  #ifdef USE_RCSWITCH
@@ -184,13 +191,13 @@ void loop() {
   SEND_SYNC(1);
   
 #ifdef USE_MORSE
-  morseGen.print("QAM de DC2IP ");
+  morseGen.print(F("QAM de DC2IP "));
 #endif // USE_MORSE
 
-  SEND_CYCLE_COUNTER(gCycleCounter);
 #ifdef DEBUG
   Serial << "# " << gCycleCounter << endl;
 #endif // DEBUG
+  SEND_CYCLE_COUNTER(gCycleCounter);
 
 #ifdef USE_RTC
   DateTime now = rtc.now();
@@ -266,11 +273,18 @@ void loop() {
   SEND_LDR(ldr_value);
 #endif // USE_LDR
 
+#ifdef READ_UBAT
+  int ubat_value = readUBAT();
+
+  SEND_UBAT(ubat_value);
+#endif // READ_UBAT
+
+  // some symbols lost if after flashLED() !?
+  SEND_SYNC(2);
+
 #ifdef USE_LEDS
   flashLED();
 #endif // USE_LEDS
-
-  SEND_SYNC(2);
   
   gCycleCounter = ( gCycleCounter == 0x1ff ) ? 0 : (gCycleCounter+1);
 
