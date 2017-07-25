@@ -124,6 +124,9 @@ extern DeviceAddress gSensor5;
 #ifdef READ_UBAT
  // define a pin for U_{Bat} measurement
  #define UBAT_PIN   A1
+
+ // ADC resolution [mV], see adc.cpp
+ #define ADC_RES    18
 #endif // READ_UBAT
 
 #ifdef USE_LEDS

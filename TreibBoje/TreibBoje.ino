@@ -43,7 +43,7 @@ void setup() {
 #ifdef DEBUG
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
-  Serial << F("''TreibBoje' starting ...") << endl;
+  Serial << F("'TreibBoje' starting ...") << endl;
 
   Serial << F("Free SRAM: ");
   Serial.println(availableMemory());

@@ -19,15 +19,15 @@ void initADC() {
 #endif // USE_LDR
 
 #ifdef READ_UBAT
-  //              33k       10k
+  //              27k       10k
   // U_in    o---/\/\/--.--/\/\/---o GND
   //                    |
   // U_ADC_  o----------+
   //
-  // U_ADC = 10k * U_in / 43k
+  // U_ADC = 10k * U_in / 37k
   // ADC_counts = U_ADC / U_ref * 1024; U_ref = 5V
   //
-  // => resolution: 21 mV
+  // => resolution ADC_RES = 18.06 mV
   //
   pinMode(UBAT_PIN, INPUT);
 #endif // READ_UBAT
@@ -57,7 +57,7 @@ int readLDR() {
 
 int readUBAT() {
 
-  int ubat_value = analogRead(UBAT_PIN);
+  int ubat_value = analogRead(UBAT_PIN) * ADC_RES;
 
 #ifdef DEBUG
   Serial << "UBat: " << ubat_value << endl;
