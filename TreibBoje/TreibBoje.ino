@@ -154,15 +154,7 @@ void setup() {
 #endif // SCAN_SENSORS && DEBUG
 
 #ifdef USE_LDR
-  //           PhotoR     10K
-  // +5    o---/\/\/--.--/\/\/---o GND
-  //                  |
-  // Pin 0 o----------+
-  //
-  pinMode(LDR_PIN, INPUT);
-  
-  // change range and resolution of analog pin, default
-  analogReference(DEFAULT);
+  initADC();
 #endif // USE_LDR
 
 #ifdef DEBUG
@@ -269,14 +261,8 @@ void loop() {
 #endif // READ_SENSORS
 
 #ifdef USE_LDR
-  // divide the resulting value:
-  // - with a 10k resistor divide the value by 2
-  // - for 100k resistor divide by 4.
-  // - this is a 10bit (0..1023) ADC
-  int ldr_value = analogRead(LDR_PIN)/4;
- #ifdef DEBUG
-  Serial << "LDR: " << ldr_value << endl;
- #endif // DEBUG
+  int ldr_value = readLDR();
+  
   SEND_LDR(ldr_value);
 #endif // USE_LDR
 

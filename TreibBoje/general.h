@@ -29,7 +29,7 @@
 #define MORSE_SPEED     25
 
 // read photo resistor (LDR)
-#undef USE_LDR
+#define USE_LDR
 
 // use the RTC for time tagging the data
 #define USE_RTC
@@ -106,6 +106,7 @@ extern DeviceAddress gSensor3;
 extern DeviceAddress gSensor4;
 extern DeviceAddress gSensor5;
 
+// generic LED, usually at pint D0
 //#define LED         13
 #define LED          0
 
@@ -132,7 +133,11 @@ extern DeviceAddress gSensor5;
 // local prototypes
 extern int availableMemory();
 
-// to be found ins leds.cpp
+// to be found in adc.cpp
+extern void initADC();
+extern int readLDR();
+
+// to be found in leds.cpp
 extern void initLED();
 extern void helloLED(int nRounds=8);
 extern void flashLED();
