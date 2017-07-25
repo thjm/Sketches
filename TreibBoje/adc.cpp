@@ -57,7 +57,8 @@ int readLDR() {
 
 int readUBAT() {
 
-  int ubat_value = analogRead(UBAT_PIN) * ADC_RES;
+  // in units of 10 mV
+  int ubat_value = (analogRead(UBAT_PIN) * ADC_RES) / 10;
 
 #ifdef DEBUG
   Serial << "UBat: " << ubat_value << endl;
