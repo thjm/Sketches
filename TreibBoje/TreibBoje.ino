@@ -177,17 +177,6 @@ void loop() {
 
   if ( LED > 0 ) digitalWrite(LED, gCycleCounter & 0x01);
 
-#ifdef SEND_DATA
- #ifdef USE_RCSWITCH
-  // send some dummy telegrams, cannot set 0!
-  //theSender.send(0x0e01, 12);
-  //theSender.send(0x0e02, 12);
-  //theSender.send(0x0fff, 12);
- #endif // USE_RCSWITCH
- #ifdef USE_MORSE
- #endif // USE_MORSE 
-#endif // SEND_DATA
-
   SEND_SYNC(1);
   
 #ifdef USE_MORSE
