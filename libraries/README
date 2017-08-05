@@ -6,4 +6,10 @@ Sub-directories:
 CAT - A class to communicate via an Icom rig (here MK706MkIIG) via the CAT
       protocol. Only a subset of the possible CAT commands are implemented.
 
+Morse - Class(es) to generate Morse code
+
+      Class Morse (currently the base class) contains the Morse code table
+      and is able to key a transmitter connected to a configurable pin
+      of the uController.
+
 ==============================================================================
