@@ -49,6 +49,14 @@
 class Morse : public Print {
 public:
 
+    /**  */
+    typedef struct _MorseCode_t {
+
+      byte code;
+      byte len;
+
+    } MorseCode_t;
+
     Morse();
     
     /**  */
@@ -57,7 +65,7 @@ public:
     void disableTransmit();
     
     /** set speed in wpm */
-    void setSpeed(unsigned int speed);
+    virtual void setSpeed(unsigned int speed);
     
     /** to be implemented from class Print */
     size_t write(uint8_t val);
@@ -65,10 +73,13 @@ public:
 protected:
     
     /** create a 'dit' (dot - short beep) */
-    void dit();
+    virtual void dit();
     /** create a 'dah' (dash - long beep) */
-    void dah();
-    
+    virtual void dah();
+
+    /** Get character specific info about Morse code. */
+    static MorseCode_t getMorseCode(uint8_t val);
+
     int nTransmitterPin;
     // length of a dot in ms
     unsigned int dotLength;

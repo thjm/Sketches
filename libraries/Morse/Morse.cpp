@@ -25,20 +25,13 @@
 
 #include "Morse.h"
 
-typedef struct _MorseCode_t {
-
-  byte code;
-  byte len;
-
-} MorseCode_t;
-
 // Morse code table for ASCII characters 0x20 .. 0x5f
 // 1st byte : code, 0=dit, 1=dah
 // 2nd byte : number of dits/dahs
 // For the idea of this table, see:
 // http://www.avr-asm-tutorial.net/cq-dl/teil4/Cw01_200.asm
 // (C) 2002 by Gerhard Schmidt, DG4FAC
-static const MorseCode_t gMorseCode[] PROGMEM = {
+static const Morse::MorseCode_t gMorseCode[] PROGMEM = {
 
   // 0x20 .. 0x2F
   { 0b00000000, 0 }, // Blank
@@ -139,16 +132,13 @@ void Morse::setSpeed(unsigned int speed) {
 
 // ---------------------------------------------------------------------------
 
-size_t Morse::write(uint8_t val) {
+Morse::MorseCode_t Morse::getMorseCode(uint8_t val) {
 
-  val = toupper(val);
-  if ( val < 0x20 || val > 0x5f ) return 0;
-  
   MorseCode_t morse;
   byte *ptr = (byte *)&morse;
   for ( int i=0; i<sizeof(MorseCode_t); ++i )
     *ptr++ = pgm_read_byte_near((byte *)&gMorseCode[val - 0x20] + i);
-  
+
 #if 0
   // debug output (to check pgm_read_byte_near() operation...)
   Serial.print(val);
@@ -161,6 +151,16 @@ size_t Morse::write(uint8_t val) {
   Serial.println();
 #endif
 
+  return morse;
+}
+
+size_t Morse::write(uint8_t val) {
+
+  val = toupper(val);
+  if ( val < 0x20 || val > 0x5f ) return 0;
+  
+  MorseCode_t morse = getMorseCode(val);
+  
   byte mask = 0x80;
   for ( int i=0; i<morse.len; ++i ) {
     if ( morse.code & mask )
