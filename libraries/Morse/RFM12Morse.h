@@ -25,8 +25,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _Morse_h_
- #define _Morse_h_
+#ifndef _RFM12Morse_h_
+ #define _RFM12Morse_h_
 
 #if defined(ARDUINO) && ARDUINO >= 100
  #include "Arduino.h"
@@ -37,53 +37,36 @@
  #include "WProgram.h"
 #endif
 
-#include <stdint.h>
-#include <Print.h>
+#include <SPI.h>
 
-/** Class Morse, a class to output characters as Morse code on a
-  * preconfigured pin of the Arduino.
+#include "Morse.h"
+
+/** Class RFM12Morse which uses the RFM12 transceiver board and puts
+  * it in OOK mode to generate Morse signs.
   *
-  * The class inherits from the Arduino base class Print, thus together with
-  * Streaming.h the streaming operator<()< and many overloaded print() methods
-  * can be used.
+  * Idea of fast OOK transmission from:
+  * https://openenergymonitor.org/forum-archive/node/3369.html
+  *
+  * This class uses some of the functionality of the base class Morse
+  * especially the Morse code table and the speed calculation.
   */
-class Morse : public Print {
+class RFM12Morse : public Morse {
 public:
-
-    /**  */
-    typedef struct _MorseCode_t {
-
-      byte code;
-      byte len;
-
-    } MorseCode_t;
-
-    Morse();
-
-    /**  */
-    void enableTransmit(int nTransmitterPin);
-    /**  */
-    void disableTransmit();
-
-    /** set speed in wpm */
-    virtual void setSpeed(unsigned int speed);
-
-    /** to be implemented from class Print */
-    size_t write(uint8_t val);
+    RFM12Morse(int rfmSelPin);
+    ~RFM12Morse() { }
 
 protected:
 
-    /** create a 'dit' (dot - short beep) */
-    virtual void dit();
-    /** create a 'dah' (dash - long beep) */
-    virtual void dah();
+    /** Create a 'dit' (dot): */
+    void dit();
 
-    /** Get character specific info about Morse code. */
-    static MorseCode_t getMorseCode(uint8_t val);
+    /** Create a 'dah' (dash). */
+    void dah();
 
-    int nTransmitterPin;
-    // length of a dot in ms
-    unsigned int dotLength;
+    /** Write a command to the RFM12 */
+    word rfm_write(word cmd);
+
+    int rfmSelPin;
 };
 
-#endif // _Morse_h_
+#endif // _RFM12Morse_h_

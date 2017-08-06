@@ -12,4 +12,11 @@ Morse - Class(es) to generate Morse code
       and is able to key a transmitter connected to a configurable pin
       of the uController.
 
+      Class RFM12Morse uses RFM12 modules (not tested with RFM12B) and puts
+      them into an OOK mode where (more or less precisely) Morse signs can
+      be generated in a similar fashion than with class Morse.
+
+      It turns out that RFM12 modules are far more stable than simple
+      433 MHz transmitters for wall plugs.
+
 ==============================================================================

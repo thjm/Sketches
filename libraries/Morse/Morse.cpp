@@ -1,18 +1,20 @@
 
 /*
   Morse - Arduino libary to create Morse code on any output pin.
-  Copyright (c) 2015 Hermann-Josef Mathes.  All right reserved.
-    
+  Copyright (c) 2015 - 2017 Hermann-Josef Mathes.  All right reserved.
+
   Contributors:
   - add your name and eMail address
-  
-  Project home: https://github.com/thjm/morse
+
+  Project home: https://github.com/thjm/Sketches
+
+  Download: https://github.com/thjm/Sketches/libraries/Morse
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
-  
+
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -158,9 +160,9 @@ size_t Morse::write(uint8_t val) {
 
   val = toupper(val);
   if ( val < 0x20 || val > 0x5f ) return 0;
-  
+
   MorseCode_t morse = getMorseCode(val);
-  
+
   byte mask = 0x80;
   for ( int i=0; i<morse.len; ++i ) {
     if ( morse.code & mask )
@@ -175,10 +177,10 @@ size_t Morse::write(uint8_t val) {
 
   // gap between words is 7 dots
   if ( val == 0x20 ) delay(6*dotLength);
-  
+
   return 1;
 }
-    
+
 // ---------------------------------------------------------------------------
 
 void Morse::dit() {
