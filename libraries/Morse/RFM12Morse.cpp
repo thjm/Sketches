@@ -52,13 +52,26 @@ RFM12Morse::RFM12Morse(int pin) : rfmSelPin(pin) {
 
 // ---------------------------------------------------------------------------
 
+// original code by martinR:
+// void ookPulse(int on, int off) {
+//   rfm_write(0x823d);
+//   delayMicroseconds(on+3);
+//   rfm_write(0x821d);
+//   delayMicroseconds(off-43);
+// }
+//
+// Please note that delayMicroseconds() is limited to value up to 16383, i.e.
+// the behavior for argument values larger than 16383 is unpredicted, see also:
+//  https://www.arduino.cc/en/Reference/DelayMicroseconds
+//
+// delayMicroseconds() replaced for this application by delay() function,
+// the achievable accuracy seems to be sufficient.
+//
 void RFM12Morse::dit() {
 
   rfm_write(0x823d); // on
-  //delayMicroseconds(Morse::dotLength*1000+3);
   delay(Morse::dotLength*1);
   rfm_write(0x821d); // off
-  //delayMicroseconds(Morse::dotLength*1000-43);
   delay(Morse::dotLength*1);
 }
 
@@ -67,10 +80,8 @@ void RFM12Morse::dit() {
 void RFM12Morse::dah() {
 
   rfm_write(0x823d); // on
-  //delayMicroseconds(Morse::dotLength*3000+3);
   delay(Morse::dotLength*3);
   rfm_write(0x821d); // off
-  //delayMicroseconds(Morse::dotLength*1000-43);
   delay(Morse::dotLength*1);
 }
 
