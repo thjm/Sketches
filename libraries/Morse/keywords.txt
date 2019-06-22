@@ -1,0 +1,9 @@
+Morse	KEYWORD1
+enableTransmit	KEYWORD2
+disableTransmit	KEYWORD2
+setSpeed	KEYWORD2
+write	KEYWORD2
+dit	KEYWROD2
+dah	KEYWORD2
+getMorseCode	KEYWORD2
+
