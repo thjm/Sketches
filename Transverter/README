@@ -1,5 +1,3 @@
-$Id$
-
 README 4m-Transverter project directory.
 -----------------------------------------------------------------------------
 
@@ -9,8 +7,6 @@ Sub-directories:
 -----------------
 
 Eagle - Eagle sketches etc.
-
-IcomTest  - some test code for CAT interaction with my ICom IC706MkIIG
 
 LCDtest - test program for LCD via LCM1602 (I2C)
 
