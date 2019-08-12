@@ -2,9 +2,7 @@
 //
 // File   : TransvControl.h
 //
-// Purpose:
-//
-// $Id$
+// Purpose: Contains declarations for 'global' variables, constants and types
 //
 
 #ifndef _TransvControl_h_

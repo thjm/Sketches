@@ -4,8 +4,6 @@
 //
 // Purpose: Implementation of the class IcomControl
 //
-// $Id$
-//
 
 #include <IcomCAT.h>
 #include "IcomControl.h"

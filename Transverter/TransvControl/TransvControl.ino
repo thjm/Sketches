@@ -4,8 +4,6 @@
 //
 // Purpose: Sketch to control operation of 4m Transverter by UT5JCW
 //
-// $Id$
-//
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>

@@ -4,8 +4,6 @@
 //
 // Purpose: Declaration of the class IcomControl
 //
-// $Id$
-//
 
 #ifndef _IcomControl_h_
  #define _IcomControl_h_
