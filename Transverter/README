@@ -3,6 +3,22 @@ README 4m-Transverter project directory.
 
 README for my CAT based transverter control project.
 
+Requirements:
+--------------
+
+The program requires 2 serial interfaces to communicate with both rigs and
+a third one for debugging purposes. As the SoftwareSerial class cannot listen
+in the background to the messages coming from any of the rigs, an Arduino
+like platform which supports 2 (3) hardware serial ports is required.
+
+The following additional libraries (besides our CAT library) are reqired:
+- LCM1602 I2C-LCD with PCF8574 I2C extender chip,
+  http://playground.arduino.cc/Code/LCDi2c
+- Streaming, at least for debug purposes
+  http://arduiniana.org/libraries/streaming/
+- a library for the rotary encoder
+  http://www.pjrc.com/teensy/td_libs_Encoder.html
+
 Sub-directories:
 -----------------
 
