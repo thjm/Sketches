@@ -3,8 +3,6 @@
 //
 // Purpose: Test program for Yaesu CAT
 //
-// $Id$
-//
 
 #define DEBUG
 

@@ -7,8 +7,6 @@
 //
 // see also: Sketchbook/Display/LCM1602test
 //
-// $Id$
-//
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>

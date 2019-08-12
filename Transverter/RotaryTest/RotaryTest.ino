@@ -6,8 +6,6 @@
 // - Sketchbook/RotaryEncoder/rotary1/rotary1.ino
 // - http://www.pjrc.com/teensy/td_libs_Encoder.html
 //
-// $Id$
-//
 
 #include <Encoder.h>
 

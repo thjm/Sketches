@@ -4,8 +4,6 @@
 //
 // see also: examples/01.Basics/Blink/Blink.ino
 //
-// $Id$
-//
 
 #include <Arduino.h>
 
