@@ -16,6 +16,8 @@ RotaryTest - test of a rotary encoder connected to the Teensy
 
 SwitchTest - test of the switches attached to the Teensy
 
+TransvControl - THE sketch for the transverter control project
+
 YaesuTest - some test code for CAT interaction with my Yaesu FT-817ND
 
 ================================================================================
