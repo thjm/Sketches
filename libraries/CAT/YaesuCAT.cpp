@@ -1,10 +1,8 @@
 
 //
-// File   : YaesuCat.cpp
+// File   : YaesuCAT.cpp
 //
-// Purpose: Implementation of the class YaesuCat
-//
-// $Id$
+// Purpose: Implementation of the class YaesuCAT
 //
 
 #include <Stream.h>
@@ -222,4 +220,3 @@ bool YaesuCAT::writeMode(byte mode) {
 
   return sendMessage(message, 5);
 }
-
