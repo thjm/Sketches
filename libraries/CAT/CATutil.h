@@ -21,7 +21,7 @@
 /** Create BCD 'byte' from two characters (digits), no error checking done! */
 #define bcd(_h,_l) ((int)_l - '0' + 16 * ((int)_h - '0'))
 
-/** COntainer with useful functions/methods. */
+/** Container with useful functions/methods. */
 class CATutil {
 public:
   /** Get specified nibble from byte string. */

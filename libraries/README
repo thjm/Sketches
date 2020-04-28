@@ -3,8 +3,18 @@ README file for the Sketches/libraries directory.
 Sub-directories:
 ----------------
 
-CAT - A class to communicate via an Icom rig (here MK706MkIIG) via the CAT
-      protocol. Only a subset of the possible CAT commands are implemented.
+CAT - Class(es) to communicate with various HAM rigs (here MK706MkIIG) via the
+      vendor specific CAT interface and protocol. Only a subset of the 
+      possible CAT commands are implemented.
+
+      At present we have:
+      - class IcomCAT : communicate with ICom rigs
+      - class YaesuCAT : communicate with Yaesu rigs (not yet working)
+      - class CATutil : useful functions for the other stuff (not much yet) 
+
+      Similar projects:
+      - Arduino FT817 from Gerolf Ziegenhain, DG6FL, released under GPLv3
+        https://github.com/8cH9azbsFifZ/arduino_ft817
 
 Morse - Class(es) to generate Morse code
 
