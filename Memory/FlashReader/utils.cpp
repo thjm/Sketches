@@ -14,7 +14,7 @@
 // ---------------------------------------------------------------------------
 
 void printHex8(Stream& stream,uint8_t data) {
-  
+
   if ( data < 0x10 )
     stream.print("0");
   stream.print(data, HEX);
@@ -23,7 +23,7 @@ void printHex8(Stream& stream,uint8_t data) {
 // ---------------------------------------------------------------------------
 
 void printHex16(Stream& stream,uint16_t data) {
-  
+
   printHex8(stream, (uint8_t)((data & 0xff00) >> 8));
   printHex8(stream, (uint8_t)(data & 0x00ff));
 }
@@ -59,7 +59,7 @@ void dumpHex(uint8_t *data,size_t length,uint32_t addr) {
     else
       printHex16(Serial, (uint16_t)(addr+j*16));
     Serial.print(":");
-    
+
     for (size_t i=0; i<16; ++i ) {  // output binary data, 1-byte format
       if ( i == 8 )
         Serial.print( " -");
@@ -198,4 +198,3 @@ uint16_t readInt(uint16_t imin,uint16_t imax) {
 
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
-

@@ -15,11 +15,11 @@ EEprom::EEprom() {
 
   _eepromSize = 0;
   _eepromType = eEEPROM_NONE;
-  
+
   // !CE to high, output
   CE_PORT |= CE_MASK;
   CE_DDR |= CE_MASK;
-  
+
   // !OE to high, output
   OE_PORT |= OE_MASK;
   OE_DDR |= OE_MASK;
@@ -40,15 +40,15 @@ EEprom::EEprom() {
 // ---------------------------------------------------------------------------------
 
 String EEprom::getTypeString(eEEPROMtype eType) {
-  
+
   switch ( eType ) {
 
     case eEEPROM_NONE:
         return String("None");
-    
+
     case eEEPROM_2716:
         return String("2716");
-      
+
     case eEEPROM_2732:
         return String("2732");
 
@@ -83,7 +83,7 @@ String EEprom::getTypeString(eEEPROMtype eType) {
 uint8_t EEprom::read(uint32_t addr) {
 
   setAddress( addr );
-  
+
   return read();
 }
 
@@ -92,9 +92,9 @@ uint8_t EEprom::read(uint32_t addr) {
 size_t EEprom::read(uint32_t addr,uint8_t *data,uint32_t len) {
 
   size_t n_read = 0;
-  
+
   memset(data, 0x00, (size_t)len);
-  
+
   for (uint32_t i=0; i<len; ++i) {
 
     if ( (addr + i) < _eepromSize ) {
@@ -110,7 +110,7 @@ size_t EEprom::read(uint32_t addr,uint8_t *data,uint32_t len) {
 // ---------------------------------------------------------------------------------
 
 uint8_t EEprom::read() {
-  
+
   // set 'data bus' to input
   DATA_LOW_DDR &= ~DATA_LOW_MASK;
   DATA_HIGH_DDR &= ~DATA_HIGH_MASK;
@@ -143,7 +143,7 @@ void EEprom::setAddress(uint32_t addr) {
   // to be not required but according to the data sheets it is
   //
   // EPROM 2764: A14 = A15 = HIGH (!P and Vpp)
-  // RAM 6264: A13 = HIGH (CS2), this doesn't conflict with 
+  // RAM 6264: A13 = HIGH (CS2), this doesn't conflict with
   // E(E)PROM where pin 26 is NC
   if ( _eepromSize == 0x2000 ) msb_mask = 0xE0;
   // EPROM 27128: A14 = A15 = HIGH (!P and Vpp)
@@ -151,7 +151,7 @@ void EEprom::setAddress(uint32_t addr) {
   // EPROM 27256: A15 = HIGH (Vpp)
   else if ( _eepromSize == 0x8000 ) msb_mask = 0x80;
   // EPROM 27512: Vpp is put on pin !OE (!G)
-  
+
   setAddressLSB( (uint8_t)(addr & 0xff) );
   setAddressMSB( (uint8_t)((addr & 0xff00) >> 8) | msb_mask );
   setAddressHSB( (uint8_t)((addr & 0xff0000) >> 16) | hsb_mask );
@@ -182,7 +182,7 @@ void EEprom::setAddressLSB(uint8_t addr) {
 // ---------------------------------------------------------------------------------
 
 void EEprom::setAddressMSB(uint8_t addr) {
-  
+
   // write low nibble
   DATA_LOW_DDR |= DATA_LOW_MASK;
   DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (addr & DATA_LOW_MASK);
@@ -203,7 +203,7 @@ void EEprom::setAddressMSB(uint8_t addr) {
 // ---------------------------------------------------------------------------------
 
 void EEprom::setAddressHSB(uint8_t addr) {
-  
+
   // write low nibble
   DATA_LOW_DDR |= DATA_LOW_MASK;
   DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (addr & DATA_LOW_MASK);
@@ -228,13 +228,13 @@ void EEprom::setType(eEEPROMtype eType) {
   uint32_t eepromSize;
 
   _eepromType = eType;
-  
+
   switch ( _eepromType ) {
-    
+
     case eEEPROM_2716:
         eepromSize = 0x0800;
       break;
-      
+
     case eEEPROM_2732:
         eepromSize = 0x1000;
       break;
@@ -288,7 +288,7 @@ void EEprom::write(uint8_t data) {
 
   // select the chip
   CE_PORT &= ~CE_MASK;
-  
+
   // write low nibble
   DATA_LOW_DDR |= DATA_LOW_MASK;
   DATA_LOW_PORT = (DATA_LOW_PIN & ~DATA_LOW_MASK) | (data & DATA_LOW_MASK);
@@ -311,4 +311,3 @@ void EEprom::write(uint8_t data) {
 
 // ---------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------
-

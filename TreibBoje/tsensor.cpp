@@ -10,7 +10,7 @@
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
-// Pass our oneWire reference to Dallas Temperature. 
+// Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 
 
@@ -41,7 +41,7 @@ int getRawTemperature(float temp,int precision) {
     default:
       return ((int)(temp / 0.0625)) & 0x0fff;
   }
-  
+
   return 0;
 }
 
@@ -64,6 +64,5 @@ void printResolution(DeviceAddress deviceAddress) {
 
   Serial.print("Resolution: ");
   Serial.print(sensors.getResolution(deviceAddress));
-  Serial.println();    
+  Serial.println();
 }
-

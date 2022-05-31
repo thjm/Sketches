@@ -17,18 +17,18 @@ void setup() {
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  
+
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  
+
   Serial.println("\nChecking for switches...");
 
   // initialize some digital pins as input (the default)
   pinMode(kLEFT_SWITCH, INPUT);
   pinMode(kMIDDLE_SWITCH, INPUT);
   pinMode(kRIGHT_SWITCH, INPUT);
-  
+
   // and activate the pullups
   digitalWrite(kLEFT_SWITCH, HIGH);
   digitalWrite(kMIDDLE_SWITCH, HIGH);
@@ -53,10 +53,10 @@ void loop() {
 
     Serial.print("Right switch is ");
     Serial.println((right_switch ? "ON" : "OFF"));
-    
+
     first = false;
   }
-  
+
   if ( (bool)digitalRead(kLEFT_SWITCH) != left_switch) {
     Serial.print("Left switch is ");
     left_switch = !left_switch;
@@ -68,7 +68,7 @@ void loop() {
     middle_switch = !middle_switch;
     Serial.println((middle_switch ? "ON" : "OFF"));
   }
-  
+
   if ( (bool)digitalRead(kRIGHT_SWITCH) != right_switch) {
     Serial.print("Right switch is ");
     right_switch = !right_switch;

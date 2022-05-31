@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# readFLASH.py: example for reading from an EPROM/EEPROM 
+# readFLASH.py: example for reading from an EPROM/EEPROM
 #               plugged into the FlashReader hardware
 #
 
@@ -45,12 +45,12 @@ SERIAL_DEVICE = '/dev/ttyACM0'
 def decodeRecord(ih, record='', line=0):
     """Decode a record in Intel HEX format and write the resulting data
        in case of no error into the object of type Intelhex.
-       
-       This function is similar (but simplified) to the the method 
+
+       This function is similar (but simplified) to the the method
        _decode_record() of the class IntelHex. It is only able to read
        the record types 0 (data) and -1 (end of file).
-       
-       Return the number of bytes read or -1 in the case the EOF record 
+
+       Return the number of bytes read or -1 in the case the EOF record
        was found.
     """
 
@@ -165,8 +165,8 @@ t_start = time.time()
 ser = None
 
 try:
-   ser = serial.Serial(args.serial_port, 9600, 
-                       timeout=0.05, bytesize=8, stopbits=1, 
+   ser = serial.Serial(args.serial_port, 9600,
+                       timeout=0.05, bytesize=8, stopbits=1,
                        parity=serial.PARITY_NONE, rtscts=False, xonxoff=False)
 except:
    print "Exception while trying to open %s!" % args.serial_port

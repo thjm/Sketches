@@ -30,11 +30,11 @@ void loop() {
 
   int val;
   float temp;
-  
+
   val = analogRead(0);
   temp = val/4.092;
   val = (int)temp;
-  
+
   lcd.setCursor(9, 1);
   lcd.print((uint8_t)(0x30+val/100));
   lcd.print((uint8_t)(0x30+(val%100)/10));
@@ -43,4 +43,3 @@ void loop() {
 
   delay(100);
 }
-

@@ -30,7 +30,7 @@ void setup() {
 void loop() {
 
   static uint8_t count = 1;
-  
+
   if ( count & 0x01 )
     digitalWrite(kRX_GREEN_LED, HIGH);
   else

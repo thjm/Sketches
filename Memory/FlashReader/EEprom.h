@@ -34,12 +34,12 @@
   - PD0 .. PD7 = D0 .. D7
   See also:
   https://www.arduino.cc/en/Reference/PortManipulation
-  
+
   https://www.arduino.cc/en/Hacking/Atmega168Hardware
 
 
  */
- 
+
 /** Port for low nibble of data byte. */
 #define DATA_LOW_PORT    PORTC
 #define DATA_LOW_DDR     DDRC
@@ -118,12 +118,12 @@ public:
 
   /**  */
   virtual ~EEprom() { }
-  
+
   /** Get the address mask for the E(E)PROM. */
   uint32_t getAddressMask() {
     return _addrMask;
   }
-  
+
   /** Get the size in bytes of the E(E)PROM. */
   uint32_t getSize() {
     return _eepromSize;
@@ -136,19 +136,19 @@ public:
 
   /** Get the type of the E(E)PROM as String. */
   static String getTypeString(eEEPROMtype eType);
-  
-  /** Set the type of E(E)PROM to be used (required). 
-   *  
+
+  /** Set the type of E(E)PROM to be used (required).
+   *
    *  This method wil set the size of the E(E)PROM automatically.
    */
   void setType(eEEPROMtype eType);
-  
+
   /** Read a byte from a previously set address. */
   virtual uint8_t read(uint32_t);
 
-  /** Read a block of 'length' bytes from the specified address. 
-   *  
-   *  Returns the number of bytes read, as this is limited by the maximum 
+  /** Read a block of 'length' bytes from the specified address.
+   *
+   *  Returns the number of bytes read, as this is limited by the maximum
    *  possible address of the EEPROM.
    */
   virtual size_t read(uint32_t addr,uint8_t *data,uint32_t length);
@@ -166,7 +166,7 @@ protected:
     _eepromSize = eSize;
     _addrMask = _eepromSize - 1;
   }
-  
+
   /** Read a byte froma  previously set address. */
   virtual uint8_t read();
 
@@ -184,10 +184,10 @@ protected:
   void setAddressHSB(uint8_t);
 
 private:
-  
+
   uint32_t     _eepromSize;   // size of the E(E)PROM in bytes
   eEEPROMtype  _eepromType;   // type 'code' for the used E(E)PROM chip
-  
+
   uint32_t     _addrMask;     // can be used to mask out unneeded address bits
 };
 

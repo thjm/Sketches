@@ -44,7 +44,7 @@ typedef struct {
   uint32_t rxFrequency;
   uint32_t txFrequency;
   uint32_t desiredFrequency;
-  
+
 } TransvControlRec_t;
 
 #endif // _TransvControl_h_

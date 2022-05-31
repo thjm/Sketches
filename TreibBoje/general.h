@@ -73,7 +73,7 @@
  #endif
  #if (defined USE_RCSWITCH)
   #include <RCSwitch.h>
- 
+
  /** Instance of tht RCSwitch class. */
  extern RCSwitch theSender;
  #endif // USE_RCSWITCH

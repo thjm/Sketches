@@ -23,7 +23,7 @@ extern void printHex32(Stream& stream,uint32_t data);
 extern void dumpHex(uint8_t *data,size_t length,uint32_t addr);
 
 /** Print a number in hexadecimal format, the width of the output with leading zeros can be specified
-  * (sprintf() based implementation). 
+  * (sprintf() based implementation).
   */
 void printHex(uint32_t number,size_t len=2);
 

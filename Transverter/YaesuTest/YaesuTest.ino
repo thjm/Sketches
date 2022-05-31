@@ -15,7 +15,7 @@
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
  #include <Streaming.h>
- 
+
  // UART baud rate
  #define UART_BAUD_RATE  9600
 #endif // DEBUG
@@ -23,7 +23,7 @@
 #if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
- 
+
    Note:
     Not all pins on the Mega and Mega 2560 support change interrupts,
     so only the following can be used for RX:
@@ -54,7 +54,7 @@ void setup() {
   /* Initialize serial output at UART_BAUD_RATE bps */
   Serial.begin(UART_BAUD_RATE);
   Serial << F("YaesuTest: starting ...") << endl;
-  
+
   Serial << F("Free SRAM: ") << getFreeRAM() << endl;
 #endif // DEBUG
 
@@ -66,31 +66,31 @@ YaesuCAT FT817(txSerial);
 
 /** Request TX frequency and mode settings from time to time. */
 static void txRequestFrequencyAndMode(YaesuCAT& ft817,unsigned long interval=200) {
-  
+
   static unsigned long r_time = millis();
-  
+
   if ( (millis() - r_time) > interval ) {
 
     ft817.requestFrequencyAndMode();
-    
+
     r_time = millis();
   }
 }
 
 /** Set the desired frequency and mode of the TX (one quantity at a time). */
-static void txSetFrequencyAndMode(YaesuCAT& ft817, 
+static void txSetFrequencyAndMode(YaesuCAT& ft817,
                                   uint32_t& desired_frequency,
                                   byte desired_mode,
                                   unsigned long interval=500) {
-  
+
   static unsigned long s_time = millis();
 
   uint32_t frequency = ft817.getFrequency();
   byte mode = ft817.getMode();
-  
+
   // send message to the rig
   if ( millis() - s_time > interval ) {
-    
+
     s_time = millis();
 
     if ( frequency != desired_frequency )
@@ -163,25 +163,25 @@ void loop() {
   // display of frequency and mode from time to time
   if (    (txState != 2 && (millis() - loop_init > 200))
        || (txState == 2 && (millis() - loop_init > 2000)) ) {
-    
+
     loop_init = millis();
 
-    Serial << F("txState ") << txState 
+    Serial << F("txState ") << txState
            //<< F(" fOK ") << rxFrequencyOK(Icom706)
            //<< F(" mOK ") << rxModeOK(Icom706)
-           << F(": Frequency = ") << frequency 
+           << F(": Frequency = ") << frequency
            << F(" Mode = ") << mode << endl;
   }
 }
 
 
-/** 
+/**
  *  Try to inquire max. available memory by allocating until heap is exhausted.
  */
 static int getFreeRAM() {
 
   char top;
-  
+
 #ifndef __arm__
   extern char *__brkval;
   extern char __bss_end;
@@ -207,4 +207,3 @@ static int getFreeRAM() {
   return __brkval ? &top - __brkval : &top - &__bss_end;
 #endif  // __arm__
 }
-

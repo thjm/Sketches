@@ -20,12 +20,12 @@
 /** A class for the communication with Yaesu transceivers.
   *
   * Here only tested with a few commands and the FT-817ND.
-  * 
+  *
   * - PC to Yaesu rig (P = parameter):
   *  +----+----+----+----+-----+
   *  | P1 | P2 | P2 | P3 | cmd |
   *  +----+----+----+----+-----+
-  * 
+  *
   * - answer of Yaesu rig (several possibilities):
   *   - NONE
   *   - requested parameter (RX/TX status):
@@ -46,8 +46,8 @@ public:
     ILLEGAL_MODE = 0xFF,       // no mode
     ILLEGAL_FREQ = 0xFFFFFFFF, // no frequency
   };
-  
-  /** enum with known CAT commands for the FT-817ND. 
+
+  /** enum with known CAT commands for the FT-817ND.
     * See also the 'Opcode Command Chart' on page 72 of the
     * Operating Manual.
     */
@@ -99,16 +99,16 @@ public:
   /** Get the mode from internal store. */
   byte getMode()
    { return myMode; }
-  
-  /** Read one byte from the serial stream and put it into the internal message buffer. 
-   *  
+
+  /** Read one byte from the serial stream and put it into the internal message buffer.
+   *
    *  @return true if ...
    */
   bool read();
 
   /** Request frequency and mode from the rig. */
   bool requestFrequencyAndMode();
-  
+
   /** Write the desired frequency to the rig. */
   bool writeFrequency(uint32_t frequency);
   /** Write the desired mode to the rig. */
@@ -128,7 +128,7 @@ protected:
   int       rxMsgLength;          // current length of received message
   int       rxBytesExpected;      // number of RX bytes expected
   byte      lastCommand;          // last command issued
-  
+
   byte      myMode;
   uint32_t  myFrequency;
 };

@@ -10,21 +10,21 @@
 #include "ihex.h"
 #include "utils.h"
 
-/** Test code frame ... 
-  *  
+/** Test code frame ...
+  *
   *  Various code and hardware test sequences, to be activated by pre-processor directives
   */
 void runTests() {
-  
+
   static bool first = true;
 #if 0
   if ( first ) {
 
     Serial.println("Fake data:");
-    
+
     for ( int i=0; i<sizeof(eepromData); ++i )
       eepromData[i] = (uint8_t)(i & 0xff);
-    
+
     dumpHex(eepromData, sizeof(eepromData), eepromAddr);
 
     first = false;
@@ -37,12 +37,12 @@ void runTests() {
 
 #if 0
   Serial.println("EEPROM data (single read):");
-  
+
   // read 'nBytes' bytes from (E)EPROM
   for ( int i=0; i<nBytes; ++i ) {
 
     eeprom.setAddress( (uint32_t)(i + eepromAddr) );
-    
+
     eepromData[i] = eeprom.read();
   }
 
@@ -59,7 +59,7 @@ void runTests() {
   delay(5000);
 }
 
-/** Test code to test the address latching unit. 
+/** Test code to test the address latching unit.
   *
   * The address bits are switched through subsequently (shift register mode).
   */
@@ -91,4 +91,3 @@ void testAddressLatches() {
 
   delay(2500);
 }
-

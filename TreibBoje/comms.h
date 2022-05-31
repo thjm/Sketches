@@ -28,7 +28,7 @@
 //            which therefor operate in 9 bit mode
 // - a2a1a0 = 6 specifies the LDR message
 // - a2a1a0 = 7 specifies sync messages
-//  
+//
  #if (defined USE_RCSWITCH)
 
   #define SEND_SYNC(_x) theSender.send((_x & 0x1ff) | 0x0e00, 12)
@@ -54,7 +54,7 @@ static inline void SEND_CYCLE_COUNTER(uint16_t ctr) {
     morseGen.print(F(" = nr "));
     morseGen.print(ctr & 0x1ff);
  }
-  
+
 // LDR
 static inline void SEND_LDR(uint16_t value) {
   morseGen.print(F("= LDR "));

@@ -35,7 +35,7 @@ public:
     /** Return status of 'enable' field. */
     bool isEnabled()
      { return enable; }
-    
+
     /** Return true if the frequency is in the desired range. */
     bool isFrequencyOK();
 

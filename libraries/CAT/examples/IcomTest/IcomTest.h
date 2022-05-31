@@ -9,7 +9,7 @@
 
 #ifndef __IcomTest_h_
  #define __IcomTest_h_
- 
+
 #if defined(ARDUINO) && ARDUINO >= 100
   #include "Arduino.h"
 #else
@@ -35,4 +35,3 @@ uint8_t const kRX_GREEN_LED = 20;
 uint8_t const kRX_RED_LED = 21;
 
 #endif // __IcomTest_h_
-

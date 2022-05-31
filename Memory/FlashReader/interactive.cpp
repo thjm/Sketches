@@ -52,11 +52,11 @@ void loopInteractive() {
 
   uint32_t total_length = 64;
   uint32_t i, len, nBytes;
-  
+
   if ( first ) {
     help_main.print(Serial);
-    Serial.print(F("E(E)PROM type: ")); 
-    Serial << (int)eeprom.getType() << " (" 
+    Serial.print(F("E(E)PROM type: "));
+    Serial << (int)eeprom.getType() << " ("
            << EEprom::getTypeString(eeprom.getType()) << ")" << endl;
     first = false;
   }
@@ -66,14 +66,14 @@ void loopInteractive() {
   uint32_t t = strtol("1000", NULL, 0); Serial.println(t);
   t = strtol("0x1000", NULL, 0); Serial.println(t);
 #endif
-  
+
   while (1) {
 
     int ch = Serial.read();
 
     // ignore also LFs (from windowish systems)
     if ( ch == -1 || ch == 0x0a ) continue;
-    
+
     switch (ch) {
 
       case 'a':  // --- set the base address
@@ -110,13 +110,13 @@ void loopInteractive() {
           while ( len > 0 ) {
             nBytes = min(len, kMAX_BLOCK_SIZE);
             len -= nBytes;
-            
+
             eeprom.read(eepromAddr, eepromData, nBytes);
             if ( output_format == 0 )
               dumpHex(eepromData, nBytes, eepromAddr);
             else
               writeIhexData(Serial, eepromData, nBytes, eepromAddr);
-            
+
             eepromAddr += nBytes;
           }
           if ( output_format == 1 )
@@ -126,10 +126,10 @@ void loopInteractive() {
       case 'p':  // --- print some information
       case 'P':
           Serial.println();
-          Serial.print(F("E(E)PROM type: ")); 
-          Serial << (int)eeprom.getType() << " (" 
+          Serial.print(F("E(E)PROM type: "));
+          Serial << (int)eeprom.getType() << " ("
                  << EEprom::getTypeString(eeprom.getType()) << ")" << endl;
-          Serial.print(F("Size:          ")); printHex(eeprom.getSize(), 6); 
+          Serial.print(F("Size:          ")); printHex(eeprom.getSize(), 6);
           Serial << " (" << eeprom.getSize() << ")";
           Serial.println();
           Serial.print(F("Start address: ")); printHex(eepromAddr, 6);
@@ -137,7 +137,7 @@ void loopInteractive() {
           Serial.print(F("Block length:    ")); printHex(total_length, 4);
           Serial.println();
         break;
-      
+
       case 't':
       case 'T':
           Serial.println();
@@ -153,7 +153,7 @@ void loopInteractive() {
           Serial.print(EEprom::eEEPROM_27040); Serial.println(F(" - 274001, 27C040 (512K * 8)"));
           Serial.print(EEprom::eEEPROM_NONE); Serial.println(F(" - Cancel"));
           Serial.print(F("E(E)PROM type? ")); Serial.flush();
-          eepromType = (EEprom::eEEPROMtype)readInt((uint16_t)EEprom::eEEPROM_NONE, 
+          eepromType = (EEprom::eEEPROMtype)readInt((uint16_t)EEprom::eEEPROM_NONE,
                                                     (uint16_t)EEprom::eEEPROM_27040); // Serial.parseInt();
           if (eepromType) {
             eeprom.setType(eepromType);
@@ -174,4 +174,3 @@ void loopInteractive() {
   }
 }
 #endif // INTERACTIVE
-

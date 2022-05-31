@@ -12,7 +12,7 @@
 #ifdef DEBUG
  // http://arduiniana.org/libraries/streaming/
  #include <Streaming.h>
- 
+
  // UART baud rate
  #define UART_BAUD_RATE  9600
 #endif // DEBUG
@@ -23,7 +23,7 @@
 #if defined (__AVR__)
 /**
  * From SoftwareSerialExample:
- 
+
    Note:
     Not all pins on the Mega and Mega 2560 support change interrupts,
     so only the following can be used for RX:
@@ -89,11 +89,11 @@ bool rxFrequencyOK(IcomCAT& icom) {
 bool rxModeOK(IcomCAT& icom) {
 
   byte mode = icom.getMode();
-  
+
   //if ( mode == IcomCAT::ILLEGAL_MODE ) return false;
   if ( mode == IcomCAT::eModeUSB ) return true;
   if ( mode == IcomCAT::eModeCW ) return true;
-  
+
   return false;
 }
 
@@ -101,20 +101,20 @@ bool rxModeOK(IcomCAT& icom) {
 static void rxRequestFrequencyAndMode(IcomCAT& icom,uint32_t& frequency,byte& mode) {
 
   static unsigned long r_time = millis();
-  
-  if ( frequency == IcomCAT::ILLEGAL_FREQ 
+
+  if ( frequency == IcomCAT::ILLEGAL_FREQ
        && (millis() - r_time) > 100 ) {
-    
+
     icom.requestFrequency();
 
     r_time = millis();
-  }  
+  }
 
-  if ( mode == IcomCAT::ILLEGAL_MODE  
+  if ( mode == IcomCAT::ILLEGAL_MODE
        && (millis() - r_time) > 100 ) {
-       
+
     icom.requestMode();
-    
+
     r_time = millis();
   }
 }
@@ -127,20 +127,20 @@ static void rxSetFrequency(IcomCAT& icom,uint32_t& frequency,byte& mode) {
   if ( !rxFrequencyOK(icom) && (millis() - s_time) > 200 ) {
 
     icom.writeFrequency(kRxFrequencyDefault);
-    
+
     s_time = millis();
   }
 }
 
 /** Called when the mode is not correct. */
 static void rxSetMode(IcomCAT& icom,uint32_t& frequency,byte& mode) {
-  
+
   static unsigned long s_time = millis();
 
   if ( !rxModeOK(icom) && (millis() - s_time) > 200 ) {
 
     icom.writeMode(IcomCAT::eModeUSB);
-    
+
     s_time = millis();
   }
 }
@@ -158,7 +158,7 @@ void loop() {
 
   static unsigned long loop_init = millis();
   static unsigned long rx_init = millis();
-  
+
   byte mode = Icom706.getMode();
   uint32_t frequency = Icom706.getFrequency();
 
@@ -184,20 +184,20 @@ void loop() {
   }
 
   switch ( rxState ) {
-    
-    case 0: 
+
+    case 0:
       rxRequestFrequencyAndMode(Icom706, frequency, mode);
       break;
 
-    case 1: 
+    case 1:
       rxSetFrequency(Icom706, frequency, mode);  // set right frequency
       break;
 
-    case 2: 
+    case 2:
       rxSetMode(Icom706, frequency, mode);  // set right mode
       break;
 
-    case 3: 
+    case 3:
       if ( (millis() - rx_init) > 5000 ) {
         rxRequestFrequencyAndMode(Icom706, frequency, mode);
         rx_init = millis();
@@ -216,22 +216,22 @@ void loop() {
   if (rxSerial.available()) {
 
     Icom706.read();
-    
+
     if (Icom706.msgIsComplete()) {
       Icom706.parseMessage();
     }
-    
+
   } // rxSerial.available()
 
   // display of frequency and mode from time to time
   if ( millis() - loop_init > 2000 ) {
-    
+
     loop_init = millis();
 
-    Serial << F("OP mode ") << rxState 
+    Serial << F("OP mode ") << rxState
            << F(" fOK ") << rxFrequencyOK(Icom706)
            << F(" mOK ") << rxModeOK(Icom706)
-           << F(": Frequency = ") << frequency 
+           << F(": Frequency = ") << frequency
            << F(" Mode = ") << mode << endl;
   }
 }
@@ -252,10 +252,10 @@ static int availableMemory() {
 #else
   // see also:
   // https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
-  extern int __heap_start, *__brkval; 
-  int v; 
+  extern int __heap_start, *__brkval;
+  int v;
 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 #endif
 }
 #endif // (__AVR__)

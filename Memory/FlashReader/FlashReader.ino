@@ -1,10 +1,10 @@
 /*
 	FlashReader.ino
 
-	This sketch reads data from EPROM chips and reads/writes data from/to PC flash 
-	memory chips (EEPROM) in 24, 28 and 32 pin cases. Writing to Flash will be 
+	This sketch reads data from EPROM chips and reads/writes data from/to PC flash
+	memory chips (EEPROM) in 24, 28 and 32 pin cases. Writing to Flash will be
 	implemented in a future release.
-	
+
 	Created 30 Aug 2016
 	 Hermann-Josef Mathes <dc2ip@darc.de>
 
@@ -87,9 +87,9 @@ static char inputLine[INPUT_SIZE+1] = { 0 };
 static int lineLength = 0;
 static int errorCode = 0;
 
-/** Reads characters from the serial inputs, puts them into the 'inputLine' 
+/** Reads characters from the serial inputs, puts them into the 'inputLine'
  *  buffer and returns 'true' when a complete line has been read.
- *  
+ *
  *  The maximum length of the input line is limited by the INPUT_SIZE constant.
  */
 static bool getInputLine() {
@@ -97,7 +97,7 @@ static bool getInputLine() {
   static bool lineComplete = false;
 
   if ( lineComplete ) lineComplete = false;
-  
+
   // read characters from serial interface and put them in input buffer until EOL
   int ch = Serial.read();
 
@@ -105,7 +105,7 @@ static bool getInputLine() {
 
   // CR will be ignored
   if ( ch == 0x0d ) return false;
-  
+
   // check for LF (aka. EOL) or add character to inputLine
   if ( ch == 0x0a ) {
     lineComplete = true;
@@ -114,7 +114,7 @@ static bool getInputLine() {
     // Add the final 0 to end the C (ASCIIZ) string
     inputLine[lineLength++] = ch;
     inputLine[lineLength] = 0;
-  
+
     // too many chars entered? clear line buffer and issue warning
     if ( lineLength == INPUT_SIZE ) {
       lineLength = 0;
@@ -128,19 +128,19 @@ static bool getInputLine() {
 
 /** Tokenize the given string 'inputLine' using the separator 'separator'. Upon initialisation, the max.
   * number of tokens (options) must be passed via the variable 'nopts'.
-  * 
+  *
   * The functions returns the number of found tokens (options) in the variable 'nopts' and their
   * values in the array 'option' which must be sufficiently large to hold 'nopts' entries.
-  * 
+  *
   * The function returns 'true' when the line is properly terminated (CR/LF) otherwise it has to be called
   * again (in order to complete the line).
   */
 bool tokenize(const char *inputline,int& nopts,char *options[],const char *separator=" ") {
 
   int max_nopts = nopts;
-  
+
   nopts = 0;
-  
+
   char* token = strtok(inputLine, separator);
   bool err = false;
 
@@ -176,14 +176,14 @@ int execReadCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
     Serial << F("ERR: start address outside E(E)PROM address range") << endl;
     return 1;
   }
-  
+
   if ( total_length <= 0 ) {
     Serial << F("ERR: illegal length parameter") << endl;
     return 1;
   }
 
   Serial << F("OK") << endl;
-              
+
   size_t len = total_length;
 
   // if the end address is beyond the size of the E(E)PROM then reduce it accordingly
@@ -218,19 +218,19 @@ int execWriteCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
     Serial << F("ERR: number of parameters mismatch") << endl;
     return 1;
   }
- 
+
   size_t len;
 
   int code;
   uint16_t addr;
-   
+
   if ( !parseIhexString(option[1], eepromData, addr, len, code) ) {
     Serial << F("ERR: parsing Ihex string") << endl;
     return 1;
   }
 
 #if 0
-    Serial << F("Line: len=") << len << F(" addr=") << addr 
+    Serial << F("Line: len=") << len << F(" addr=") << addr
            << F(" code=") << code << endl;
 #endif
 
@@ -258,7 +258,7 @@ int execWriteCommand( /* EEprom& eeprom, */ int nopts,char *option[]) {
       eeprom.write(eepromAddr, eepromData[i]);
     }
   }
-            
+
   Serial << F("OK") << endl;
 
   return 0;
@@ -302,7 +302,7 @@ void loopNonInteractive() {
     Serial << endl << F("OK") << endl;
     first = false;
   }
-  
+
   if ( getInputLine() ) {
 
     int err = 0;
@@ -315,7 +315,7 @@ void loopNonInteractive() {
     // 't ?' - get E(E)PROM type
     // 't <t>' - set E(E)PROM type
     // 'r <addr> <len>' - read <len> bytes starting from address <addr>
-    // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr> 
+    // 'w <addr> <bytes>' - write <bytes> (in IHEX format) to address <addr>
     //
 
     int nopts = MAX_OPTIONS;
@@ -342,25 +342,25 @@ void loopNonInteractive() {
 #endif
 
     if ( !err ) {
-      
+
       switch ( option[0][0] ) {
 
-        case 't': 
+        case 't':
         case 'T':
           err = execTypeCommand(nopts, option);
         break;
 
-        case 'r': 
+        case 'r':
         case 'R':
           err = execReadCommand(nopts, option);
         break;
 
-        case 'w': 
+        case 'w':
         case 'W':
           err = execWriteCommand(nopts, option);
         break;
 
-        case '?': 
+        case '?':
           Serial << F("OK") << endl;
           Serial << F("R T V W") << endl;
         break;
@@ -376,7 +376,3 @@ void loopNonInteractive() {
   }
 }
 #endif // INTERACTIVE
-
-
-
-

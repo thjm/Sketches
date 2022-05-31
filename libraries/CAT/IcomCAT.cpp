@@ -305,4 +305,3 @@ bool IcomCAT::writeMode(byte mode) {
 
   return sendMessage(message, msgLen);
 }
-

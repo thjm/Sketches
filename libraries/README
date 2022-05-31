@@ -4,13 +4,13 @@ Sub-directories:
 ----------------
 
 CAT - Class(es) to communicate with various HAM rigs (here MK706MkIIG) via the
-      vendor specific CAT interface and protocol. Only a subset of the 
+      vendor specific CAT interface and protocol. Only a subset of the
       possible CAT commands are implemented.
 
       At present we have:
       - class IcomCAT : communicate with ICom rigs
       - class YaesuCAT : communicate with Yaesu rigs (not yet working)
-      - class CATutil : useful functions for the other stuff (not much yet) 
+      - class CATutil : useful functions for the other stuff (not much yet)
 
       Similar projects:
       - Arduino FT817 from Gerolf Ziegenhain, DG6FL, released under GPLv3

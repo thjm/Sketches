@@ -2,7 +2,7 @@
 //
 // Test code for the rotary encoder attached to the Teensy in the 4m Transverter
 //
-// see also: 
+// see also:
 // - Sketchbook/RotaryEncoder/rotary1/rotary1.ino
 // - http://www.pjrc.com/teensy/td_libs_Encoder.html
 //
@@ -36,7 +36,7 @@ void setup() {
 #ifdef ENABLE_PULLUPS
   digitalWrite(kPUSHBUTTON_PIN, HIGH);
 #endif // ENABLE_PULLUPS
-  
+
   Serial.begin(9600);
   Serial.println("'rotary1' : basic encoder test:");
 }
@@ -63,10 +63,10 @@ void loop() {
     newPosition += NUM_STEPS;
     myEnc.write(newPosition);
   }
-  
+
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    
+
     Serial.println(newPosition);
   }
 }

@@ -6,4 +6,3 @@ write	KEYWORD2
 dit	KEYWROD2
 dah	KEYWORD2
 getMorseCode	KEYWORD2
-

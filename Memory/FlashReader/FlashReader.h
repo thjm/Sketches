@@ -13,7 +13,7 @@
 #define DEBUG
 // execute test code (if any)
 #undef TEST
-#define INTERACTIVE   0
+#define INTERACTIVE   1
 #if (INTERACTIVE == 0)
  #undef DEBUG
 #endif

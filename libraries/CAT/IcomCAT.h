@@ -18,7 +18,7 @@
 #endif
 
 /** Class which support the ICom CAT protocol.
- *  
+ *
  * Cn = command number
  * Sc = sub-command
  *
@@ -50,7 +50,7 @@
 class IcomCAT {
 public:
   /** CAT special message codes. */
-  enum { 
+  enum {
     NG = 0xfa,
     OK = 0xfb,
     COLLISION = 0xfc,
@@ -58,7 +58,7 @@ public:
     INTRO = 0xfe,
 
     MY_ADDRESS = 0xe0,         // standard CIV address of host software
-    
+
     MAXLEN = 20,               // maximum message length
     ILLEGAL_MODE = 0xFF,       // no mode
     ILLEGAL_FREQ = 0xFFFFFFFF, // no frequency
@@ -73,7 +73,7 @@ public:
     eGET_OPERATING_MODE  = 0x04,
     eSET_OPERATING_FREQ  = 0x05,
     eSET_OPERATING_MODE  = 0x06,
-   
+
   } eCATCommand;
 
   /** enum with known rig modes (ICom CIV). */
@@ -87,9 +87,9 @@ public:
     eModeWFM    = 0x06,
     eModeCW_R   = 0x07,
     eModeRTTY_R = 0x08,
-    
+
   } eCATMode;
-  
+
   /** Constructor for the class CIV, we pass the CIV address of the transceiver. */
   IcomCAT(Stream& stream,byte address);
 
@@ -106,13 +106,13 @@ public:
 
   /**  */
   bool parseMessage();
-  
-  /** Read one byte from the serial stream and put it into the internal message buffer. 
-   *  
+
+  /** Read one byte from the serial stream and put it into the internal message buffer.
+   *
    *  @return true if a complete message is in the buffer.
    */
   bool read();
-  
+
   /** Requesting the frequency from the rig. */
   bool requestFrequency();
   /** Requesting  the modefrom the rig. */
