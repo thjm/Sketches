@@ -1,6 +1,6 @@
 # About
 
-The Sketches repository contains a collection of some of my sketches for the 
+The Sketches repository contains a collection of some of my sketches for the
 Arduino, Teensy and ESP8266 micro controller platforms.
 
 Each directory contains its corresponding README file which describes the
@@ -39,9 +39,9 @@ and writing:
 
 ## Transverter
 
-Control software to steer two rigs, one for transmitting in the 28 MHz band 
-and one for receiving in the 70 MHz band. Both rigs are synchronized via the 
-CAT protocol. 
+Control software to steer two rigs, one for transmitting in the 28 MHz band
+and one for receiving in the 70 MHz band. Both rigs are synchronized via the
+CAT protocol.
 
 The folder contains a separate README file.
 
@@ -50,6 +50,10 @@ The folder contains a separate README file.
 Some experimental software running on a swimming beacon (buoy). It uses a
 cheap 433 MHz transmitter and send its data via Morse signs (CW).
 
-In an earlier implementation the rc-switch code was used and the received 
-packets where decoded on a Raspberry but the achieved distance for error-free 
+In an earlier implementation the rc-switch code was used and the received
+packets where decoded on a Raspberry but the achieved distance for error-free
 decoding was too low.
+
+## References
+
+- https://pre-commit.com/
