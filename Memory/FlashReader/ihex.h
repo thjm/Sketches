@@ -1,11 +1,9 @@
-
 //
 // File   : ihex.h
 //
 // Purpose: Header file for ihex.cpp
 //
-// $Id$
-//
+
 
 #ifndef _ihex_h_
  #define _ihex_h_

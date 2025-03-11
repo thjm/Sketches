@@ -1,6 +1,4 @@
-$Id$
-
-README for AVR/Sketchbook/libraries
+README for Arduino/Sketchbook/libraries
 ------------------------------------------------------------------------------
 
 In order to make these libraries visible to your Arduino IDE, it is necessary

@@ -1,11 +1,9 @@
-
 //
 // File   : IcomTest.ino
 //
 // Purpose: Test program for ICom CAT (CIV)
 //
-// $Id$
-//
+
 
 #include "IcomTest.h"
 

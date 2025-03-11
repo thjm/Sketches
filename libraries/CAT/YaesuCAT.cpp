@@ -1,9 +1,9 @@
-
 //
 // File   : YaesuCAT.cpp
 //
 // Purpose: Implementation of the class YaesuCAT
 //
+
 
 #include <Stream.h>
 #include <Streaming.h>

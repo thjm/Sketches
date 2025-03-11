@@ -1,11 +1,9 @@
-
 //
 // File   : IcomTest.h
 //
 // Purpose: General definitions etc. for the IcomTest.ino project
 //
-// $Id$
-//
+
 
 #ifndef __IcomTest_h_
  #define __IcomTest_h_

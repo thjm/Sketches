@@ -1,4 +1,3 @@
-
 //
 // Test code for the rotary encoder attached to the Teensy in the 4m Transverter
 //
@@ -6,6 +5,7 @@
 // - Sketchbook/RotaryEncoder/rotary1/rotary1.ino
 // - http://www.pjrc.com/teensy/td_libs_Encoder.html
 //
+
 
 #include <Encoder.h>
 

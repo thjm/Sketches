@@ -1,10 +1,7 @@
-
 //
 // File   : YaesuCat.h
 //
 // Purpose: Header file for the class YaesuCat
-//
-// $Id$
 //
 
 

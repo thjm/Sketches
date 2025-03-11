@@ -1,10 +1,7 @@
-
 //
 // File   : IcomCAT.cpp
 //
 // Purpose: Implementation of the class IcomCAT
-//
-// $Id$
 //
 
 

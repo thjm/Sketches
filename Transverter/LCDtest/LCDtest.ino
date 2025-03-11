@@ -1,4 +1,3 @@
-
 //
 // Test code for LCM1602 I2C-LCD interface module used in the 4m Transverter
 //
@@ -7,6 +6,7 @@
 //
 // see also: Sketchbook/Display/LCM1602test
 //
+
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>

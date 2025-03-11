@@ -1,9 +1,9 @@
-
 //
 // File   : FlashReader.h
 //
 // Purpose: Contains 'global' declarations etc. for FlashReader project
 //
+
 
 #ifndef _FlashReader_h_
  #define _FlashReader_h_

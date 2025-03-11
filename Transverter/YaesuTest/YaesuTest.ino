@@ -4,6 +4,7 @@
 // Purpose: Test program for Yaesu CAT
 //
 
+
 #define DEBUG
 
 #include <CATutil.h>

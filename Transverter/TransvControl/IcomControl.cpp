@@ -1,9 +1,9 @@
-
 //
 // File   : IcomControl.cpp
 //
 // Purpose: Implementation of the class IcomControl
 //
+
 
 #include <IcomCAT.h>
 #include "IcomControl.h"

@@ -3,8 +3,7 @@
 //
 // Purpose: Frame for fun project 'Treibboje' (experimental)
 //
-// $Id$
-//
+
 
 // see also: https://arduino.stackexchange.com/questions/19892/list-of-arduino-board-preprocessor-defines
 #if (defined ARDUINO_AVR_UNO)

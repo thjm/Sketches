@@ -1,9 +1,9 @@
-
 //
 // File   : IcomControl.h
 //
 // Purpose: Declaration of the class IcomControl
 //
+
 
 #ifndef _IcomControl_h_
  #define _IcomControl_h_

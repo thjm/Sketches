@@ -1,4 +1,3 @@
-
 //
 // Test code for the switches attached to the Teensy in the 4m Transverter
 //

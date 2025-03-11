@@ -1,4 +1,3 @@
-
 //
 // Test code for the LEDs attached to the Teensy in the 4m Transverter
 //

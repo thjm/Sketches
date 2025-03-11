@@ -1,11 +1,8 @@
-
 //
 // File   : IcomCAT.h
 //
 // Purpose: Declaration of the interface for the CAT (CIV) based communication
 //          with ICom transceivers
-//
-// $Id$
 //
 
 #ifndef __ICOM_CAT_H_

@@ -1,9 +1,9 @@
-
 //
 // File  : adc.cpp
 //
 // Code for the ADC specific parts, e.g. LDR, U_Bat, etc.
 //
+
 
 #include "general.h"
 

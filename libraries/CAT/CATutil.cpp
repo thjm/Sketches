@@ -1,10 +1,7 @@
-
 //
 // File   : CATutil.cpp
 //
 // Purpose: Implementation of the functions declared in CATutil.h
-//
-// $Id$
 //
 
 

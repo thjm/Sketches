@@ -3,8 +3,6 @@
 //
 // Purpose: Header file for the class CATutil and other useful (CAT) stuff.
 //
-// $Id$
-//
 
 
 #ifndef __CAT_UTIL_H_

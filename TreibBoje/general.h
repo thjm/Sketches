@@ -1,9 +1,9 @@
-
 //
 // general.h
 //
 // File with general definitions etc.
 //
+
 
 #ifndef _general_h_
  #define _general_h_

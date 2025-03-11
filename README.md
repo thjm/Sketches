@@ -10,6 +10,12 @@ In order not to conflict with other license models, third party libraries are no
 included into these projects but links to them (for downloading) are provided.
 For some third party libraries patch instructions are given, if applicable.
 
+Released under MIT license. Hermann-Josef Mathes, DC2IP
+
+# Code Quality
+
+This is experimental code.
+
 # Sub-projects
 
 ## Libraries

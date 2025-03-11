@@ -1,11 +1,9 @@
-
 //
 // File   : EEprom.h
 //
 // Purpose: Declaration of the class EEprom
 //
-// $Id$
-//
+
 
 #ifndef _EEprom_h_
  #define _EEprom_h_

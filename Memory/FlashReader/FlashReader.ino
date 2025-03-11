@@ -10,9 +10,6 @@
 
 	Modified day month year
 	By author's name
-
-  $Id$
-
 */
 
 
